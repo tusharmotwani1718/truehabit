@@ -107,7 +107,9 @@ function Dashboard() {
     );
   }
 
-  return avgcompletionRate != 0 && lastPeriodCompletionRate != 0 ? (
+  // {console.log(avgcompletionRate, lastPeriodCompletionRate)}
+
+  return avgcompletionRate != 0 || lastPeriodCompletionRate != 0 ? (
     <>
       <section className='md:w-[90%] mx-auto'>
         <div>
