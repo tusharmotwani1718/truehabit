@@ -1,0 +1,167 @@
+import React, { useState } from 'react'
+import { useForm } from "react-hook-form"
+import { Input } from '../../index.js'
+import axios from 'axios';
+import { useMessage, useModal } from '../../../context/index.js';
+
+
+function SignupForm() {
+
+  const { displayMessage } = useMessage();
+  const { closeModal } = useModal();
+  const [buttonLoading, setButtonLoading] = useState(false);
+
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm()
+
+
+
+  const onSubmit = async (formData) => {
+    try {
+      setButtonLoading(true);
+      await axios({
+        data: formData,
+        url: `${import.meta.env.VITE_API_BASE_URL_USERS}/register`,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+        .then((response) => {
+          // console.log(response.data.message);
+          reset();
+          closeModal();
+          displayMessage('success', response.data.message) // call display message (function to open message) when the account is created successfully.
+
+        })
+        .catch(err => {
+          // console.log(err.response.data.message);
+          // reset();
+          // console.log(err)
+          displayMessage('error', err.response.data.message || "Failed to create account") // call display message (function to open message) when the account is created successfully.
+
+        });
+    } catch (error) {
+      // console.log(error)
+      displayMessage('error', "Network Error")
+      // reset();
+    }
+    finally {
+      setButtonLoading(false);
+    }
+  }
+
+  return (
+    <div className="p-6 w-full">
+
+
+      <div className="text-center mb-5">
+        <h2 className="text-2xl font-bold text-gray-900">
+          Create your account
+        </h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Sign up to get started
+        </p>
+      </div>
+
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          type="text"
+          label="Full Name"
+          placeholder="Enter your Full name..."
+          classname="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register("fullName", {
+            required: true,
+            maxLength: 50
+          })}
+        />
+        {errors.fullName && (
+          <p className="mt-2 text-sm text-red-600">{errors.fullName.message}</p>
+        )}
+        <Input
+          type="email"
+          label="Email"
+          placeholder="Enter your email..."
+          classname="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register("email", {
+            required: true
+          })}
+        />
+        {errors.email && (
+          <p className="mt-2 text-sm text-red-600">{errors.fullName.message}</p>
+        )}
+        <Input
+          type="text"
+          label="Username"
+          placeholder="Enter your username..."
+          classname="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register("username", {
+            required: true
+          })}
+        />
+        <Input
+          type="password"
+          label="Password"
+          placeholder="Enter Password here..."
+          classname="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register("password", {
+            required: "Password is required",
+            pattern: {
+              value: /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/, // Regex pattern
+              message:
+                "Password must include at least one capital letter, one special character, and be at least 8 characters long.",
+            },
+          })}
+        />
+        {errors.password && (
+          <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+        )}
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={buttonLoading} // Add this to disable during loading
+            className={`w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 text-sm font-medium flex items-center justify-center ${buttonLoading ? 'opacity-80 cursor-not-allowed' : ''
+              }`}
+          >
+            {buttonLoading ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Creating Account...
+              </>
+            ) : (
+              'Sign up'
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+export default SignupForm;

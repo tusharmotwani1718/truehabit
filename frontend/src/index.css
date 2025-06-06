@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ViewHabit.css */
+.habit-calendar .ant-picker-cell {
+  height: 40px;
+  vertical-align: middle;
+}
+
+.habit-calendar .ant-picker-cell-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+@theme{
+    /* colors: */
+    
+    
+    --color-primary: #673AB7;
+    --color-on-primary: #ffffff;
+    --color-background: #BBAACC;
+    --color-onBackgorund: #1E1E1E;
+    --color-gradient: linear-gradient(90deg, #673AB7 0%, #8C6CC5 43%, #5117B8 100%);
+    --color-neutral: #9E9E9E;
+    --color-on-neutral: #1E1E1E;
+    --color-secondary: #261FB3;
+    --color-onSecondary: #FFFFFF;
+
+    --color-dark-primary: #BB86FC;
+    --color-dark-on-primary: #1E0336;
+    --color-dark-background: #121212;
+    --color-dark-onBackground: #E0E0E0;
+    --color-dark-neutral: #757575;
+    --color-dark-on-neutral: #E0E0E0;
+    --color-dark-secondary: #81D4FA;
+    --color-dakr-onSecondary: #001F2E;
+    
+
+    /* fonts: */
+    --font-primary: Roboto, sans-serif;
+
+    /* sizes: */
+    --text-custom-xxl: 3rem;
+    --text-custom-xl: 2rem;
+    --text-custom-lg: 1.5rem;
+    --text-custom-md: 1rem;
+    --text-custom-sm: 0.875rem;
+    --text-custom-xs: 0.75rem;
+}
+
+/* For Webkit browsers (Chrome, Safari) */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #673AB7; /* Your primary color */
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #5e35b1; /* Slightly darker purple */
+}
+
+/* For Firefox */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #673AB7 #f1f1f1;
+}
+
+/* Dark mode styles */
+.dark .scrollbar-custom::-webkit-scrollbar-track {
+  background: #3f3f46; /* zinc-800 */
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #BB86FC; /* Your dark primary color */
+}
+
+.dark .scrollbar-custom {
+  scrollbar-color: #BB86FC #3f3f46;
+}
+
+
+:where(.css-dev-only-do-not-override-240cud).ant-select .ant-select-selection-placeholder {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+  pointer-events: none;
+  color: rgb(78, 76, 76);
+}
+
+/* Custom breadcrumb styles */
+.custom-breadcrumb {
+  color: #1e40af; /* Primary color (blue-800-ish) */
+  padding: 0 1rem;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Breadcrumb links */
+.custom-breadcrumb a {
+  color: #f1f1f1; 
+  text-decoration: none;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+
+.custom-breadcrumb a:hover {
+  text-decoration: underline;
+  color: #673AB7; /* Slightly lighter on hover */
+}
+
+/* breadcrumb styling for tailwind dark theme */
+.dark .custom-breadcrumb a:hover {
+  color: #BB86FC; /* Your dark primary color */
+}
+
+/* Separator styling (optional) */
+.custom-breadcrumb .ant-breadcrumb-separator {
+  margin: 0 8px;
+  color: #6b7280; /* Muted gray */
+}
+
+
+
