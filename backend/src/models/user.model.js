@@ -37,12 +37,12 @@ const userSchema = new Schema({
             ref: "Habit"
         }
     ],
-    // groups: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Group"
-    //   }  
-    // ],
+    groups: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Group"
+      }  
+    ],
     password: {
         type: String,
         required: true
