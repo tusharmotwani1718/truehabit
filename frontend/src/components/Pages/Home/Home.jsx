@@ -2,7 +2,8 @@ import React from 'react'
 import { Carousel, Footer, PrimaryButton } from '../../index.js'
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Reveal } from '../../../framer-motion/index.js'
-import { TbTargetArrow, TbDeviceAnalytics, TbCloudComputing, TbUsers, TbReport  } from 'react-icons/tb';
+import { TbTargetArrow, TbDeviceAnalytics, TbCloudComputing, TbUsers, TbReport } from 'react-icons/tb';
+import { useModal } from '../../../context/index.js';
 
 
 
@@ -18,6 +19,8 @@ function Home() {
     '../src/assets/images/habit1.png',
     '../src/assets/images/habit2.png'
   ]
+
+  const { openModal } = useModal();
 
 
   return (
@@ -43,7 +46,7 @@ function Home() {
               </span>
             </Reveal>
             <Reveal>
-              <PrimaryButton text='Get Started Now' classes='text-sm py-[3px] px-4 cursor-pointer' borderRadius={"2xl"} />
+              <PrimaryButton text='Get Started Now' classes='text-sm py-[3px] px-4 cursor-pointer' borderRadius={"2xl"} onClick={() => openModal("authModalSignup")} />
             </Reveal>
           </div>
 
@@ -69,7 +72,7 @@ function Home() {
             </Reveal>
           </div>
           <Reveal>
-            <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} />
+            <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} onClick={() => openModal("authModalSignup")} />
           </Reveal>
         </div>
 
@@ -103,7 +106,7 @@ function Home() {
             </Reveal>
           </div>
           <Reveal>
-            <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} />
+            <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} onClick={() => openModal("authModalSignup")} />
           </Reveal>
         </div>
         <div className='p-4 rounded-md bg-primary/40 dark:bg-dark-primary/40 md:w-[80%] md:mx-auto'>
@@ -118,78 +121,78 @@ function Home() {
           </Reveal>
         </div>
       </section>
-      
+
       <section className="py-16 px-4 transition-colors duration-300">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl">
-            No Ordinary Tracker. Here's Why
-          </h1>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl">
+              No Ordinary Tracker. Here's Why
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+              <div className="flex flex-col space-y-4">
+                <span className="text-primary dark:text-dark-primary text-4xl">
+                  <TbTargetArrow />
+                </span>
+                <div>
+                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Streaks that Stick</h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Keep your momentum going! Track your daily consistency and see your streak grow—every day counts towards building habits that last.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+              <div className="flex flex-col space-y-4">
+                <span className="text-primary dark:text-dark-primary text-4xl">
+                  <TbDeviceAnalytics />
+                </span>
+                <div>
+                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">In-Depth Habit Analysis</h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Gain a complete view of your progress with detailed analytics. Understand your patterns and make data-driven improvements.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+              <div className="flex flex-col space-y-4">
+                <span className="text-primary dark:text-dark-primary text-4xl">
+                  <TbUsers />
+                </span>
+                <div>
+                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Team Habit Challenges</h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Join forces with friends to build better habits. Compete, collaborate, and grow together on your journey to success.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+              <div className="flex flex-col space-y-4">
+                <span className="text-primary dark:text-dark-primary text-4xl">
+                  <TbReport />
+                </span>
+                <div>
+                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">AI-Driven Reports</h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Let our AI check your data and offer simple, personal advice. Use this advice to boost your habit performance.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Feature 1 */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-            <div className="flex flex-col space-y-4">
-              <span className="text-primary dark:text-dark-primary text-4xl">
-                <TbTargetArrow />
-              </span>
-              <div>
-                <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Streaks that Stick</h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Keep your momentum going! Track your daily consistency and see your streak grow—every day counts towards building habits that last.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-            <div className="flex flex-col space-y-4">
-              <span className="text-primary dark:text-dark-primary text-4xl">
-                <TbDeviceAnalytics />
-              </span>
-              <div>
-                <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">In-Depth Habit Analysis</h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Gain a complete view of your progress with detailed analytics. Understand your patterns and make data-driven improvements.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-            <div className="flex flex-col space-y-4">
-              <span className="text-primary dark:text-dark-primary text-4xl">
-                <TbUsers />
-              </span>
-              <div>
-                <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Team Habit Challenges</h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Join forces with friends to build better habits. Compete, collaborate, and grow together on your journey to success.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 4 */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-            <div className="flex flex-col space-y-4">
-              <span className="text-primary dark:text-dark-primary text-4xl">
-                <TbReport />
-              </span>
-              <div>
-                <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">AI-Driven Reports</h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Let our AI check your data and offer simple, personal advice. Use this advice to boost your habit performance.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
 
       <section className='w-[90%] mx-auto h-auto grid grid-rows-[max-content_max-content] gap-8 py-5 md:py-10 mt-4 md:w-[90%] md:*:justify-items-center'>
         <div className='flex flex-col gap-5 items-center'>
@@ -201,17 +204,17 @@ function Home() {
               <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Schedules, Statistics, Calendar, Notes and much more... All with a single click.</span>
             </Reveal>
           </div>
-          
+
         </div>
-        
-       <Reveal slideAnimation={false}>
-       <Carousel images={carouselImages} className='w-[100%] mx-auto md:h-[80svh] md:w-[75%] border-2 border-on-primary dark:border-dark-on-primary' />
-       </Reveal>
-        
+
+        <Reveal slideAnimation={false}>
+          <Carousel images={carouselImages} className='w-[100%] mx-auto md:h-[80svh] md:w-[75%] border-2 border-on-primary dark:border-dark-on-primary' />
+        </Reveal>
+
       </section>
 
-      
-    {/*  */}
+
+      {/*  */}
 
 
 

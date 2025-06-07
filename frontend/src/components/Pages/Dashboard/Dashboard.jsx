@@ -111,7 +111,7 @@ function Dashboard() {
 
   return avgcompletionRate !== 0 || lastPeriodCompletionRate !== 0 ? (
   <>
-    <section className="w-full md:w-[90%] mx-auto md:px-10">
+    <section className="w-full md:w-[90%] mx-auto md:px-10 min-h-screen">
       <div>
         <Topbar text="Dashboard" className="h-20" />
       </div>
@@ -160,7 +160,7 @@ function Dashboard() {
     </section>
   </>
 ) : (
-  <div className="flex flex-col items-center justify-center py-24 text-center rounded-lg transition-all w-full md:w-[90%] mx-auto px-4">
+  <div className="flex flex-col items-center justify-center py-24 text-center rounded-lg transition-all w-full md:w-[90%] mx-auto px-4 min-h-screen">
     <MdInsertChartOutlined className="w-16 h-16 mb-4 text-primary dark:text-dark-primary" />
     <h2 className="text-2xl font-semibold text-primary dark:text-dark-primary">
       No Data Available
