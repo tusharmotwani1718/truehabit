@@ -1,7 +1,9 @@
 {
-  "name": "frontend",
+  "name": "truehabit-frontend",
+  "description": "Frontend for TrueHabit, a habit tracking application",
+  "author": "Tushar Motwani",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -3,9 +3,12 @@ import { Mail } from 'lucide-react';
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
+import packageJson from '../../../package.json'; 
 
 
-const Footer = () => {
+const Footer = ({
+  companyName = "trueHabit"
+}) => {
   return (
     <footer className='mt-10 md:mt-20'>
       <div className="w-[95%] mx-auto px-4 sm:px-6 py-12 md:w-[90%]">
@@ -32,6 +35,7 @@ const Footer = () => {
                 <FaGithub size={"16px"}/>
               </Link>
             </div>
+            <div className='mt-7'>TrueHabit v{packageJson.version}</div>
           </div>
 
           {/* Quick Links */}
@@ -45,6 +49,8 @@ const Footer = () => {
               <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Blog</Link></li>
             </ul>
           </div>
+
+          
 
           {/* Resources */}
           <div>
@@ -87,7 +93,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="mt-12 pt-8 border-t border-[#E9DDFD]">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm mb-4 md:mb-0">© 2025 Company Name. All rights reserved.</p>
+            <p className="text-sm mb-4 md:mb-0">© 2025 TrueHabit. All rights reserved.</p>
             <div className="flex space-x-6">
               <Link to="#" className="text-sm hover:text-primary dark:hover:text-dark-primary transition duration-300">Privacy Policy</Link>
               <Link to="#" className="text-sm hover:text-primary dark:hover:text-dark-primary transition duration-300">Terms of Service</Link>
