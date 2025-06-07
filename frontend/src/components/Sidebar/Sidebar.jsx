@@ -15,7 +15,8 @@ import { useMessage, useTheme } from '../../context';
 
 
 const Sidebar = ({ items }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -71,30 +72,74 @@ const Sidebar = ({ items }) => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Get responsive animation values
+  const getResponsiveAnimation = () => {
+    // For mobile screens (md and below)
+    const mobileAnimation = {
+      x: isMobileMenuOpen ? 0 : -288,
+      width: 288
+    };
+    
+    // For larger screens
+    const desktopAnimation = {
+      x: 0,
+      width: isCollapsed ? 80 : 288
+    };
+
+    return { mobileAnimation, desktopAnimation };
+  };
+
+  const { mobileAnimation, desktopAnimation } = getResponsiveAnimation();
+
   return (
-    <motion.div
-      initial={{ width: isCollapsed ? 80 : 288 }}
-      animate={{ width: isCollapsed ? 80 : 288 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="flex flex-col h-screen bg-[#673AB7] text-[#BEADDD] dark:bg-[#121212] dark:text-[#E0E0E0] shadow-lg sticky top-0 border-r border-primary dark:border-dark-primary"
-    >
-      {/* Toggle button */}
+    <>
+      {/* Mobile Menu Toggle Button - Only visible on small screens */}
       <motion.button
-        className="absolute -right-3 top-10 z-50 rounded-full p-1 shadow-md bg-white dark:bg-[#3c3c3c]"
-        onClick={toggleSidebar}
+        className="md:hidden fixed top-4 left-4 z-50 rounded-full p-2 shadow-md bg-[#673AB7] dark:bg-[#3c3c3c]"
+        onClick={toggleMobileMenu}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
-        {isCollapsed ?
-          <MdChevronRight size={20} className="text-[#673AB7] dark:text-[#BB86FC]" /> :
-          <MdChevronLeft size={20} className="text-[#673AB7] dark:text-[#BB86FC]" />
+        {isMobileMenuOpen ?
+          <MdChevronLeft size={20} className="text-white" /> :
+          <MdChevronRight size={20} className="text-white" />
         }
       </motion.button>
 
+      {/* Sidebar */}
+      <motion.div
+        initial={{ 
+          width: window.innerWidth < 768 ? 288 : (isCollapsed ? 80 : 288),
+          x: window.innerWidth < 768 ? (isMobileMenuOpen ? 0 : -288) : 0
+        }}
+        animate={{ 
+          width: window.innerWidth < 768 ? 288 : (isCollapsed ? 80 : 288),
+          x: window.innerWidth < 768 ? (isMobileMenuOpen ? 0 : -288) : 0
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed left-0 top-0 z-40 flex flex-col h-screen bg-[#673AB7] text-[#BEADDD] dark:bg-[#121212] dark:text-[#E0E0E0] shadow-lg border-r border-primary dark:border-dark-primary"
+      >
+        {/* Toggle button - Only visible on larger screens */}
+        <motion.button
+          className="hidden md:block absolute -right-3 top-10 z-50 rounded-full p-1 shadow-md bg-white dark:bg-[#3c3c3c]"
+          onClick={toggleSidebar}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          {isCollapsed ?
+            <MdChevronRight size={20} className="text-[#673AB7] dark:text-[#BB86FC]" /> :
+            <MdChevronLeft size={20} className="text-[#673AB7] dark:text-[#BB86FC]" />
+          }
+        </motion.button>
+
       <div className='flex flex-col h-full py-6 px-4'>
         {/* Logo area */}
-        <div className="flex items-center mb-10">
-          {!isCollapsed && (
+        <div className="flex items-center mb-10 mt-12 md:mt-0">
+          {(!isCollapsed || window.innerWidth < 768) && (
             <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -104,7 +149,7 @@ const Sidebar = ({ items }) => {
               trueHabit
             </motion.h2>
           )}
-          {isCollapsed && (
+          {isCollapsed && window.innerWidth >= 768 && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -140,7 +185,7 @@ const Sidebar = ({ items }) => {
                       >
                         <span className="text-center flex-shrink-0">{item.icon}</span>
 
-                        {!isCollapsed && (
+                        {(!isCollapsed || window.innerWidth < 768) && (
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -150,15 +195,15 @@ const Sidebar = ({ items }) => {
                           </motion.span>
                         )}
 
-                        {!isCollapsed && item.badge && (
+                        {(!isCollapsed || window.innerWidth < 768) && item.badge && (
                           <span className='py-0 px-2 bg-blue-700 ml-auto rounded-full text-xs font-normal text-white'>
                             {item.badge}
                           </span>
                         )}
                       </Link>
 
-                      {/* Tooltip for collapsed mode */}
-                      {isCollapsed && (
+                      {/* Tooltip for collapsed mode - Only on desktop */}
+                      {isCollapsed && window.innerWidth >= 768 && (
                         <motion.div
                           initial={{ opacity: 0, x: -20 }}
                           whileHover={{ opacity: 1, x: 0 }}
@@ -184,7 +229,7 @@ const Sidebar = ({ items }) => {
           onClick={changeTheme}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className={`mb-6 self-${isCollapsed ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
+          className={`mb-6 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
         >
           {theme === "light" ? (
             <MdLightMode size={22} className="text-[#BB86FC]" />
@@ -195,7 +240,7 @@ const Sidebar = ({ items }) => {
 
         {/* User profile */}
         <div className="border-t border-[#8C6CC5] dark:border-gray-700 pt-4">
-          {!isCollapsed ? (
+          {(!isCollapsed || window.innerWidth < 768) ? (
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="font-bold text-white">{userName || "User"}</span>
@@ -207,9 +252,6 @@ const Sidebar = ({ items }) => {
                   <MdLogout size={16} />
                 </button>
               </div>
-              {
-
-              }
             </div>
           ) : (
             <motion.div
@@ -242,8 +284,7 @@ const Sidebar = ({ items }) => {
                 )
               }
 
-
-              {/* Tooltip for profile */}
+              {/* Tooltip for profile - Only on desktop */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileHover={{ opacity: 1, x: 0 }}
@@ -255,7 +296,8 @@ const Sidebar = ({ items }) => {
           )}
         </div>
       </div>
-    </motion.div >
+    </motion.div>
+    </>
   );
 };
 

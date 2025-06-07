@@ -132,27 +132,7 @@ function Habit({
         }
     }
 
-    // useEffect(() => {
-    //     if (groupId) {
-    //         console.log(groupHabits, groupId)
-    //         console.log(typeof groupId);
-    //         const group = groupHabits.find(group => group._id === groupId);
-    //         if (group) {
 
-    //             const habit = group.habits.find(habit => habit._id === habitId);
-    //             if(habit.completedDays.length > 0){
-    //                 console.log(habit.completedDays);
-    //             }
-    //         }
-    //     }
-
-    //     else{
-    //         const habit = currentHabits.find(habit => habit._id === habitId);
-    //         if(habit.completedDays.length > 0){
-    //             console.log(habit.completedDays);
-    //         }
-    //     }
-    // }, [])
 
     const frequencyMap = {
         1: "Every Day",
@@ -175,15 +155,15 @@ function Habit({
                 buttonLoading={buttonLoading}
             />
 
-            <div className={`relative overflow-hidden rounded-xl shadow-sm bg-white dark:bg-gray-800 transition-all hover:shadow-md border-l-[6px] border-primary dark:border-dark-primary mb-4 group ${className}`}
+            <div className={`relative overflow-hidden rounded-lg sm:rounded-xl shadow-sm bg-white dark:bg-gray-800 transition-all hover:shadow-md border-l-4 sm:border-l-[6px] border-primary dark:border-dark-primary mb-3 sm:mb-4 group ${className}`}
                 {...props}
             >
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                     {/* Header Section */}
-                    <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                        <div className="flex items-start gap-3 flex-grow">
+                    <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div className="flex items-start gap-2 sm:gap-3 flex-grow">
                             {status === "active" && showCheckMark && (
-                                <div className="flex-shrink-0 mt-1">
+                                <div className="flex-shrink-0 mt-0.5 sm:mt-1">
                                     <CheckMark
                                         checked={isChecked}
                                         onChange={() => markHabitDone(habitId)}
@@ -193,22 +173,24 @@ function Habit({
                                 </div>
                             )}
                             <div className="flex-grow min-w-0">
-                                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
+                                <h2 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
                                     {title}
                                 </h2>
                                 {description && (
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                                         {description}
                                     </p>
                                 )}
 
-                                {/* Group information - only displayed when available */}
+                                {/* Group information */}
                                 {groupName && (
-                                    <div className="flex items-center gap-2 mt-2 text-xs text-primary dark:text-dark-primary">
-                                        <RiGroupLine size={14} className="flex-shrink-0" />
-                                        <span className="font-medium">{groupName}</span>
+                                    <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-2 text-xs text-primary dark:text-dark-primary">
+                                        <RiGroupLine size={12} className="flex-shrink-0" />
+                                        <span className="font-medium truncate max-w-[120px] sm:max-w-[180px]">
+                                            {groupName}
+                                        </span>
                                         {groupDesc && (
-                                            <span className="text-gray-500 dark:text-gray-400 truncate max-w-[180px]">
+                                            <span className="text-gray-500 dark:text-gray-400 truncate max-w-[100px] sm:max-w-[180px]">
                                                 - {groupDesc}
                                             </span>
                                         )}
@@ -217,45 +199,45 @@ function Habit({
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                             {habitCompleted && (
-                                <span className="px-2.5 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 font-medium">
+                                <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 font-medium">
                                     Completed
                                 </span>
                             )}
-                            <div className="flex gap-1">
+                            <div className="flex gap-0.5 sm:gap-1">
                                 <button
                                     aria-label="View Statistics"
-                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary"
+                                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary"
                                 >
-                                    <IoIosStats size={18} />
+                                    <IoIosStats size={16} className="sm:h-[18px]" />
                                 </button>
                                 <button
                                     aria-label="View Calendar"
-                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary"
+                                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary"
                                 >
-                                    <IoCalendarClear size={18} />
+                                    <IoCalendarClear size={16} className="sm:h-[18px]" />
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Details Section */}
-                    <div className="flex flex-col space-y-3 mt-4">
+                    <div className="flex flex-col space-y-2 sm:space-y-3 mt-3 sm:mt-4">
                         {/* Tags/Categories */}
-                        <div className="flex flex-wrap gap-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-primary/10 dark:bg-dark-primary/20 text-primary dark:text-dark-primary border border-primary/20 dark:border-dark-primary/30">
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                            <span className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-xs font-medium bg-primary/10 dark:bg-dark-primary/20 text-primary dark:text-dark-primary border border-primary/20 dark:border-dark-primary/30">
                                 {NormaliseText(category)}
                             </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-neutral/10 dark:bg-dark-neutral/20 text-neutral dark:text-dark-neutral border border-neutral/20 dark:border-dark-neutral/30">
+                            <span className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-xs font-medium bg-neutral/10 dark:bg-dark-neutral/20 text-neutral dark:text-dark-neutral border border-neutral/20 dark:border-dark-neutral/30">
                                 {NormaliseText(frequencyMap[frequency])}
                             </span>
                         </div>
 
                         {/* Date Range */}
                         {startDate && endDate && (
-                            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                <BsCalendar2XFill size={14} className="flex-shrink-0" />
+                            <div className="flex items-center gap-1 sm:gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <BsCalendar2XFill size={12} className="flex-shrink-0" />
                                 <span>{returnDate(startDate)} - {returnDate(endDate)}</span>
                             </div>
                         )}
@@ -273,36 +255,35 @@ function Habit({
                 </div>
 
                 {/* Action buttons */}
-                {
-                    !isTodayHabit &&
-                    <div className="flex justify-end border-t border-gray-100 dark:border-gray-700/50 p-3 bg-gray-50/50 dark:bg-gray-900/50">
-                        <div className="flex gap-1">
+                {!isTodayHabit && (
+                    <div className="flex justify-end border-t border-gray-100 dark:border-gray-700/50 p-2 sm:p-3 bg-gray-50/50 dark:bg-gray-900/50">
+                        <div className="flex gap-0.5 sm:gap-1">
                             <button
                                 aria-label="Edit habit"
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary transition-colors"
+                                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary transition-colors"
                                 onClick={(e) => {
-                                    e.stopPropagation(); // <-- This prevents parent click
+                                    e.stopPropagation();
                                     openModal("editHabitModal", { habitId })
                                 }}
                             >
-                                <MdEdit size={18} />
+                                <MdEdit size={16} className="sm:h-[18px]" />
                             </button>
                             <button
                                 aria-label="Delete habit"
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                                 onClick={(e) => {
-                                    e.stopPropagation(); // <-- This prevents parent click
+                                    e.stopPropagation();
                                     setIsDialogOpen(true);
                                 }}
                             >
-                                <MdDelete size={18} />
+                                <MdDelete size={16} className="sm:h-[18px]" />
                             </button>
                         </div>
                     </div>
-                }
+                )}
             </div>
         </>
-    )
+    );
 }
 
 export default Habit

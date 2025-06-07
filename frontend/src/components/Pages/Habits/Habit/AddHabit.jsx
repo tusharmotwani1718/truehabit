@@ -6,7 +6,7 @@ import DatePickerWindow from '../../../../ant-design/DatePickerWindow.jsx'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { addHabit, setHabits } from '../../../../store/Slices/habitSlice.js'
-import { useMessage } from '../../../../context/index.js'
+import { useMessage, useModal } from '../../../../context/index.js'
 
 
 
@@ -16,7 +16,7 @@ function AddHabit() {
     // const [displayHabits, setDisplayHabits] = useState([]);
     const dispatch = useDispatch();
     const { displayMessage } = useMessage();
-
+    const { closeModal } = useModal();
 
     const {
         register,
@@ -67,6 +67,7 @@ function AddHabit() {
                     reset();
                     dispatch(addHabit(response.data.data)) // add habit to the store.
                     // console.log(response.data.data);
+                    closeModal(); // close the modal
                     displayMessage('success', response.data.message);
                 })
                 .catch((err) => {

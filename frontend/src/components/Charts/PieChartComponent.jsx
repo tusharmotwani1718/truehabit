@@ -1,13 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer, Tooltip } from 'recharts';
-
-
 
 function PieChartComponent({
   data = [],
   title = 'Pie Chart Overview'
 }) {
   const themeColors = ['var(--color-chart-1)', 'var(--color-chart-2)'];
+
+  // Track window size to adjust chart radius
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Dynamically set radius based on screen size
+  const getChartRadius = () => {
+    if (windowWidth < 640) return { outer: 100, inner: 70 }; // small screen (e.g., mobile)
+    if (windowWidth < 768) return { outer: 80, inner: 60 }; // tablets
+    return { outer: 120, inner: 90 }; // desktops and up
+  };
+
+  const radius = getChartRadius();
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -29,12 +45,12 @@ function PieChartComponent({
       <style>
         {`
           .chart-theme {
-            --color-chart-1: #673AB7; /* Indigo (light) */
-            --color-chart-2: #261FB3; /* Blue (light) */
+            --color-chart-1: #673AB7;
+            --color-chart-2: #261FB3;
           }
           .dark .chart-theme {
-            --color-chart-1: #BB86FC; /* Light Purple (dark) */
-            --color-chart-2: rgb(92, 107, 192); /* Soft Blue (dark) */
+            --color-chart-1: #BB86FC;
+            --color-chart-2: rgb(92, 107, 192);
           }
         `}
       </style>
@@ -49,9 +65,9 @@ function PieChartComponent({
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius={90}
-              innerRadius={70}
-              label={renderLabel}
+              outerRadius={radius.outer}
+              innerRadius={radius.inner}
+              // label={renderLabel}
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={themeColors[index % themeColors.length]} />

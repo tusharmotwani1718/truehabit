@@ -109,46 +109,69 @@ function Dashboard() {
 
   // {console.log(avgcompletionRate, lastPeriodCompletionRate)}
 
-  return avgcompletionRate != 0 || lastPeriodCompletionRate != 0 ? (
-    <>
-      <section className='md:w-[90%] mx-auto'>
-        <div>
-          <Topbar text='Dashboard' className={'h-20'} />
-        </div>
-        <div className='flex md:justify-between md:w-[90%] mx-auto'>
-          <Card title='New Habits' content={habitCount} />
-          <Card title='Completion Rate' content={`${avgcompletionRate}%`} />
-        </div>
-        <div className='my-10 w-full mx-auto md:w-[90%]'>
-          <OptionSelect
-            options={options}
-            selectedId={optionId} // 👈 now passing current state directly
-            onSelect={(id) => setOptionId(id)} // 👈 update Dashboard's state
-          />
+  return avgcompletionRate !== 0 || lastPeriodCompletionRate !== 0 ? (
+  <>
+    <section className="w-full md:w-[90%] mx-auto md:px-10">
+      <div>
+        <Topbar text="Dashboard" className="h-20" />
+      </div>
 
+      {/* Cards - Responsive Stack */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-between mt-4 w-[95%] md:w-full mx-auto">
+        <Card title="New Habits" content={habitCount} />
+        <Card title="Completion Rate" content={`${avgcompletionRate}%`} />
+      </div>
+
+      {/* Option Selector */}
+      <div className="my-10 w-[95%] md:w-full mx-auto">
+        <OptionSelect
+          options={options}
+          selectedId={optionId}
+          onSelect={(id) => setOptionId(id)}
+        />
+      </div>
+
+      {/* Bar Chart */}
+      <Reveal slideAnimation={false} width="100%">
+        <BarChartComponent
+          title={
+            (optionId === 1 ? 'Weekly' : 'Monthly') +
+            ' Completion Rate Comparison'
+          }
+          subTitle={optionId === 1 ? 'Weekly Change' : 'Monthly Change'}
+          data={chartData}
+          timePeriod={optionId === 1 ? 'week' : 'month'}
+        />
+      </Reveal>
+
+      {/* Pie Charts - Responsive */}
+      <Reveal slideAnimation={false} width="100%">
+        <div className="w-full flex flex-col md:flex-row gap-6 justify-between">
+          <PieChartComponent
+            data={PieChartData}
+            title={optionId === 1 ? 'This Week' : 'This Month'}
+          />
+          <PieChartComponent
+            data={lastTimePeriodPieChartData}
+            title={optionId === 1 ? 'Last Week' : 'Last Month'}
+          />
         </div>
-        <Reveal slideAnimation={false} width='100%'>
-          <BarChartComponent title={(optionId === 1 ? "Weekly" : "Monthly") + (" Completion Rate Comparison")} subTitle={optionId === 1 ? "Weekly Change" : "Monthly Change"} data={chartData} timePeriod={optionId === 1 ? "week" : "month"} />
-        </Reveal>
-        <Reveal slideAnimation={false} width='100%'>
-          <div className='w-full md:w-[90%] mx-auto flex flex-col md:flex-row gap-4 justify-between'>
-            <PieChartComponent data={PieChartData} title={optionId === 1 ? "This Week" : "This Month"} />
-            <PieChartComponent data={lastTimePeriodPieChartData} title={optionId === 1 ? "Last Week" : "Last Month"} />
-          </div>
-        </Reveal>
-      </section>
-    </>
-  )
-  :
-  (
-    <div className="flex flex-col items-center justify-center py-24 text-center rounded-lg transition-all md:w-[90%] mx-auto">
+      </Reveal>
+    </section>
+  </>
+) : (
+  <div className="flex flex-col items-center justify-center py-24 text-center rounded-lg transition-all w-full md:w-[90%] mx-auto px-4">
     <MdInsertChartOutlined className="w-16 h-16 mb-4 text-primary dark:text-dark-primary" />
-    <h2 className="text-2xl font-semibold text-primary dark:text-dark-primary">No Data Available</h2>
+    <h2 className="text-2xl font-semibold text-primary dark:text-dark-primary">
+      No Data Available
+    </h2>
     <p className="text-sm text-primary dark:text-dark-primary mt-2 max-w-md">
-      Your dashboard insights will appear here once there’s enough activity to generate reports.
+      Your dashboard insights will appear here once there’s enough activity to
+      generate reports.
     </p>
   </div>
-  );
+);
+
 }
 
 export default Dashboard;

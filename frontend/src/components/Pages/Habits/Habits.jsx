@@ -73,9 +73,7 @@ function Habits() {
     if (error) return;
 
     const topOpions = [
-        { optionName: "Add Habits", optionIcon: <MdAdd size={23} />, button: true, onClick: () => openModal("addHabitModal") },
-        { optionIcon: <MdFilterListAlt size={23} /> },
-        { optionIcon: <SearchBar /> }
+        { optionName: "Add Habits", optionIcon: <MdAdd size={23} />, button: true, onClick: () => openModal("addHabitModal") }
     ];
 
     const renderTabContent = () => {
@@ -91,24 +89,35 @@ function Habits() {
 
 
         return currentHabits.length > 0 ? (
-            currentHabits.map((habit, index) => (
-
-                <Habit habitId={habit._id} key={index} title={habit.habitName} description={habit.habitDesc} category={habit.habitCategory} frequency={habit.frequency} notesNumber={habit.notes} status={habit.status} startDate={habit.startDate} endDate={habit.endDate} showCheckMark={false}
-                    className='transition duration-200 ease-in-out hover:bg-primary/20 hover:dark:bg-dark-primary/20 hover:text-white hover:shadow-lg cursor-pointer'
-                    onClick={() => navigate(`/viewhabit/${habit._id}`)}
-                />
-            ))
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+                {currentHabits.map((habit, index) => (
+                    <Habit
+                        habitId={habit._id}
+                        key={index}
+                        title={habit.habitName}
+                        description={habit.habitDesc}
+                        category={habit.habitCategory}
+                        frequency={habit.frequency}
+                        notesNumber={habit.notes}
+                        status={habit.status}
+                        startDate={habit.startDate}
+                        endDate={habit.endDate}
+                        showCheckMark={false}
+                        className='transition duration-200 ease-in-out hover:bg-primary/20 hover:dark:bg-dark-primary/20 hover:text-white hover:shadow-lg cursor-pointer'
+                        onClick={() => navigate(`/viewhabit/${habit._id}`)}
+                    />
+                ))}
+            </div>
         ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-                <MdOutlinePlaylistRemove className="w-12 h-12 text-gray-400 dark:text-gray-600 mb-3" />
-                <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center px-4">
+                <MdOutlinePlaylistRemove className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-600 mb-2 sm:mb-3" />
+                <h2 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-300">
                     No Habits to Display
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Your habits will appear here.
                 </p>
             </div>
-
         );
     };
 
@@ -129,17 +138,19 @@ function Habits() {
 
     return (
         <>
-            <main className='md:w-[90%] mx-auto'>
+            <main className='w-full md:w-[90%] mx-auto px-4 sm:px-6 overflow-x-hidden md:max-w-[90%]'>
                 <Topbar text="Habits" />
 
-                <section className='mt-6 flex flex-col md:gap-8'>
+                <section className='mt-4 sm:mt-6 flex flex-col gap-4 sm:gap-6 md:gap-8'>
                     <TopOptions options={topOpions} />
-                    <div className='flex md:justify-between md:w-[90%] mx-auto'>
+
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full md:w-[90%] mx-auto'>
                         <Card title='Total Habits' content={activeHabits + expiredHabits} />
                         <Card title='Active Habits' content={activeHabits} />
                         <Card title='Previous Habits' content={expiredHabits} />
                     </div>
-                    <div className='md:w-[90%] mx-auto md:h-[55vh] overflow-y-auto'>
+
+                    <div className='w-full md:w-[90%] mx-auto h-[55vh] sm:h-[60vh] overflow-y-auto'>
                         <Tabs
                             tabs={tabOptions}
                             onTabsChange={handleTabChange}
