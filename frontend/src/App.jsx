@@ -1,4 +1,4 @@
-import { Home, About, FeedBack, Contact, SignupForm, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile } from './components/index.js';
+import { Home, About, FeedBack, Contact, SignupForm, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail } from './components/index.js';
 import Layout from './Layout.jsx';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import { MessageProvider, ModalProvider, ThemeProvider, useMessage } from './context/index.js';
@@ -121,6 +121,14 @@ const loggedinRouter = createBrowserRouter(
           element={
             <AuthLayout authentication>
               <Dashboard />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="verify-email"
+          element={
+            <AuthLayout authentication>
+              <VerifyEmail />
             </AuthLayout>
           }
         />

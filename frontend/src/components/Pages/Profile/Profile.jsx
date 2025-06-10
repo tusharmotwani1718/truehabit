@@ -4,14 +4,36 @@ import Topbar from '../../utils/Topbar';
 import { useMessage, useModal } from '../../../context/index.js';
 import { setProfilePicture, removeProfilePicture } from '../../../store/Slices/authSlice.js';
 import axios from 'axios';
+import { FaCheckCircle, FaSpinner } from 'react-icons/fa';
+import { FaCircleXmark } from 'react-icons/fa6';
+import { Alert } from 'antd';
+import { useEffect } from 'react';
+
+
 
 function Profile() {
   const { openModal } = useModal();
-  const {displayMessage} = useMessage();
+  const { displayMessage } = useMessage();
   const userData = useSelector(state => state.auth.userData);
   const profileImageRef = useRef(null);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isSendingMail, setIsSendingMail] = React.useState(false);
   const dispatch = useDispatch();
+
+  // get email sent info from localstorage:
+  const checkEmailVerificationStatus = () => {
+    const raw = localStorage.getItem("email_verification_status");
+    if (!raw) return false;
+
+    try {
+      const data = JSON.parse(raw);
+      return data.sent && Date.now() < data.expiresAt;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const [emailStatus, setEmailStatus] = React.useState(checkEmailVerificationStatus());
 
   // Function to get initials from full name
   const getInitials = (name) => {
@@ -23,6 +45,47 @@ function Profile() {
       .toUpperCase()
       .slice(0, 2);
   };
+
+
+  // useEffect hook:
+  // useEffect(() => {
+
+  // })
+
+  // handle send mail:
+  const handleSendMail = async () => {
+    try {
+      setIsSendingMail(true);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL_USERS}/sendMailVerification`, {}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const message = response.data.message;
+      displayMessage('success', message || 'Email sent successfully!');
+
+
+      // store the info in localStorage:
+      const oneDayInMs = 24 * 60 * 60 * 1000; // 1 day
+
+      const emailSentData = {
+        sent: true,
+        expiresAt: Date.now() + oneDayInMs,
+      };
+
+      localStorage.setItem("email_verification_status", JSON.stringify(emailSentData));
+      setEmailStatus(true);
+
+    } catch (error) {
+      displayMessage('error', 'Failed to send email.');
+      console.log(error);
+    }
+    finally {
+      setIsSendingMail(false);
+    }
+  }
 
   // Add profile Image:
   // Trigger file input
@@ -51,9 +114,7 @@ function Profile() {
         }
       })
 
-      // if (response?.data?.data) {
-      //   console.log(response.data.data);
-      // }
+
 
       dispatch(setProfilePicture({ publicLink: response.data.data.profileImage, publicId: response.data.data.profileImagePublicId }));
       displayMessage('success', 'Profile picture updated successfully!');
@@ -93,10 +154,22 @@ function Profile() {
       <main className='md:w-[90%] mx-auto'>
         <Topbar text="Profile" />
 
+
         <section className='mt-8 px-4 sm:px-6 md:px-8 py-5'>
+          {
+            !userData.isEmailVerified && (
+              <Alert
+                message="You have not verified your email yet. Please verify your email to unlock all features."
+                type="warning"
+                showIcon
+                closable
+                className='mb-4'
+              />
+            )
+          }
           {/* Profile Header Card */}
           {/* {console.log(userData)} */}
-          <div className='bg-white dark:bg-dark-background rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sm:p-8 mb-8'>
+          <div className={`${userData.isEmailVerified ? '' : 'mt-4'} bg-white dark:bg-dark-background rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sm:p-8 mb-8`}>
             <div className='flex flex-col sm:flex-row items-center sm:items-start gap-6'>
               {/* Profile Picture / Avatar */}
               <div className='flex-shrink-0 relative group'>
@@ -108,18 +181,18 @@ function Profile() {
                           <span className='text-gray-500 text-lg'>Deleting...</span>
                         </div>
                       ) : <img
-                      src={userData.profilePicture}
-                      alt="Profile"
-                      className='w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-primary dark:border-dark-primary shadow-lg'
-                    />
+                        src={userData.profilePicture}
+                        alt="Profile"
+                        className='w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-primary dark:border-dark-primary shadow-lg'
+                      />
                     }
                     {/* Image Action Buttons */}
                     <div className='absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2'>
                       <button className='w-8 h-8 bg-red-500 dark:bg-red-600 rounded-full flex items-center justify-center hover:bg-red-600 dark:hover:bg-red-700 transition-colors'
-                      onClick={() => {
-                        handleDeleteImage(userData.profilePicturePublicId);
-                      }}
-                      disabled={isUploading}
+                        onClick={() => {
+                          handleDeleteImage(userData.profilePicturePublicId);
+                        }}
+                        disabled={isUploading}
                       >
                         <svg className='w-4 h-4 text-white' fill='currentColor' viewBox='0 0 20 20'>
                           <path fillRule='evenodd' d='M9 2a1 1 0 000 2h2a1 1 0 100-2H9z' clipRule='evenodd' />
@@ -136,10 +209,10 @@ function Profile() {
                           <span className='text-gray-500 text-lg'>Uploading...</span>
                         </div>
                       ) : <div className='w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary to-secondary dark:from-dark-primary dark:to-dark-secondary flex items-center justify-center border-4 border-primary dark:border-dark-primary shadow-lg'>
-                      <span className='text-on-primary dark:text-dark-on-primary font-bold text-2xl sm:text-4xl'>
-                        {getInitials(userData.fullName)}
-                      </span>
-                    </div>
+                        <span className='text-on-primary dark:text-dark-on-primary font-bold text-2xl sm:text-4xl'>
+                          {getInitials(userData.fullName)}
+                        </span>
+                      </div>
                     }
                     {/* Add Image Button */}
                     <button className='absolute bottom-0 right-0 w-8 h-8 bg-primary dark:bg-dark-primary rounded-full flex items-center justify-center border-2 border-white dark:border-dark-background hover:bg-secondary dark:hover:bg-dark-secondary transition-colors shadow-lg'
@@ -179,7 +252,7 @@ function Profile() {
                   </div>
 
                   {/* Edit Profile Button */}
-                  <button className='bg-primary dark:bg-dark-primary text-on-primary dark:text-dark-on-primary px-4 py-2 rounded-lg hover:bg-secondary dark:hover:bg-dark-secondary transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md'
+                  <button className='bg-primary dark:bg-dark-primary text-on-primary dark:text-dark-on-primary px-4 py-2 rounded-lg hover:bg-primary/70 dark:hover:bg-dark-primary/70 transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md'
                     onClick={() => { openModal("editProfileModal") }}
                   >
                     <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
@@ -257,9 +330,49 @@ function Profile() {
               <div className='space-y-3'>
                 <div>
                   <label className='text-custom-xs font-semibold text-neutral dark:text-dark-neutral uppercase tracking-wide'>Email Address</label>
-                  <p className='text-custom-md text-onBackgorund dark:text-dark-onBackground mt-1 break-all'>
+                  <p className="text-custom-md text-onBackgorund dark:text-dark-onBackground mt-1 break-all flex flex-col  md:flex-row md:items-center">
                     {userData.email || 'Not provided'}
+                    <span
+                      className={`inline-flex items-center gap-1 w-max text-sm md:ml-2 mt-2 md:mt-0 px-2 py-0.5 rounded-md font-medium transition duration-300 ${userData.isEmailVerified
+                        ? 'text-green-600 bg-green-50 dark:bg-green-900/10'
+                        : 'text-red-600 bg-red-50 dark:bg-red-900/10'
+                        } `}
+                    >
+                      {userData.isEmailVerified ? (
+                        <>
+                          <FaCheckCircle className="w-4 h-4" />
+                          Verified
+                        </>
+                      ) : (
+                        <>
+                          <FaCircleXmark className="w-4 h-4" />
+                          Unverified
+                        </>
+                      )}
+                    </span>
                   </p>
+                  <div>{!userData.isEmailVerified &&
+                    <button className={`mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md shadow-sm hover:bg-primary/80 dark:bg-dark-primary dark:hover:bg-dark-primary/80 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition ${isSendingMail || emailStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={() => handleSendMail()}
+                    >
+                      {
+                        isSendingMail ? <FaSpinner className='w-5 h-5' /> : <FaCheckCircle className="w-5 h-5" />
+                      }
+                      {
+                        isSendingMail
+                          ? 'Sending...'
+                          : 'Verify Email'
+                      }
+                    </button>
+                  }
+                  {
+                    emailStatus && !userData.isEmailVerified &&
+                    (
+                      <p className='text-green-600 my-3 text-custom-md'>Activation Link sent to {userData.email}</p>
+                    )
+                  }
+                  
+                  </div>
                 </div>
                 <div>
                   <label className='text-custom-xs font-semibold text-neutral dark:text-dark-neutral uppercase tracking-wide'>Member Since</label>

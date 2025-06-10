@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchHabits } from '../../../store/Slices/habitSlice.js'
 import axios from 'axios'
 import { useNavigate } from 'react-router'
+import { Alert } from 'antd'
 
 
 
@@ -25,6 +26,7 @@ function Habits() {
 
     const [activeHabits, setActiveHabits] = useState(0);
     const [expiredHabits, setExpiredHabits] = useState(0);
+    const isEmailVerified = useSelector((state) => state.auth.userData?.isEmailVerified);
 
 
     // modal context:
@@ -73,7 +75,7 @@ function Habits() {
     if (error) return;
 
     const topOpions = [
-        { optionName: "Add Habits", optionIcon: <MdAdd size={23} />, button: true, onClick: () => openModal("addHabitModal") }
+        { optionName: "Add Habits", optionIcon: <MdAdd size={23} />, button: true, disabled: !isEmailVerified, onClick: () => openModal("addHabitModal") }
     ];
 
     const renderTabContent = () => {
@@ -142,6 +144,17 @@ function Habits() {
                 <Topbar text="Habits" />
 
                 <section className='mt-4 sm:mt-6 flex flex-col gap-4 sm:gap-6 md:gap-8'>
+                    {
+                        !isEmailVerified && (
+                            <Alert 
+                                type="warning"
+                                message="Please verify your email to add habits"
+                                className="w-full mx-auto"
+                                closable
+                                showIcon
+                            />
+                        )
+                    }
                     <TopOptions options={topOpions} />
 
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full md:w-[90%] mx-auto'>

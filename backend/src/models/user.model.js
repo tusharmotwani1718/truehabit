@@ -31,6 +31,10 @@ const userSchema = new Schema({
         type: String,
         // default: null
     },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
     habitCollection: [
         {
             type: Schema.Types.ObjectId,
@@ -89,6 +93,20 @@ userSchema.methods.generateRefreshToken = function () {
         envconf.refreshTokenSecret,
         {
             expiresIn: envconf.refreshTokenExpiry
+        }
+    )
+}
+
+
+userSchema.methods.generateEmailToken = function() {
+    return jwt.sign(
+        {
+            _id: this._id,
+            email: this.email
+        },
+        envconf.jwtEmailSecret,
+        {
+            expiresIn: envconf.emailSecretExpiry
         }
     )
 }

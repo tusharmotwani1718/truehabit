@@ -61,10 +61,12 @@ const Sidebar = ({ items }) => {
       .then((response) => {
         dispatch(logoutSlice(userID))
         navigate('/');
+        // delete the verified mail localStorage:
+        localStorage.removeItem('email_verification_status');
         displayMessage('success', response.data.message);
       })
       .catch((err) => {
-        displayMessage('error', err.response.data.message);
+        displayMessage('error', err.data.message || "Failed to logout");
       })
   }
 
@@ -232,9 +234,9 @@ const Sidebar = ({ items }) => {
           className={`mb-6 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
         >
           {theme === "light" ? (
-            <MdLightMode size={22} className="text-[#BB86FC]" />
+            <MdDarkMode size={22} className="text-[#BB86FC]" />
           ) : (
-            <MdDarkMode size={22} className="text-white" />
+            <MdLightMode size={22} className="text-white" />
           )}
         </motion.button>
 

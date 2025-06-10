@@ -39,6 +39,7 @@ import InviteUsers from "./Pages/GroupTracking/InviteUsers.jsx";
 import ViewInvitations from "./Pages/GroupTracking/ViewInvitations.jsx";
 import Profile from "./Pages/Profile/Profile.jsx";
 import EditProfile from "./Pages/Profile/EditProfile.jsx";
+import VerifyEmail from "./Pages/Profile/VerifyEmail.jsx";
 
 
 
@@ -86,5 +87,6 @@ export {
     InviteUsers,
     ViewInvitations,
     Profile,
-    EditProfile
+    EditProfile,
+    VerifyEmail
 }

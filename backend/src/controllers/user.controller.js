@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import { Habit } from '../models/habit.model.js';
 import arcjetService from '../utils/arcjet.js'
 import extractClientIp from '../middlewares/clientIP.middleware.js';
+import sendTestEmail from '../utils/nodemailer.js';
 
 
 
@@ -38,6 +39,17 @@ const generateAccessAndRefreshToken = async (userId) => {
         return { accessToken, refreshToken }; // Return tokens
     } catch (error) {
         throw new ApiError(401, "Something went wrong while generating access and refresh tokens.");
+    }
+};
+
+const generateEmailToken = async (userId) => {
+    try {
+        const user = await User.findById(userId); // Fetch the user by ID
+        const emailToken = user.generateEmailToken(); // Generate email token
+        return emailToken; // Return email token
+    } catch (error) {
+        console.log(error);
+        throw new ApiError(401, "Something went wrong while generating email token.");
     }
 };
 
@@ -171,10 +183,10 @@ const getUser = asyncHandler(async (req, res) => {
 
     const user = await User.findById(req.user?._id).select("-password -refreshToken");
 
-    if(!user){
+    if (!user) {
         throw new ApiError(400, "User not found.")
     }
-    
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -461,6 +473,87 @@ const deleteAccount = asyncHandler(async (req, res) => {
 
 })
 
+// 8. Send Email Verification Link:
+const sendEmailVerification = asyncHandler(async (req, res) => {
+
+    const userId = req.user?._id;
+    if (!userId) {
+        throw new ApiError(400, "User not found.")
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(400, "User not found.")
+    }
+
+    const email = user.email;
+    if (!email) {
+        throw new ApiError(400, "Email not found.")
+    }
+
+    if (user.isEmailVerified) {
+        throw new ApiError(400, "Email already verified.")
+    }
+
+    const emailToken = await generateEmailToken(userId);
+
+    if (!emailToken) {
+        throw new ApiError(400, "Error while generating email token.")
+    }
+
+    const emailVerificationLink = `http://localhost:5173/verify-email?token=${emailToken}`;
+
+    const content = `
+        <h1>Verify Your Email</h1>
+        <p>Click the link below to verify your email:</p>
+        <a href="${emailVerificationLink}">${emailVerificationLink}</a>
+    `
+
+    const mail = await sendTestEmail(content, email);
+    // console.log(mail);
+    if (!mail) {
+        throw new ApiError(400, "Error while sending email.");
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(201, mail, "Email sent successfully")
+        );
+
+
+})
+
+
+// 9. Verify the email:
+const verifyEmail = asyncHandler(async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        throw new ApiError(400, "Token not found.")
+    }
+
+    console.log("Token: ", token)
+
+    const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
+    console.log(decoded);
+    const user = await User.findById(decoded._id);
+
+    if (!user) {
+        throw new ApiError(400, "Token Invalid or Expired.")
+    }
+
+    user.isEmailVerified = true;
+    await user.save({ validateBeforeSave: false });
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(201, user, "Email verified successfully")
+        );
+
+
+})
 
 export {
     registerUser, validateCreateUser,
@@ -472,5 +565,7 @@ export {
     changePassword,
     updateProfileImage,
     deleteProfileImage,
-    deleteAccount
+    deleteAccount,
+    sendEmailVerification,
+    verifyEmail
 }

@@ -46,6 +46,11 @@ const authSlice = createSlice({
                 state.userData.profilePicture = null;
             }
         },
+        activateAccount: (state, action) => {
+            if (state.userData) {
+                state.userData.isEmailVerified = true;
+            }
+        },
         logout: (state, action) => {
             state.authStatus = false;
             state.userData = null;
@@ -63,6 +68,6 @@ const authSlice = createSlice({
 })
 
 
-export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture } = authSlice.actions;
+export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture, activateAccount } = authSlice.actions;
 
 export default authSlice.reducer;

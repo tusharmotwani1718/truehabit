@@ -13,7 +13,13 @@ const envconf = {
     cloudinaryApiKey: String(process.env.CLOUDINARY_API_KEY),
     cloudinaryApiSecret: String(process.env.CLOUDINARY_API_SECRET),
     arcjetEnv: String(process.env.ARCJET_ENV),
-    arcjetKey: String(process.env.ARCJET_KEY)
+    arcjetKey: String(process.env.ARCJET_KEY),
+    jwtEmailSecret: String(process.env.JWT_EMAIL_SECRET),
+    emailSecretExpiry: String(process.env.EMAIL_SECRET_EXPIRY),
+    oathClientID: String(process.env.OATH_CLIENT_ID),
+    oathClientSecret: String(process.env.OATH_CLIENT_SECRET),
+    googleAppPass: String(process.env.GOOGLE_APP_PASSWORD),
+    gmailAddress: String(process.env.GMAIL_ADDRESS)
 }
 
 export default envconf;

@@ -63,7 +63,8 @@ const OptionButton = ({ option, className, onClick }) => {
   return (
     <button
       onClick={handleClick}
-      className={`flex items-center gap-2 font-medium ${className}`}
+      className={`flex items-center gap-2 font-medium ${className} ${option.disabled && 'pointer-events-none opacity-50'}`}
+      disabled={option.disabled}
     >
       {option.optionIcon}
       {option.optionName}
