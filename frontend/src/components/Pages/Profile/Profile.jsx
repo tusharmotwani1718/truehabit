@@ -157,7 +157,7 @@ function Profile() {
 
         <section className='mt-8 px-4 sm:px-6 md:px-8 py-5'>
           {
-            !userData.isEmailVerified && (
+           !!userData && !userData.isEmailVerified && (
               <Alert
                 message="You have not verified your email yet. Please verify your email to unlock all features."
                 type="warning"
@@ -331,14 +331,14 @@ function Profile() {
                 <div>
                   <label className='text-custom-xs font-semibold text-neutral dark:text-dark-neutral uppercase tracking-wide'>Email Address</label>
                   <p className="text-custom-md text-onBackgorund dark:text-dark-onBackground mt-1 break-all flex flex-col  md:flex-row md:items-center">
-                    {userData.email || 'Not provided'}
+                    {!!userData && userData.email || 'Not provided'}
                     <span
                       className={`inline-flex items-center gap-1 w-max text-sm md:ml-2 mt-2 md:mt-0 px-2 py-0.5 rounded-md font-medium transition duration-300 ${userData.isEmailVerified
                         ? 'text-green-600 bg-green-50 dark:bg-green-900/10'
                         : 'text-red-600 bg-red-50 dark:bg-red-900/10'
                         } `}
                     >
-                      {userData.isEmailVerified ? (
+                      {!!userData && userData.isEmailVerified ? (
                         <>
                           <FaCheckCircle className="w-4 h-4" />
                           Verified
@@ -351,7 +351,7 @@ function Profile() {
                       )}
                     </span>
                   </p>
-                  <div>{!userData.isEmailVerified &&
+                  <div>{!!userData && !userData.isEmailVerified &&
                     <button className={`mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md shadow-sm hover:bg-primary/80 dark:bg-dark-primary dark:hover:bg-dark-primary/80 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition ${isSendingMail || emailStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => handleSendMail()}
                     >
@@ -366,7 +366,7 @@ function Profile() {
                     </button>
                   }
                   {
-                    emailStatus && !userData.isEmailVerified &&
+                    emailStatus && !!userData && !userData.isEmailVerified &&
                     (
                       <p className='text-green-600 my-3 text-custom-md'>Activation Link sent to {userData.email}</p>
                     )

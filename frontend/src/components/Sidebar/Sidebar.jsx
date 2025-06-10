@@ -60,9 +60,10 @@ const Sidebar = ({ items }) => {
     })
       .then((response) => {
         dispatch(logoutSlice(userID))
-        navigate('/');
-        // delete the verified mail localStorage:
-        localStorage.removeItem('email_verification_status');
+        setTimeout(() => {
+          localStorage.removeItem('email_verification_status');
+          navigate('/'); // Let the layout handle actual redirection
+        }, 100); // Short delay lets state settle
         displayMessage('success', response.data.message);
       })
       .catch((err) => {
@@ -85,7 +86,7 @@ const Sidebar = ({ items }) => {
       x: isMobileMenuOpen ? 0 : -288,
       width: 288
     };
-    
+
     // For larger screens
     const desktopAnimation = {
       x: 0,
@@ -114,11 +115,11 @@ const Sidebar = ({ items }) => {
 
       {/* Sidebar */}
       <motion.div
-        initial={{ 
+        initial={{
           width: window.innerWidth < 768 ? 288 : (isCollapsed ? 80 : 288),
           x: window.innerWidth < 768 ? (isMobileMenuOpen ? 0 : -288) : 0
         }}
-        animate={{ 
+        animate={{
           width: window.innerWidth < 768 ? 288 : (isCollapsed ? 80 : 288),
           x: window.innerWidth < 768 ? (isMobileMenuOpen ? 0 : -288) : 0
         }}
@@ -138,131 +139,131 @@ const Sidebar = ({ items }) => {
           }
         </motion.button>
 
-      <div className='flex flex-col h-full py-6 px-4'>
-        {/* Logo area */}
-        <div className="flex items-center mb-10 mt-12 md:mt-0">
-          {(!isCollapsed || window.innerWidth < 768) && (
-            <motion.h2
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className='text-3xl font-bold text-white'
-            >
-              trueHabit
-            </motion.h2>
-          )}
-          {isCollapsed && window.innerWidth >= 768 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
-            >
-              <span className="text-[#673AB7] font-bold text-xl">T</span>
-            </motion.div>
-          )}
-        </div>
+        <div className='flex flex-col h-full py-6 px-4'>
+          {/* Logo area */}
+          <div className="flex items-center mb-10 mt-12 md:mt-0">
+            {(!isCollapsed || window.innerWidth < 768) && (
+              <motion.h2
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className='text-3xl font-bold text-white'
+              >
+                trueHabit
+              </motion.h2>
+            )}
+            {isCollapsed && window.innerWidth >= 768 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
+              >
+                <span className="text-[#673AB7] font-bold text-xl">T</span>
+              </motion.div>
+            )}
+          </div>
 
-        {/* Main menu */}
-        <div className="flex-1">
-          <ul className='flex flex-col gap-3 mb-8'>
-            {items &&
-              items.map((item) => {
-                // Check if current route matches this item's path
-                const isActive = location.pathname === item.path;
+          {/* Main menu */}
+          <div className="flex-1">
+            <ul className='flex flex-col gap-3 mb-8'>
+              {items &&
+                items.map((item) => {
+                  // Check if current route matches this item's path
+                  const isActive = location.pathname === item.path;
 
-                return (
-                  <li key={item.name}>
-                    <motion.div
-                      className="relative"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Link
-                        to={item.path || "/"}
-                        className={`flex items-center gap-3 w-full rounded-lg py-3 px-4 transition-colors duration-200 
-                          ${isActive
-                            ? 'bg-[#ffffff] text-[#673AB7] dark:bg-[#BB86FC] dark:text-[#1E0336]'
-                            : 'hover:bg-[#7C4DFF] hover:text-white dark:hover:bg-[#3c3c3c] dark:hover:text-[#BB86FC]'
-                          }`}
+                  return (
+                    <li key={item.name}>
+                      <motion.div
+                        className="relative"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                       >
-                        <span className="text-center flex-shrink-0">{item.icon}</span>
-
-                        {(!isCollapsed || window.innerWidth < 768) && (
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="font-medium whitespace-nowrap"
-                          >
-                            {item.name}
-                          </motion.span>
-                        )}
-
-                        {(!isCollapsed || window.innerWidth < 768) && item.badge && (
-                          <span className='py-0 px-2 bg-blue-700 ml-auto rounded-full text-xs font-normal text-white'>
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-
-                      {/* Tooltip for collapsed mode - Only on desktop */}
-                      {isCollapsed && window.innerWidth >= 768 && (
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          whileHover={{ opacity: 1, x: 0 }}
-                          className="absolute left-16 top-2 bg-gray-800 text-white px-3 py-2 rounded-md whitespace-nowrap z-10"
+                        <Link
+                          to={item.path || "/"}
+                          className={`flex items-center gap-3 w-full rounded-lg py-3 px-4 transition-colors duration-200 
+                          ${isActive
+                              ? 'bg-[#ffffff] text-[#673AB7] dark:bg-[#BB86FC] dark:text-[#1E0336]'
+                              : 'hover:bg-[#7C4DFF] hover:text-white dark:hover:bg-[#3c3c3c] dark:hover:text-[#BB86FC]'
+                            }`}
                         >
-                          {item.name}
-                          {item.badge && (
-                            <span className='py-0 px-2 bg-blue-700 ml-2 rounded-full text-xs font-normal text-white'>
+                          <span className="text-center flex-shrink-0">{item.icon}</span>
+
+                          {(!isCollapsed || window.innerWidth < 768) && (
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="font-medium whitespace-nowrap"
+                            >
+                              {item.name}
+                            </motion.span>
+                          )}
+
+                          {(!isCollapsed || window.innerWidth < 768) && item.badge && (
+                            <span className='py-0 px-2 bg-blue-700 ml-auto rounded-full text-xs font-normal text-white'>
                               {item.badge}
                             </span>
                           )}
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  </li>
-                );
-              })}
-          </ul>
-        </div>
+                        </Link>
 
-        {/* Theme toggle */}
-        <motion.button
-          onClick={changeTheme}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={`mb-6 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
-        >
-          {theme === "light" ? (
-            <MdDarkMode size={22} className="text-[#BB86FC]" />
-          ) : (
-            <MdLightMode size={22} className="text-white" />
-          )}
-        </motion.button>
+                        {/* Tooltip for collapsed mode - Only on desktop */}
+                        {isCollapsed && window.innerWidth >= 768 && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            whileHover={{ opacity: 1, x: 0 }}
+                            className="absolute left-16 top-2 bg-gray-800 text-white px-3 py-2 rounded-md whitespace-nowrap z-10"
+                          >
+                            {item.name}
+                            {item.badge && (
+                              <span className='py-0 px-2 bg-blue-700 ml-2 rounded-full text-xs font-normal text-white'>
+                                {item.badge}
+                              </span>
+                            )}
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
 
-        {/* User profile */}
-        <div className="border-t border-[#8C6CC5] dark:border-gray-700 pt-4">
-          {(!isCollapsed || window.innerWidth < 768) ? (
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="font-bold text-white">{userName || "User"}</span>
-                <button
-                  className="flex items-center gap-2 text-sm mt-2"
-                  onClick={logoutUser}
-                >
-                  <span>Logout</span>
-                  <MdLogout size={16} />
-                </button>
+          {/* Theme toggle */}
+          <motion.button
+            onClick={changeTheme}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className={`mb-6 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
+          >
+            {theme === "light" ? (
+              <MdDarkMode size={22} className="text-[#BB86FC]" />
+            ) : (
+              <MdLightMode size={22} className="text-white" />
+            )}
+          </motion.button>
+
+          {/* User profile */}
+          <div className="border-t border-[#8C6CC5] dark:border-gray-700 pt-4">
+            {(!isCollapsed || window.innerWidth < 768) ? (
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-bold text-white">{userName || "User"}</span>
+                  <button
+                    className="flex items-center gap-2 text-sm mt-2"
+                    onClick={logoutUser}
+                  >
+                    <span>Logout</span>
+                    <MdLogout size={16} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <motion.div
-              className="relative flex justify-center"
-              whileHover={{ scale: 1.1 }}
-            >
-              {
-                profilePicture ? (
-                  <motion.div
+            ) : (
+              <motion.div
+                className="relative flex justify-center"
+                whileHover={{ scale: 1.1 }}
+              >
+                {
+                  profilePicture ? (
+                    <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden"
@@ -271,8 +272,8 @@ const Sidebar = ({ items }) => {
                         <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
                       </span>
                     </motion.div>
-                ) : (
-                
+                  ) : (
+
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
@@ -283,22 +284,22 @@ const Sidebar = ({ items }) => {
                       </span>
                     </motion.div>
 
-                )
-              }
+                  )
+                }
 
-              {/* Tooltip for profile - Only on desktop */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileHover={{ opacity: 1, x: 0 }}
-                className="absolute left-16 top-0 bg-gray-800 text-white px-3 py-2 rounded-md whitespace-nowrap z-10"
-              >
-                {userName || "User"} - Logout
+                {/* Tooltip for profile - Only on desktop */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileHover={{ opacity: 1, x: 0 }}
+                  className="absolute left-16 top-0 bg-gray-800 text-white px-3 py-2 rounded-md whitespace-nowrap z-10"
+                >
+                  {userName || "User"} - Logout
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
     </>
   );
 };
