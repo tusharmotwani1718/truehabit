@@ -15,9 +15,18 @@ import { useModal } from '../../../context/index.js';
 
 function Home() {
 
+
+  const imagesUsed = {
+    "dashboard": "https://res.cloudinary.com/dzhfpcjwv/image/upload/v1749708237/truehabit/vtwkxsfvtzbf0jimb2li.webp",
+    "dashboard2": "https://res.cloudinary.com/dzhfpcjwv/image/upload/v1749708237/truehabit/cuhipm49umunervqwkmi.webp",
+    "habits": "https://res.cloudinary.com/dzhfpcjwv/image/upload/v1749710140/truehabit/bakrwjgvwoyosc6hh4up.webp",
+    "habit1": "https://res.cloudinary.com/dzhfpcjwv/image/upload/v1749710140/truehabit/vobn7t6micrb8wnsmluf.webp",
+    "habit2": "https://res.cloudinary.com/dzhfpcjwv/image/upload/v1749710140/truehabit/yuaz5r1r46g2x3gulm5d.webp"
+  }
+
   const carouselImages = [
-    '../src/assets/images/habit1.png',
-    '../src/assets/images/habit2.png'
+    imagesUsed.habit1,
+    imagesUsed.habit2
   ]
 
   const { openModal } = useModal();
@@ -54,7 +63,7 @@ function Home() {
         </div>
         <Reveal slideAnimation={false}>
           <div>
-            <img src="../src/assets/images/dashboardss.png" alt="" className='h-full' />
+            <img src={imagesUsed["dashboard"]} alt="Habits Dashboard" className='h-full' />
           </div>
         </Reveal>
       </section>
@@ -79,7 +88,7 @@ function Home() {
         <div className='p-4 rounded-md bg-primary/40 dark:bg-dark-primary/40 md:w-[100%]'>
           <Reveal slideAnimation={false} >
             <div>
-              <img src="../src/assets/images/dashboardss.png" alt="" />
+              <img src={imagesUsed["dashboard"]} alt="Habits Dashboard" />
             </div>
           </Reveal>
         </div>
@@ -87,7 +96,7 @@ function Home() {
         <div className='p-4 rounded-md bg-primary/40 dark:bg-dark-primary/40 md:w-[100%]'>
           <Reveal slideAnimation={false}>
             <div>
-              <img src="../src/assets/images/dashboardss2.png" alt="" />
+              <img src={imagesUsed["dashboard2"]} alt="Habits Dashboard" />
             </div>
           </Reveal>
         </div>
@@ -99,10 +108,10 @@ function Home() {
         <div className='flex flex-col gap-5 items-center'>
           <div className='flex flex-col gap-3 text-center items-center'>
             <Reveal>
-              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Your tracking analysis can't be more deep.</span>
+              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Have Full Control Over Your Habits.</span>
             </Reveal>
             <Reveal>
-              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>From streaks to stats, we turn daily actions into lifelong results. Start your journey today — no spreadsheets required.</span>
+              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Schedules, Statistics, Calendar, Notes and much more... All with a single click.</span>
             </Reveal>
           </div>
           <Reveal>
@@ -113,8 +122,8 @@ function Home() {
           <Reveal slideAnimation={false}>
             <div className='h-full'> {/* Ensure this div takes full height of its parent */}
               <img
-                src="../src/assets/images/dashboardss3.png"
-                alt=""
+                src={imagesUsed["habits"]}
+                alt="Habits Management Image"
                 className='h-full w-full object-cover' // Make the image take full height and width
               />
             </div>
@@ -198,10 +207,10 @@ function Home() {
         <div className='flex flex-col gap-5 items-center'>
           <div className='flex flex-col gap-3 text-center items-center'>
             <Reveal>
-              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Have Full Control Over Your Habits</span>
+              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Your tracking analysis can't be more deep.</span>
             </Reveal>
             <Reveal>
-              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Schedules, Statistics, Calendar, Notes and much more... All with a single click.</span>
+              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>From streaks to stats, we turn daily actions into lifelong results. Start your journey today — no spreadsheets required.</span>
             </Reveal>
           </div>
 

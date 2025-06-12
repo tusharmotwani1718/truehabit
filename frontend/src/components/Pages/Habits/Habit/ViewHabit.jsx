@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Input, PrimaryButton, Spinner, Topbar } from '../../../index.js'
+import { Card, ConfirmDialog, Input, PrimaryButton, Spinner, Topbar } from '../../../index.js'
 import { FaCalendarAlt, FaCheckCircle, FaPlus, FaTrophy, FaFire } from 'react-icons/fa'
 import { FaRepeat, FaNoteSticky, FaChartColumn } from 'react-icons/fa6'
 import ProgressBar from '../../../utils/ProgressBar'
@@ -11,6 +11,10 @@ import formatDate from '../../../../functions/formatDate.js'
 import NormaliseText from '../../../../functions/NormaliseText.js'
 import { useMessage } from '../../../../context/index.js'
 import { TiGroupOutline } from "react-icons/ti";
+import { deleteHabit as deleteHabitSlice } from '../../../../store/Slices/habitSlice.js'
+import { useDispatch } from 'react-redux'
+
+
 
 function ViewHabit({
     isGroupHabit = false,
@@ -37,9 +41,11 @@ function ViewHabit({
     const [completedDays, setCompletedDays] = useState([]);
     const [completedDaysNum, setCompletedDaysNum] = useState(0);
     const [expectedDaysNum, setExpectedDaysNum] = useState(0);
+    const [buttonLoading, setButtonLoading] = useState(false);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const { displayMessage } = useMessage();
+    const dispatch = useDispatch();
 
     const frequencyMap = {
         1: "Daily",
@@ -63,19 +69,50 @@ function ViewHabit({
         { id: 4, text: 'Learning about Collections framework today. HashMaps and ArrayLists are incredibly useful.', date: 'May 9' },
     ]);
     const [newNote, setNewNote] = useState('');
+     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const onChangeCalendar = (value) => {
         setCalendarValue(value);
     };
 
-    const handleAddNote = () => {
-        if (newNote.trim()) {
-            const today = dayjs().format('MMM D');
-            setNotes([
-                { id: notes.length + 1, text: newNote, date: today },
-                ...notes
-            ]);
-            setNewNote('');
+    // const handleAddNote = () => {
+    //     if (newNote.trim()) {
+    //         const today = dayjs().format('MMM D');
+    //         setNotes([
+    //             { id: notes.length + 1, text: newNote, date: today },
+    //             ...notes
+    //         ]);
+    //         setNewNote('');
+    //     }
+    // };
+
+    const deleteHabit = async (id) => {
+        try {
+            const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_HABITS}/deletehabit/${id}`,
+                {
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true
+                });
+
+            displayMessage("success", response.data.message);
+        } catch (error) {
+            console.log(error);
+            displayMessage("error", "Network Error")
+        }
+    }
+
+    const handleConfirm = async (deleteId) => {
+        try {
+            setButtonLoading(true);
+            await deleteHabit(deleteId);
+            dispatch(deleteHabitSlice(deleteId));
+            navigate('/habits');
+            setIsDialogOpen(false); // Only close on success
+        } catch (error) {
+            console.error("Error deleting habit:", error);
+            displayMessage("error", "Network Error");
+        } finally {
+            setButtonLoading(false);
         }
     };
 
@@ -252,6 +289,17 @@ function ViewHabit({
                 }
             }}
         >
+            <ConfirmDialog
+                openStatus={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                onConfirm={() => handleConfirm(habitId)}
+                title="Delete this item?"
+                description="This will permanently delete the item from your database."
+                confirmText="Delete"
+                cancelText="Cancel"
+                buttonLoading={buttonLoading}
+            />
+
             <main className='mx-auto px-4 sm:px-6 lg:px-8 py-6 md:max-w-4xl'>
                 <Topbar text="Habit Details" />
 
@@ -471,11 +519,13 @@ function ViewHabit({
                 {/* Action Buttons */}
                 {
                     !isGroupHabit && (
-                        <section className="mt-6 flex justify-between">
-                            <button className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-xl font-medium transition-colors">
-                                Edit Habit
-                            </button>
-                            <button className="px-6 py-3 bg-primary hover:bg-primary/90 text-white dark:bg-dark-primary dark:hover:bg-dark-primary/90 rounded-xl font-medium transition-colors">
+                        <section className="mt-6 flex justify-end">
+                            <button className="px-6 py-3 bg-primary hover:bg-primary/90 text-white dark:bg-dark-primary dark:hover:bg-dark-primary/90 rounded-xl font-medium transition-colors"
+                            onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsDialogOpen(true);
+                                }}
+                            >
                                 Delete Habit
                             </button>
                         </section>

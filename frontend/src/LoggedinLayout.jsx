@@ -18,8 +18,7 @@ const menuItems = [
   { name: 'Today\'s Habits', path: '/todayhabits', icon: <MdCalendarToday size={21} /> },
   { name: 'My Habits', path: '/habits', icon: <MdFormatListBulleted size={22} /> },
   { name: 'Group Tracking', path: '/grouptracking', icon: <MdPeople size={22} />, badge: 'New' },
-  { name: 'Profile', path: '/profile', icon: <MdAccountCircle size={22} /> },
-  { name: 'Contact', path: '/contact', icon: <MdEmail size={22} /> }
+  { name: 'Profile', path: '/profile', icon: <MdAccountCircle size={22} /> }
 ];
 
 
