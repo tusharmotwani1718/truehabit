@@ -8,6 +8,7 @@ import { FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import { FaCircleXmark } from 'react-icons/fa6';
 import { Alert } from 'antd';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 
 
@@ -19,6 +20,7 @@ function Profile() {
   const [isUploading, setIsUploading] = React.useState(false);
   const [isSendingMail, setIsSendingMail] = React.useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // get email sent info from localstorage:
   const checkEmailVerificationStatus = () => {
@@ -48,9 +50,12 @@ function Profile() {
 
 
   // useEffect hook:
-  // useEffect(() => {
-
-  // })
+  useEffect(() => {
+      if(!userData){
+        navigate('/');
+        displayMessage('error', 'Please Login First');
+      }
+  }, [])
 
   // handle send mail:
   const handleSendMail = async () => {

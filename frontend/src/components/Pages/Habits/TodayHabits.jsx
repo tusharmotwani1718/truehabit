@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchHabits } from '../../../store/Slices/habitSlice.js';
 import axios from 'axios';
 import { fetchGrouphabits, setGroupHabits } from '../../../store/Slices/groupSlice.js';
+import { useNavigate } from 'react-router';
+import { useMessage } from '../../../context/index.js';
 
 
 
@@ -15,9 +17,12 @@ function TodayHabits({
     topbar = true
 }) {
     const dispatch = useDispatch();
+    const userData = useSelector(state => state.auth.userData);
     const [todayScheduledHabits, setTodayScheduledHabits] = useState(0);
     const [todayCompletedHabits, setTodayCompletedHabits] = useState(0);
     const [todayRemainingHabits, setTodayRemainingHabits] = useState(0);
+    const navigate = useNavigate();
+    const { displayMessage } = useMessage();
 
     // Get data from Redux store
     const { currentHabits, loading, error } = useSelector(state => state.habit);
@@ -27,6 +32,14 @@ function TodayHabits({
     const habits = fetchGroups ? groupHabits : currentHabits;
     const isLoading = fetchGroups ? groupLoading : loading;
     const hasError = fetchGroups ? groupError : error;
+
+    // useEffect to redirect user if not logged in:
+    useEffect(() => {
+        if (!userData) {
+            navigate('/');
+            displayMessage('error', 'Please Login First');
+        }
+    }, [])
 
     // Main data loading effect
     useEffect(() => {
@@ -99,7 +112,7 @@ function TodayHabits({
         return habits.length > 0 ? (
             <div className="grid gap-5">
                 {habits.map((habit, index) => (
-                    
+
                     <Habit
                         habitId={habit._id}
                         key={index}
@@ -115,7 +128,7 @@ function TodayHabits({
                         groupId={habit.groupId?._id || null}
                         groupName={habit.groupId?.groupName || null}
                         groupDesc={habit.groupId?.groupDesc || null}
-                        
+
 
                     />
                 ))}

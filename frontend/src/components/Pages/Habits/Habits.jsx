@@ -23,11 +23,18 @@ function Habits() {
     const [habitType, setHabitType] = useState('active');
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
+    const userData = useSelector((state) => state.auth.userData);
     const [activeHabits, setActiveHabits] = useState(0);
     const [expiredHabits, setExpiredHabits] = useState(0);
     const isEmailVerified = useSelector((state) => state.auth.userData?.isEmailVerified);
 
+    // redirect user if not logged in:
+    useEffect(() => {
+        if (!userData) {
+            navigate('/');
+            displayMessage('error', 'Please Login First');
+        }
+    }, []);
 
     // modal context:
     const { openModal } = useModal();
