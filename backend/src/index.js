@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { DB_NAME } from "./constants.js";
 import { app } from "./app.js";
 import envconf from "./conf/envconfig.js";
+import './cronJobs/habitsExpiry.js';
 
 dotenv.config();
 
