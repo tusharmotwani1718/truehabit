@@ -8,9 +8,7 @@ import Header from "./Header/Header";
 import Sidebar from "./Sidebar/Sidebar";
 import AuthTabs from "./Tabs/AuthTabs/AuthTabs.jsx";
 import Home from "./Pages/Home/Home.jsx";
-import About from "./Pages/About/About.jsx";
 import Contact from "./Pages/Contact/Contact.jsx";
-import FeedBack from "./Pages/FeedBack/FeedBack.jsx";
 import Habits from "./Pages/Habits/Habits.jsx";
 import Dashboard from "./Pages/Dashboard/Dashboard.jsx";
 import Topbar from "./utils/Topbar.jsx";
@@ -48,9 +46,7 @@ import VerifyEmail from "./Pages/Profile/VerifyEmail.jsx";
 
 export {
     Home,
-    About,
     Contact,
-    FeedBack,
     Header,
     Sidebar,
     PrimaryButton,

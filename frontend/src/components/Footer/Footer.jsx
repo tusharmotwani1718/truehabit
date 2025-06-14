@@ -3,7 +3,7 @@ import { Mail } from 'lucide-react';
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
-import packageJson from '../../../package.json'; 
+import packageJson from '../../../package.json';
 
 
 const Footer = ({
@@ -22,20 +22,18 @@ const Footer = ({
               We're dedicated to providing the best experience for our users. Our mission is to create innovative solutions that make a difference.
             </p>
             <div className="flex space-x-4">
-              <Link to="#" aria-label="Facebook" className="bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
-                <FaFacebook size={"16px"}/>
-              </Link>
               <Link to="#" aria-label="Twitter" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
-                <FaLinkedin size={"16px"}/>
+                <FaLinkedin size={"16px"} />
               </Link>
               <Link to="#" aria-label="Instagram" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
-                <FaXTwitter size={"16px"}/>
+                <FaXTwitter size={"16px"} />
               </Link>
               <Link to="#" aria-label="LinkedIn" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
-                <FaGithub size={"16px"}/>
+                <FaGithub size={"16px"} />
               </Link>
             </div>
             <div className='mt-7'>TrueHabit v{packageJson.version}</div>
+            <div className='my-4 text-xs'>The images used in the home page are for visualisation. Actual UI may vary.</div>
           </div>
 
           {/* Quick Links */}
@@ -43,23 +41,19 @@ const Footer = ({
             <h3 className="text-lg font-semibold mb-4 text-[#260051] dark:text-[#7b44be]">Quick Links</h3>
             <ul className="space-y-2">
               <li><Link to="/" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Home</Link></li>
-              <li><Link to="/about" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">About Us</Link></li>
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Services</Link></li>
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Products</Link></li>
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Blog</Link></li>
+              <li><Link to="/contact" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Contact</Link></li>
             </ul>
           </div>
 
-          
+
 
           {/* Resources */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#260051] dark:text-[#7b44be]">Resources</h3>
             <ul className="space-y-2">
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Documentation</Link></li>
+
               <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Help Center</Link></li>
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Tutorials</Link></li>
-              <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">API Reference</Link></li>
+
               <li><Link to="#" className="hover:text-primary dark:hover:text-dark-primary transition duration-300">Community</Link></li>
             </ul>
           </div>

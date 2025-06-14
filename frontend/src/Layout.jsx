@@ -10,21 +10,10 @@ const navItems = [
     id: 1
   },
   {
-    text: "About",
-    link: "/about",
-    id: 2
-  },
-  {
     text: "Contact",
     link: "/contact",
     id: 3
-  },
-  {
-    text: "Feedback",
-    link: "/feedback",
-    id: 4
-  },
-
+  }
 ]
 
 

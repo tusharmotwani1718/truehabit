@@ -1,4 +1,4 @@
-import { Home, About, FeedBack, Contact, SignupForm, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail } from './components/index.js';
+import { Home, Contact, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail } from './components/index.js';
 import Layout from './Layout.jsx';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import { MessageProvider, ModalProvider, ThemeProvider, useMessage } from './context/index.js';
@@ -15,6 +15,7 @@ import { logout, setAuthStatus } from './store/Slices/authSlice.js';
 import GroupTrackingLayout from './GroupTrackingLayout.jsx';
 import GroupDetails from './components/Pages/GroupTracking/GroupDetails.jsx';
 import AddGroup from './components/Pages/GroupTracking/AddGroup.jsx'
+import NotFound from './components/utils/NotFound.jsx';
 
 
 unstableSetRender((node, container) => {
@@ -41,14 +42,6 @@ const router = createBrowserRouter(
         }
       />
       <Route
-        path="about"
-        element={
-          <AuthLayout authentication={false}>
-            <About />
-          </AuthLayout>
-        }
-      />
-      <Route
         path="contact"
         element={
           <AuthLayout authentication={false}>
@@ -56,14 +49,8 @@ const router = createBrowserRouter(
           </AuthLayout>
         }
       />
-      <Route
-        path="feedback"
-        element={
-          <AuthLayout authentication={false}>
-            <FeedBack />
-          </AuthLayout>
-        }
-      />
+      {/* Catch-all route for 404 */}
+      <Route path="*" element={<NotFound />} />
 
 
 
@@ -132,14 +119,7 @@ const loggedinRouter = createBrowserRouter(
             </AuthLayout>
           }
         />
-        <Route
-          path="about"
-          element={
-            <AuthLayout authentication>
-              <About />
-            </AuthLayout>
-          }
-        />
+       
         <Route
           path="contact"
           element={
@@ -148,14 +128,7 @@ const loggedinRouter = createBrowserRouter(
             </AuthLayout>
           }
         />
-        <Route
-          path="feedback"
-          element={
-            <AuthLayout authentication>
-              <FeedBack />
-            </AuthLayout>
-          }
-        />
+        
         <Route
           path="profile"
           element={
@@ -182,6 +155,8 @@ const loggedinRouter = createBrowserRouter(
           </AuthLayout>
         }
       />
+      {/* Catch-all route for 404 */}
+      <Route path="*" element={<NotFound />} />
 
     </>
 
@@ -244,11 +219,11 @@ function App() {
   };
 
 
- useEffect(() => {
-  const html = document.querySelector('html');
-  html.classList.remove('light', 'dark');
-  html.classList.add(theme);
-}, [theme]);
+  useEffect(() => {
+    const html = document.querySelector('html');
+    html.classList.remove('light', 'dark');
+    html.classList.add(theme);
+  }, [theme]);
 
   /// modal conext:
   const [modal, setModal] = useState({ type: null, props: {} });
