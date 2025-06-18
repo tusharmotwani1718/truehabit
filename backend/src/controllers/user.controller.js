@@ -85,28 +85,30 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // Check user existence (already handled by Multer's fileFilter)
-    const userExists = await User.findOne({
-        $or: [{ username }, { email }]
-    })
-
-    if (userExists) {
-        throw new ApiError(400, "User with this username or email already exists.");
+    const mailExists = await User.findOne({ email });
+    if (mailExists) {
+        throw new ApiError(400, "User with this email already exists.")
     }
 
-    // upload profile image only when it is sent to the request:
-    let profileImage;
-    const profileImageLocalPath = req.files && req.files.profileImage ? req.files.profileImage[0]?.path : null;
-    if (profileImageLocalPath) {
-        profileImage = await uploadOnCloudinary(profileImageLocalPath);
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+        throw new ApiError(400, "This username is already taken.")
     }
+
+    // // upload profile image only when it is sent to the request:
+    // let profileImage;
+    // const profileImageLocalPath = req.files && req.files.profileImage ? req.files.profileImage[0]?.path : null;
+    // if (profileImageLocalPath) {
+    //     profileImage = await uploadOnCloudinary(profileImageLocalPath);
+    // }
 
     const user = await User.create({
         fullName,
         email,
         username: username.toLowerCase(),
-        profileImage: profileImage && profileImage.url,
+        // profileImage: profileImage && profileImage.url,
         password,
-        profileImagePublicId: profileImage && profileImage.public_id
+        // profileImagePublicId: profileImage && profileImage.public_id
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
@@ -125,18 +127,57 @@ const registerUser = asyncHandler(async (req, res) => {
 // 2. logging in a user:
 const login = asyncHandler(async (req, res) => {
 
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
+    const ip = req.ip;
 
-    if (!username && !email) {
-        throw new ApiError(400, "username or email is required.")
 
+    if (!email && !password) {
+        throw new ApiError(400, "Email and Password are required.")
     }
 
 
 
-    const user = await User.findOne({
-        $or: [{ username }, { email }]
-    })
+    // if (!username && !email) {
+    //     throw new ApiError(400, "username or email is required.")
+
+    // }
+
+    // arcjet validation:
+    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId, ip, requested: 1 }); // Deduct 1 token from the bucket
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
+    }
+
+
+
+    // const user = await User.findOne({
+    //     $or: [{ username }, { email }]
+    // })
+
+    const user = await User.findOne({ email })
 
     if (!user) {
         throw new ApiError(400, "Invalid credentials.")
@@ -146,7 +187,7 @@ const login = asyncHandler(async (req, res) => {
     // using "isPasswordCorrect" method defined in user.model.js
     const isPasswordCorrect = await user.isPasswordCorrect(password);
     if (!isPasswordCorrect) {
-        throw new ApiError(400, "Invalid password.")
+        throw new ApiError(400, "Invalid credentials.")
     }
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
     const loggedinUser = await User.findById(user._id).select("-password -refreshToken")
@@ -292,8 +333,44 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const updateAccount = asyncHandler(async (req, res) => {
 
     const { newName, newUsername } = req.body;
+    // console.log(newName, newUsername)
     if (!newName && !newUsername) {
         throw new ApiError(400, "No fields to update")
+    }
+
+    // arcjet validation:
+    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId, ip: req.ip, requested: 1 }); // Deduct 1 token from the bucket
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
+    }
+
+    // check if the userName already exists:
+    const userNameExists = await User.findOne({ username: newUsername });
+    if (userNameExists) {
+        throw new ApiError(400, "Username already taken.")
     }
 
     const user = await User.findById(req.user?._id).select('-password -refreshToken');
@@ -351,6 +428,24 @@ const updateProfileImage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid file path");
     }
 
+    // arcjet validation:
+    const decision = await arcjetService.rateLimit().protect(req, { email: req.user?.email, ip: req.ip, userId: req.user?._id })
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
+    }
+
     const newProfileImage = await uploadOnCloudinary(newProfileImageLocalPath);
 
     if (!newProfileImage.url) {
@@ -400,6 +495,8 @@ const deleteProfileImage = asyncHandler(async (req, res) => {
     if (!req?.user.profileImagePublicId) {
         throw new ApiError(400, "No Image to delete.");
     }
+
+
 
     // delete old profileImage from cloudinary
     const deleteProfileImage = req.user?.profileImagePublicId && await deleteFromCloudinary(req.user?.profileImagePublicId);
@@ -481,6 +578,24 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User not found.")
     }
 
+    // arcjet validation:
+    const decision = await arcjetService.rateLimit().protect(req, { userId, email: req.user?.email, ip: req.ip, requested: 1 }) // Deduct 1 token from the bucket
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
+    }
+
     const user = await User.findById(userId);
     if (!user) {
         throw new ApiError(400, "User not found.")
@@ -501,12 +616,62 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Error while generating email token.")
     }
 
-    const emailVerificationLink = `http://localhost:5173/verify-email?token=${emailToken}`;
+    const emailVerificationLink = `https://truehabit.in/verify-email?token=${emailToken}`;
 
     const content = `
-        <h1>Verify Your Email</h1>
-        <p>Click the link below to verify your email:</p>
-        <a href="${emailVerificationLink}">${emailVerificationLink}</a>
+        <!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { color: #2c3e50; text-align: center; }
+        .button { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            background-color: #3498db; 
+            color: white !important; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            margin: 20px 0; 
+        }
+        .footer { 
+            margin-top: 30px; 
+            font-size: 12px; 
+            color: #7f8c8d; 
+            text-align: center; 
+        }
+        .container { 
+            border: 1px solid #ecf0f1; 
+            padding: 30px; 
+            border-radius: 8px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Welcome to trueHabit!</h1>
+        
+        <p>Thank you for registering with us. To complete your registration and start using your account, please verify your email address by clicking the button below:</p>
+        
+        <div style="text-align: center;">
+            <a href="${emailVerificationLink}" class="button">Verify Email Address</a>
+        </div>
+        
+        <p>This link will expire in 24 hours. If you didn't request this verification, please ignore this email or contact our support team.</p>
+
+        <p>Need help? <a href="mailto:tusharmotwani89@gmail.com">Contact our support team</a> and we'll be happy to assist you.</p>
+
+        <div class="footer">
+            <p>© 2025 trueHabit. All rights reserved.</p>
+            <p>
+                <a href="https://truehabit.in">Website</a> | 
+                <a href="https://twitter.com/truehabit">Linkedin</a> 
+            </p>
+        </div>
+    </div>
+</body>
+</html>
     `
 
     const mail = await sendTestEmail(content, email);
@@ -531,6 +696,24 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
     if (!token) {
         throw new ApiError(400, "Token not found.")
+    }
+
+    // arcjet validation:
+    const decision = await arcjetService.rateLimit().protect(req, { token })
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
     }
 
     console.log("Token: ", token)

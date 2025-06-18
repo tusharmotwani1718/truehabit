@@ -60,8 +60,8 @@ const Sidebar = ({ items }) => {
     })
       .then((response) => {
         dispatch(logoutSlice(userID))
+        localStorage.removeItem('email_verification_status');
         setTimeout(() => {
-          localStorage.removeItem('email_verification_status');
           navigate('/'); // Let the layout handle actual redirection
         }, 100); // Short delay lets state settle
         displayMessage('success', response.data.message);

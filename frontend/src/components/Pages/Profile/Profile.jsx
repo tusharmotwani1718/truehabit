@@ -2,13 +2,15 @@ import React, { useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Topbar from '../../utils/Topbar';
 import { useMessage, useModal } from '../../../context/index.js';
-import { setProfilePicture, removeProfilePicture } from '../../../store/Slices/authSlice.js';
+import { setProfilePicture, removeProfilePicture, logout as logoutSlice } from '../../../store/Slices/authSlice.js';
 import axios from 'axios';
 import { FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import { FaCircleXmark } from 'react-icons/fa6';
 import { Alert } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import ConfirmDialog from '../../utils/ConfirmDialog.jsx';
+
 
 
 
@@ -19,6 +21,8 @@ function Profile() {
   const profileImageRef = useRef(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [isSendingMail, setIsSendingMail] = React.useState(false);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [buttonLoading, setButtonLoading] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -50,12 +54,42 @@ function Profile() {
 
 
   // useEffect hook:
-  useEffect(() => {
-      if(!userData){
-        navigate('/');
-        displayMessage('error', 'Please Login First');
-      }
-  }, [])
+  // useEffect(() => {
+  //   if (!userData) {
+  //     navigate('/');
+  //     displayMessage('error', 'Please Login First');
+  //   }
+  // }, [])
+
+
+  // handle delete account:
+  const deleteAccount = async (id) => {
+    try {
+      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_USERS}/deleteaccount`,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true
+        });
+      dispatch(logoutSlice());
+      displayMessage("success", response.data.message);
+    } catch (error) {
+      console.log(error);
+      displayMessage("error", "Network Error")
+    }
+  }
+
+  const handleConfirm = async () => {
+    try {
+      setButtonLoading(true);
+      await deleteAccount();
+      setIsDialogOpen(false); // Only close on success
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      displayMessage("error", "Network Error");
+    } finally {
+      setButtonLoading(false);
+    }
+  };
 
   // handle send mail:
   const handleSendMail = async () => {
@@ -154,15 +188,46 @@ function Profile() {
 
   };
 
+
+  if(!userData) {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <div className='text-center'>
+          <h1 className='text-2xl font-bold text-gray-800 dark:text-gray-200'>Please Login First</h1>
+          <button
+            onClick={() => navigate('/')}
+            className='mt-4 px-6 py-2 bg-primary dark:bg-dark-primary text-white rounded-lg hover:bg-primary/80 dark:hover:bg-dark-primary/80 transition-colors'
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
+
+    {/* // dialog box: */}
+      <ConfirmDialog
+        openStatus={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={() => handleConfirm()}
+        title="Delete this account?"
+        description="This will permanently delete your account and all associated data."
+        confirmText="Delete"
+        cancelText="Cancel"
+        buttonLoading={buttonLoading}
+      />
+
+
       <main className='md:w-[90%] mx-auto'>
         <Topbar text="Profile" />
 
 
         <section className='mt-8 px-4 sm:px-6 md:px-8 py-5'>
           {
-           !!userData && !userData.isEmailVerified && (
+            !!userData && !userData.isEmailVerified && (
               <Alert
                 message="You have not verified your email yet. Please verify your email to unlock all features."
                 type="warning"
@@ -174,7 +239,7 @@ function Profile() {
           }
           {/* Profile Header Card */}
           {/* {console.log(userData)} */}
-          <div className={`${userData.isEmailVerified ? '' : 'mt-4'} bg-white dark:bg-dark-background rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sm:p-8 mb-8`}>
+          <div className={`${!!userData && userData.isEmailVerified ? '' : 'mt-4'} bg-white dark:bg-dark-background rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sm:p-8 mb-8`}>
             <div className='flex flex-col sm:flex-row items-center sm:items-start gap-6'>
               {/* Profile Picture / Avatar */}
               <div className='flex-shrink-0 relative group'>
@@ -370,13 +435,13 @@ function Profile() {
                       }
                     </button>
                   }
-                  {
-                    emailStatus && !!userData && !userData.isEmailVerified &&
-                    (
-                      <p className='text-green-600 my-3 text-custom-md'>Activation Link sent to {userData.email}</p>
-                    )
-                  }
-                  
+                    {
+                      emailStatus && !!userData && !userData.isEmailVerified &&
+                      (
+                        <p className='text-green-600 my-3 text-custom-md'>Activation Link sent to {userData.email}</p>
+                      )
+                    }
+
                   </div>
                 </div>
                 <div>
@@ -395,7 +460,9 @@ function Profile() {
               <div>
                 <h3 className='text-custom-lg font-bold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2'>
                   <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
-                    <path fillRule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
+                    <path fillRule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clipRule='evenodd'
+
+                    />
                   </svg>
                   Delete Account
                 </h3>
@@ -404,7 +471,12 @@ function Profile() {
                 </p>
               </div>
 
-              <button className='bg-red-600 dark:bg-red-700 text-white px-6 py-3 rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md whitespace-nowrap'>
+              <button className='bg-red-600 dark:bg-red-700 text-white px-6 py-3 rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md whitespace-nowrap'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDialogOpen(true);
+                }}
+              >
                 <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
                   <path fillRule='evenodd' d='M9 2a1 1 0 000 2h2a1 1 0 100-2H9z' clipRule='evenodd' />
                   <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clipRule='evenodd' />

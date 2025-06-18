@@ -25,7 +25,7 @@ router.route('/login').post(login)
 router.route('/getuserdetails').get(verifyJWT,getUser);
 router.route('/logout').post(verifyJWT, logout);
 router.route('/refresh-token').post(refreshAccessToken); // no need to verify token as we have already done it at the method refreshAccessToken itself.
-router.route('/updateDetails').post(verifyJWT, updateAccount);
+router.route('/updateDetails').patch(verifyJWT, updateAccount);
 router.route('/changePassword').post(verifyJWT, changePassword);
 router.route('/updateProfileImage')
   .post(

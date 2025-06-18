@@ -10,7 +10,8 @@ import {
   MdFormatListBulleted,
   MdAccountCircle,
   MdCalendarToday,
-  MdEmail
+  MdEmail,
+  MdContactSupport
 } from "react-icons/md";
 
 const menuItems = [
@@ -19,7 +20,7 @@ const menuItems = [
   { name: 'My Habits', path: '/habits', icon: <MdFormatListBulleted size={22} /> },
   { name: 'Group Tracking', path: '/grouptracking', icon: <MdPeople size={22} />, badge: 'New' },
   { name: 'Profile', path: '/profile', icon: <MdAccountCircle size={22} /> },
-  { name: 'Contact', path: '/contact', icon: <MdAccountCircle size={22} /> }
+  { name: 'Contact', path: '/contact', icon: <MdContactSupport size={22} /> }
 ];
 
 

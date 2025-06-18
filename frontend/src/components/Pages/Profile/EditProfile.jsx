@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { useMessage } from '../../../context';
+import { useMessage, useModal } from '../../../context/index.js';
 import axios from 'axios';
 import { Controller, set, useForm, useWatch } from 'react-hook-form'
 import Input from '../../Form/Input/Input.jsx';
+import { updateProfile as updateProfileSlice } from '../../../store/Slices/authSlice.js';
+
 
 
 
@@ -15,6 +17,7 @@ function EditProfile({
     const [buttonLoading, setButtonLoading] = useState(false);
     const dispatch = useDispatch();
     const { displayMessage } = useMessage();
+    const {closeModal} = useModal();
 
     // react-hook-form
     const {
@@ -38,9 +41,28 @@ function EditProfile({
 
 
     const onSubmit = async (data) => {
-        console.log("Form Data:", data);
+        // console.log("Form Data:", data);
+        try {
+            setButtonLoading(true);
+            const { newName, newUsername } = data;
+            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_USERS}/updateDetails`, { newName, newUsername }, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            })
+            dispatch(updateProfileSlice(response.data.data));
+            displayMessage("success", response.data.message || "Profile updated successfully");
+            closeModal();
+        } catch (error) {
+            displayMessage("error", error.response.data.message || "Error updating profile");
+            console.log(error);
+        }
+        finally {
+            setButtonLoading(false);
+        }
     }
-    
+
 
     // use to disable the update button, if no field is changed
     const watchedFields = useWatch({ control });

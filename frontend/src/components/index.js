@@ -38,6 +38,8 @@ import ViewInvitations from "./Pages/GroupTracking/ViewInvitations.jsx";
 import Profile from "./Pages/Profile/Profile.jsx";
 import EditProfile from "./Pages/Profile/EditProfile.jsx";
 import VerifyEmail from "./Pages/Profile/VerifyEmail.jsx";
+import ComingSoon from "./utils/ComingSoon.jsx";
+import NotFound from "./utils/NotFound.jsx";
 
 
 
@@ -84,5 +86,7 @@ export {
     ViewInvitations,
     Profile,
     EditProfile,
-    VerifyEmail
+    VerifyEmail,
+    ComingSoon,
+    NotFound
 }

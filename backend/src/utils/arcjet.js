@@ -24,7 +24,7 @@ class Arcjet {
     }
 
     // METHOD 1: rate limiting:
-    rateLimit({ mode = "LIVE", refillRate = 5, interval = 10, capacity = 10 } = {}) {
+    rateLimit({ mode = "LIVE", refillRate = 5, interval = 10, capacity = 15 } = {}) {
         try {
             return arcjet({
                 ...this.defaultConfig,
@@ -107,7 +107,7 @@ class Arcjet {
     }
 
     // METHOD 5: Signup Form Protection:
-    protectSignup({ mode = "LIVE", interval = "10m", max = 5 } = {}) {
+    protectSignup({ mode = "LIVE", interval = "10m", max = 8 } = {}) {
         try {
             return (arcjet({
                 ...this.defaultConfig,
@@ -137,7 +137,7 @@ class Arcjet {
     }
 
     // METHOD 6: Sliding window rate limit:
-    slidingWindowRateLimit({ mode = "LIVE", interval = "10m", max = 10 } = {}) {
+    slidingWindowRateLimit({ mode = "LIVE", interval = "10m", max = 15 } = {}) {
         try {
             return (arcjet({
                 ...this.defaultConfig,

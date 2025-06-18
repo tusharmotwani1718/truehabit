@@ -1,16 +1,18 @@
 import React from 'react';
 import { MdEmail, MdLocationOn, MdPhone, MdSchedule } from 'react-icons/md';
 import { FaLinkedin, FaGithub, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { FaXTwitter } from "react-icons/fa6";
+
 
 function Contact() {
   const contactInfo = {
     email: "tusharmotwani89@gmail.com",
     phone: "+91 9982780324",
     location: "Jaipur, Rajasthan, India",
-    linkedin: "https://linkedin.com/in/yourprofile",
-    github: "https://github.com/yourusername",
-    twitter: "https://twitter.com/yourhandle",
-    instagram: "https://instagram.com/yourhandle"
+    linkedin: "https://www.linkedin.com/in/tushar-motwani-89/",
+    github: "https://github.com/tusharmotwani1718",
+    twitter: "https://x.com/tushar_7181",
+    instagram: ""
   };
 
   const availability = [
@@ -60,7 +62,7 @@ function Contact() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background dark:from-dark-background dark:via-dark-primary/5 dark:to-dark-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background dark:from-dark-background dark:via-dark-primary/5 dark:to-dark-background mx-auto w-full">
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary to-primary/80 dark:from-dark-primary dark:to-dark-primary/80 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -152,7 +154,7 @@ function Contact() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-white/90 hover:text-white transition-colors duration-300 group/link"
                   >
-                    <FaTwitter className="w-4 h-4 sm:w-5 sm:h-5 group-hover/link:scale-110 transition-transform duration-300" />
+                    <FaXTwitter className="w-4 h-4 sm:w-5 sm:h-5 group-hover/link:scale-110 transition-transform duration-300" />
                     <span className="text-sm sm:text-base md:text-lg font-medium">Follow me on Twitter</span>
                   </a>
                   

@@ -4,7 +4,7 @@ import { CheckMark, ConfirmDialog } from '../../../index'
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { IoIosStats } from "react-icons/io";
 import { IoCalendarClear } from "react-icons/io5";
-import { NormaliseText, returnDate } from '../../../../functions';
+import { NormaliseText, returnDate } from '../../../../../../shared/functions/index.js';
 import axios from 'axios';
 import { ApiError } from '../../../../../../backend/src/utils/ApiError';
 import { useMessage, useModal } from '../../../../context';

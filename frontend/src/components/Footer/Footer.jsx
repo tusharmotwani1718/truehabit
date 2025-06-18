@@ -1,6 +1,6 @@
 import React from 'react';
 import { Mail } from 'lucide-react';
-import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import packageJson from '../../../package.json';
@@ -22,13 +22,13 @@ const Footer = ({
               We're dedicated to providing the best experience for our users. Our mission is to create innovative solutions that make a difference.
             </p>
             <div className="flex space-x-4">
-              <Link to="#" aria-label="Twitter" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
+              <Link to="https://www.linkedin.com/in/tushar-motwani-89/" aria-label="Twitter" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
                 <FaLinkedin size={"16px"} />
               </Link>
-              <Link to="#" aria-label="Instagram" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
+              <Link to="https://x.com/tushar_7181" aria-label="Instagram" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
                 <FaXTwitter size={"16px"} />
               </Link>
-              <Link to="#" aria-label="LinkedIn" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
+              <Link to="https://github.com/tusharmotwani1718" aria-label="LinkedIn" className=" bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary h-8 w-8 rounded-full flex items-center justify-center hover:bg-[#E9DDFD] hover:text-[#260051] transition duration-300">
                 <FaGithub size={"16px"} />
               </Link>
             </div>

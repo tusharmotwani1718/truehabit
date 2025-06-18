@@ -7,8 +7,7 @@ import { Calendar, ConfigProvider, Badge } from 'antd'
 import dayjs from 'dayjs'
 import axios from 'axios'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import formatDate from '../../../../functions/formatDate.js'
-import NormaliseText from '../../../../functions/NormaliseText.js'
+import { formatDate, NormaliseText } from '../../../../../../shared/functions/index.js';
 import { useMessage } from '../../../../context/index.js'
 import { TiGroupOutline } from "react-icons/ti";
 import { deleteHabit as deleteHabitSlice } from '../../../../store/Slices/habitSlice.js'

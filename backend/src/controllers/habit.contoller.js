@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import { User } from "../models/user.model.js";
 import arcjetService from "../utils/arcjet.js";
 import mongoose from "mongoose";
-import { compareDatesWithoutTime } from "../../../frontend/src/functions/CompareDates.js";
+import { compareDatesWithoutTime } from "../../../shared/functions/CompareDates.js";
 
 
 dotenv.config();
@@ -28,6 +28,24 @@ const validateUpdateHabit = [
 
 // Route 1: Fetch habits:
 const getHabits = async (req, res) => {
+    // arcjet Rate Limit function:
+    const decision = await arcjetService.rateLimit({ refillRate: 5, interval: "5m", capacity: 5 }).protect(req, { email: req.user?.email })
+    // console.log("Arcjet decision", decision);
+
+    if (decision.isDenied()) {
+        if (decision.reason.isEmail()) {
+            throw new ApiError(
+                400,
+                "Invalid or Disposable emails not allowed."
+            )
+        } else {
+            throw new ApiError(
+                400,
+                "Too many requests. Please try after some time..."
+            )
+        }
+    }
+
     const { habitType } = req.params;
     // console.log(habitType)
     const todayDate = new Date();
@@ -103,7 +121,7 @@ const addNewHabit = asyncHandler(async (req, res) => {
         refillRate: 10,
         interval: 120,
         capacity: 10
-    }).protect(req, { userId, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId, email: req.user?.email, requested: 1 }); // Deduct 1 token from the bucket
     if (decision.isDenied()) {
         throw new ApiError(
             400,
@@ -194,7 +212,7 @@ const deleteHabit = asyncHandler(async (req, res) => {
         refillRate: 10,
         interval: 120,
         capacity: 10
-    }).protect(req, { userId, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId, email : req.user?.email, requested: 1 }); // Deduct 1 token from the bucket
     if (decision.isDenied()) {
         throw new ApiError(
             400,
@@ -480,7 +498,7 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
     if (habit.completedDays.length > 0) {
         currentStreak = 1;
         longestStreak = 1;
-        
+
         for (let i = 0; i < habit.completedDays.length - 1; i++) {
             const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
             const nextDate = new Date(habit.completedDays[i + 1]).setHours(0, 0, 0, 0);

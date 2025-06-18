@@ -1,4 +1,4 @@
-import { Home, Contact, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail } from './components/index.js';
+import { Home, Contact, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail, ComingSoon } from './components/index.js';
 import Layout from './Layout.jsx';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import { MessageProvider, ModalProvider, ThemeProvider, useMessage } from './context/index.js';
@@ -16,6 +16,8 @@ import GroupTrackingLayout from './GroupTrackingLayout.jsx';
 import GroupDetails from './components/Pages/GroupTracking/GroupDetails.jsx';
 import AddGroup from './components/Pages/GroupTracking/AddGroup.jsx'
 import NotFound from './components/utils/NotFound.jsx';
+import AuthProvider from './AuthProvider.jsx';
+
 
 
 unstableSetRender((node, container) => {
@@ -46,6 +48,14 @@ const router = createBrowserRouter(
         element={
           <AuthLayout authentication={false}>
             <Contact />
+          </AuthLayout>
+        }
+      />
+      <Route
+        path="profile"
+        element={
+          <AuthLayout authentication={false}>
+            <Profile />
           </AuthLayout>
         }
       />
@@ -93,14 +103,15 @@ const loggedinRouter = createBrowserRouter(
           path="grouptracking"
           element={
             <AuthLayout authentication>
-              <GroupTrackingLayout /> {/* <Outlet /> will go here */}
+              {/* <GroupTrackingLayout /> <Outlet /> will go here */}
+              <ComingSoon />
             </AuthLayout>
           }
         >
-          <Route index element={<GroupTracking />} />        {/* Renders at /grouptracking */}
-          <Route path=":groupId" element={<GroupDetails />} /> {/* Renders at /grouptracking/:groupId */}
-          <Route path="today/viewtodayhabits" element={<ViewTodayGroupHabits />} /> {/* Renders at /grouptracking/today/viewtodayhabits */}
-          <Route path="viewinvites" element={<ViewInvitations />} /> {/* Renders at /grouptracking/viewinvites */}
+          {/* <Route index element={<GroupTracking />} />        Renders at /grouptracking */}
+          {/* <Route path=":groupId" element={<GroupDetails />} /> Renders at /grouptracking/:groupId */}
+          {/* <Route path="today/viewtodayhabits" element={<ViewTodayGroupHabits />} /> Renders at /grouptracking/today/viewtodayhabits */}
+          {/* <Route path="viewinvites" element={<ViewInvitations />} /> Renders at /grouptracking/viewinvites */}
         </Route>
 
         <Route
@@ -169,38 +180,38 @@ const loggedinRouter = createBrowserRouter(
 function App() {
   const authStatus = useSelector(state => state.auth.authStatus);
   const [routerKey, setRouterKey] = useState(0);
-  const storedAuthStatus = useSelector(state => state.auth.authStatus);
+  // const storedAuthStatus = useSelector(state => state.auth.authStatus);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  // check the authStatus of the user:
-  useEffect(() => {
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    };
+  // // check the authStatus of the user:
+  // useEffect(() => {
+  //   const getCookie = (name) => {
+  //     const value = `; ${document.cookie}`;
+  //     const parts = value.split(`; ${name}=`);
+  //     if (parts.length === 2) return parts.pop().split(';').shift();
+  //   };
 
-    const checkAuth = () => {
-      const accessToken = getCookie('accessToken');
-      const refreshToken = getCookie('refreshToken');
+  //   const checkAuth = () => {
+  //     const accessToken = getCookie('accessToken');
+  //     const refreshToken = getCookie('refreshToken');
 
 
-      // Sync Redux state with cookies and localStorage
-      if (accessToken && refreshToken) {
-        if (!storedAuthStatus) {
-          // localStorage.setItem('authStatus', 'true');
-          dispatch(setAuthStatus(true));
-        }
-      } else {
-        if (storedAuthStatus) {
-          dispatch(logout());
-        }
-      }
-    };
+  //     // Sync Redux state with cookies and localStorage
+  //     if (accessToken && refreshToken) {
+  //       if (!storedAuthStatus) {
+  //         // localStorage.setItem('authStatus', 'true');
+  //         dispatch(setAuthStatus(true));
+  //       }
+  //     } else {
+  //       if (storedAuthStatus) {
+  //         dispatch(logout());
+  //       }
+  //     }
+  //   };
 
-    checkAuth();
-  }, [dispatch]); // Add dispatch to dependency array
+  //   checkAuth();
+  // }, [dispatch]); // Add dispatch to dependency array
 
   // change the routers as per the user's authStatus:
   useEffect(() => {
@@ -253,6 +264,7 @@ function App() {
     <MessageProvider value={{ messageType, messageContent, displayMessage }}>
       <ThemeProvider value={{ theme, toggleTheme }}>
         <ModalProvider value={{ openModal, closeModal, modalType: modal.type }}>
+          <AuthProvider>   {/* Add this here */}
           <RouterProvider key={routerKey} router={authStatus ? loggedinRouter : router} />
           <Message /> {/* Render the Message component to show messages */}
           <ModalWindow>
@@ -272,6 +284,7 @@ function App() {
               <InviteUsers groupId={modal.props.groupId} />
             )}
           </ModalWindow>
+          </AuthProvider>
         </ModalProvider>
       </ThemeProvider>
     </MessageProvider>

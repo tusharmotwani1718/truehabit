@@ -14,10 +14,6 @@ import { Alert } from 'antd'
 
 
 
-
-
-
-
 function Habits() {
     const { displayMessage } = useMessage();
     const [habitType, setHabitType] = useState('active');
