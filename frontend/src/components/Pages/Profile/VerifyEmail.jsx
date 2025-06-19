@@ -18,11 +18,22 @@ function VerifyEmail() {
     const dispatch = useDispatch();
     const userData = useSelector(state => state.auth.userData);
 
-    if(!userData) {
-        navigate('/');
-        displayMessage('error', 'Please Login First');
+    if (!userData || !userData._id) {
+        return (
+            <div className='flex items-center justify-center h-screen'>
+                <div className='text-center'>
+                    <h1 className='text-2xl font-bold text-gray-800 dark:text-gray-200'>Please Login First</h1>
+                    <button
+                        onClick={() => navigate('/')}
+                        className='mt-4 px-6 py-2 bg-primary dark:bg-dark-primary text-white rounded-lg hover:bg-primary/80 dark:hover:bg-dark-primary/80 transition-colors'
+                    >
+                        Go to Home
+                    </button>
+                </div>
+            </div>
+        );
     }
-    
+
 
 
     if (!token) {

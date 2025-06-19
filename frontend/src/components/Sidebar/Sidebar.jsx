@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout as logoutSlice } from '../../store/Slices/authSlice';
 import axios from 'axios';
 import { useMessage, useTheme } from '../../context';
+import { persistor } from '../../store/store.js';
+
 
 
 const Sidebar = ({ items }) => {
@@ -60,6 +62,7 @@ const Sidebar = ({ items }) => {
     })
       .then((response) => {
         dispatch(logoutSlice(userID))
+        persistor.purge();
         localStorage.removeItem('email_verification_status');
         setTimeout(() => {
           navigate('/'); // Let the layout handle actual redirection

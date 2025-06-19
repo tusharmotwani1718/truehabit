@@ -1,32 +1,42 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuthStatus, logout } from './store/Slices/authSlice.js';
+import { setAuthStatus, logout, setAuthChecked } from './store/Slices/authSlice.js';
+import axios from 'axios';
 
 function AuthProvider({ children }) {
   const dispatch = useDispatch();
   const storedAuthStatus = useSelector(state => state.auth.authStatus);
 
   useEffect(() => {
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    };
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL_USERS}/auth/check-session`, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-    const checkAuth = () => {
-      const accessToken = getCookie('accessToken');
-      const refreshToken = getCookie('refreshToken');
+        const data = res.data;
 
-      if (accessToken && refreshToken) {
-        if (!storedAuthStatus) {
-          console.log('Access token found, setting authStatus = true');
-          dispatch(setAuthStatus(true));
+        if (data.isAuthenticated) {
+          console.log('✅ Session valid, setting authStatus = true');
+          if (!storedAuthStatus) {
+            dispatch(setAuthStatus(true));
+          }
+        } else {
+          console.log('❌ No valid session, logging out');
+          if (storedAuthStatus) {
+            dispatch(logout());
+          } else {
+            dispatch(setAuthStatus(false));
+          }
         }
-      } else {
-        if (storedAuthStatus) {
-          console.log('No tokens, logging out');
-          dispatch(logout());
-        }
+      } catch (err) {
+        console.log('⚠️ Auth check failed', err);
+        dispatch(logout());
+      } finally {
+        dispatch(setAuthChecked(true));  // 🚀 Always set isAuthChecked
       }
     };
 

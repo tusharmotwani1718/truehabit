@@ -145,12 +145,15 @@ const addNewHabit = asyncHandler(async (req, res) => {
         throw new ApiError(400, "End date is required.");
     }
 
+    const startDateObj = new Date(startDate).setHours(0, 0, 0, 0); // Set time to start of the day
+    const endDateObj = new Date(endDate).setHours(0, 0, 0, 0); // Set time to start of the day
+
     // cannot add a habit in the past:
-    if (new Date(startDate) < currentDate || new Date(endDate) < currentDate) {
+    if (startDateObj < currentDate || endDateObj < currentDate) {
         throw new ApiError(400, "Invalid Dates.")
     }
 
-    if (new Date(startDate) > new Date(endDate)) {
+    if (startDateObj >= endDateObj) {
         throw new ApiError(400, "End date should be greater than start date.");
     }
 

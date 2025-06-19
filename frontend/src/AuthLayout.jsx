@@ -1,32 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router';
+import { useEffect, useState } from 'react';
 
 function AuthLayout({ children, authentication = true }) {
-  const [initialCheck, setInitialCheck] = useState(true);
   const authStatus = useSelector(state => state.auth.authStatus);
+  const isAuthChecked = useSelector(state => state.auth.isAuthChecked); // 🚀
+
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Wait for authStatus to be defined
-    if (authStatus === null || authStatus === undefined) return;
+    if (!isAuthChecked) return; // Wait until auth check is done
 
-    // Access protected route, but not authenticated
+    // Protected route
     if (authentication && !authStatus) {
       if (location.pathname !== '/') navigate('/');
     }
 
-    // Access public route, but already authenticated
+    // Public route, but already authenticated
     if (!authentication && authStatus) {
       if (location.pathname !== '/todayhabits') navigate('/todayhabits');
     }
 
-    // Done checking
-    setInitialCheck(false);
-  }, [authStatus, authentication, navigate, location.pathname]);
+  }, [authStatus, authentication, navigate, location.pathname, isAuthChecked]);
 
-  return initialCheck ? <h1>Loading...</h1> : <>{children}</>;
+  if (!isAuthChecked) {
+    return <h1>Loading...</h1>; // Wait until auth check is finished
+  }
+
+  return <>{children}</>;
 }
 
 export default AuthLayout;

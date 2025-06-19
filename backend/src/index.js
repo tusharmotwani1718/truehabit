@@ -15,6 +15,7 @@ dotenv.config();
 
     console.log(`Connected to database: ${envconf.mongoDbUri}/${DB_NAME}`);
 
+
     // Start listening on the port only after successful DB connection
     app.listen(envconf.port, () => {
       console.log(`App is listening at port: ${envconf.port}`);

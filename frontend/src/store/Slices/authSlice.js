@@ -17,13 +17,13 @@ const authSlice = createSlice({
         login: (state, action) => {
             state.authStatus = true;
             state.userData = action.payload.user;
-            // Calculate expiration dates
-            const accessTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(); // 1 day
-            const refreshTokenExpiry = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toUTCString(); // 10 days
+            // // Calculate expiration dates
+            // const accessTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(); // 1 day
+            // const refreshTokenExpiry = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toUTCString(); // 10 days
 
-            // Set cookies with expiration dates
-            document.cookie = `refreshToken=${action.payload.refreshToken}; path=/; Secure; SameSite=None; expires=${refreshTokenExpiry}`;
-            document.cookie = `accessToken=${action.payload.accessToken}; path=/; Secure; SameSite=None; expires=${accessTokenExpiry}`;
+            // // Set cookies with expiration dates
+            // document.cookie = `refreshToken=${action.payload.refreshToken}; path=/; Secure; SameSite=None; expires=${refreshTokenExpiry}`;
+            // document.cookie = `accessToken=${action.payload.accessToken}; path=/; Secure; SameSite=None; expires=${accessTokenExpiry}`;
             // localStorage.setItem('authStatus', true); // Save to localStorage
         },
         updateProfile: (state, action) => {
@@ -51,23 +51,20 @@ const authSlice = createSlice({
                 state.userData.isEmailVerified = true;
             }
         },
-        logout: (state, action) => {
-            state.authStatus = false;
-            state.userData = null;
-            // Clear cookies properly
-            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-            document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-
-            // localStorage.removeItem('authStatus'); // clear from localStorage
-        },
-        // manually set an authStatus:
         setAuthStatus: (state, action) => {
             state.authStatus = action.payload;
         },
+        setAuthChecked: (state, action) => {
+            state.isAuthChecked = action.payload;
+        },
+        logout: (state) => {
+            state.authStatus = false;
+            state.isAuthChecked = true; // logout still means check is done
+        }
     }
 })
 
 
-export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture, activateAccount } = authSlice.actions;
+export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture, activateAccount, setAuthChecked } = authSlice.actions;
 
 export default authSlice.reducer;

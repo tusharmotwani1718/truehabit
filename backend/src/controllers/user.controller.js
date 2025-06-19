@@ -192,21 +192,28 @@ const login = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
     const loggedinUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const options = {
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: true
-    }
+        secure: isProduction,
+        sameSite: isProduction ? 'None' : 'Lax',
+        maxAge: 24 * 60 * 60 * 1000,
+        path: '/'
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'None' : 'Lax',
+        maxAge: 10 * 24 * 60 * 60 * 1000,
+        path: '/'
+    });
+
 
     return res
         .status(200)
-        .cookie('accessToken', accessToken, options, {
-            maxAge: 24 * 60 * 60 * 1000,
-            sameSite: 'none'
-        })
-        .cookie('refreshToken', refreshToken, options, {
-            maxAge: 10 * 24 * 60 * 60 * 1000,
-            sameSite: 'none'
-        })
         .json(
             new ApiResponse(
                 201,
@@ -738,6 +745,34 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
 })
 
+// 10: check session:
+const checkSession = asyncHandler(async (req, res) => {
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!accessToken || !refreshToken) {
+        return res.status(200).json({ isAuthenticated: false, user: null });
+    }
+
+    try {
+        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+        const user = await User.findById(decoded._id).select("-password -refreshToken");
+
+        if (!user) {
+            return res.status(200).json({ isAuthenticated: false, user: null });
+        }
+
+        return res.status(200).json({
+            isAuthenticated: true,
+            user,
+        });
+    } catch (err) {
+        console.log("Session check error", err);
+        return res.status(200).json({ isAuthenticated: false, user: null });
+    }
+});
+
+
 export {
     registerUser, validateCreateUser,
     login,
@@ -750,5 +785,6 @@ export {
     deleteProfileImage,
     deleteAccount,
     sendEmailVerification,
-    verifyEmail
+    verifyEmail,
+    checkSession
 }

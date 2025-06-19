@@ -6,6 +6,8 @@ import envconf from "./conf/envconfig.js";
 
 const app = express();
 
+app.set("trust proxy", true); 
+
 // MIDDLEWARES:
 app.use(cors({
   origin: envconf.corsOrigin,

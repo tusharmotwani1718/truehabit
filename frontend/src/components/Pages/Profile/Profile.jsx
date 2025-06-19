@@ -189,7 +189,7 @@ function Profile() {
   };
 
 
-  if(!userData) {
+  if(!userData || !userData._id) {
     return (
       <div className='flex items-center justify-center h-screen'>
         <div className='text-center'>

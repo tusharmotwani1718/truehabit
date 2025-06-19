@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, registerUser, validateCreateUser, logout, refreshAccessToken, updateAccount, changePassword, updateProfileImage, deleteProfileImage, deleteAccount, getUser, sendEmailVerification, verifyEmail } from '../controllers/user.controller.js'
+import { login, registerUser, validateCreateUser, logout, refreshAccessToken, updateAccount, changePassword, updateProfileImage, deleteProfileImage, deleteAccount, getUser, sendEmailVerification, verifyEmail, checkSession } from '../controllers/user.controller.js'
 import { uploadMedia } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import extractClientIp from "../middlewares/clientIP.middleware.js";
@@ -19,7 +19,8 @@ router.route('/register').post(
     ]),
     validateCreateUser, registerUser);
 
-router.route('/login').post(login)
+router.route('/login').post(login);
+router.route('/auth/check-session').get(checkSession);
 
 // Routes requiring AUTH:
 router.route('/getuserdetails').get(verifyJWT,getUser);
@@ -48,6 +49,7 @@ router.route('/deleteProfileImage').delete(verifyJWT, deleteProfileImage);
 router.route('/deleteaccount').delete(verifyJWT, deleteAccount);
 router.route('/sendMailVerification').post(verifyJWT, sendEmailVerification);
 router.route('/verify-email').get(verifyJWT, verifyEmail);
+
 
 
 export default router;
