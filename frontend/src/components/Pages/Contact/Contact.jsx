@@ -6,7 +6,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 function Contact() {
   const contactInfo = {
-    email: "tusharmotwani89@gmail.com",
+    email: "tusharmotwani@truehabit.in",
     phone: "+91 9982780324",
     location: "Jaipur, Rajasthan, India",
     linkedin: "https://www.linkedin.com/in/tushar-motwani-89/",

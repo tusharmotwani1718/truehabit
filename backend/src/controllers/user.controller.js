@@ -667,13 +667,13 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
         
         <p>This link will expire in 24 hours. If you didn't request this verification, please ignore this email or contact our support team.</p>
 
-        <p>Need help? <a href="mailto:tusharmotwani89@gmail.com">Contact our support team</a> and we'll be happy to assist you.</p>
+        <p>Need help? <a href="mailto:tusharmotwani@truehabit.in">Contact our support team</a> and we'll be happy to assist you.</p>
 
         <div class="footer">
             <p>© 2025 trueHabit. All rights reserved.</p>
             <p>
                 <a href="https://truehabit.in">Website</a> | 
-                <a href="https://twitter.com/truehabit">Linkedin</a> 
+                <a href="https://www.linkedin.com/in/tushar-motwani-92a080370">Linkedin</a> 
             </p>
         </div>
     </div>
@@ -723,10 +723,10 @@ const verifyEmail = asyncHandler(async (req, res) => {
         }
     }
 
-    console.log("Token: ", token)
+    // console.log("Token: ", token)
 
     const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
-    console.log(decoded);
+    // console.log(decoded);
     const user = await User.findById(decoded._id);
 
     if (!user) {

@@ -18,8 +18,8 @@ const envconf = {
     emailSecretExpiry: String(process.env.EMAIL_SECRET_EXPIRY),
     oathClientID: String(process.env.OATH_CLIENT_ID),
     oathClientSecret: String(process.env.OATH_CLIENT_SECRET),
-    googleAppPass: String(process.env.GOOGLE_APP_PASSWORD),
-    gmailAddress: String(process.env.GMAIL_ADDRESS)
+    professionalMail: String(process.env.PROFESSIONAL_MAIL_ADDRESS),
+    mailPassword: String(process.env.PROFESSIONAL_MAIL_PASSWORD)
 }
 
 export default envconf;

@@ -5,17 +5,18 @@ const sendEmail = async (content, receiverMail) => {
   try {
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtpout.secureserver.net', // GoDaddy SMTP
+      port: 465, // SSL port
+      secure: true, // true for port 465
       auth: {
-        user: "tusharmotwani89@gmail.com",     
-        pass: "hfml ayre eqzp xknw",
+        user: envconf.professionalMail,
+        pass: envconf.mailPassword, // no app password needed for Workspace Email
       },
-      secure: true,
-      logger: true,
-      debug: true,
       tls: {
         rejectUnauthorized: false
-      }
+      },
+      logger: true,
+      debug: true
     });
 
     await transporter.sendMail({
