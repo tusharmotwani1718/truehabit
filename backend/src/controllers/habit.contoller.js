@@ -8,6 +8,7 @@ import { User } from "../models/user.model.js";
 import arcjetService from "../utils/arcjet.js";
 import mongoose from "mongoose";
 import { compareDatesWithoutTime } from "../../../shared/functions/CompareDates.js";
+import { start } from "repl";
 
 
 dotenv.config();
@@ -145,8 +146,11 @@ const addNewHabit = asyncHandler(async (req, res) => {
         throw new ApiError(400, "End date is required.");
     }
 
-    const startDateObj = new Date(startDate).setHours(0, 0, 0, 0); // Set time to start of the day
-    const endDateObj = new Date(endDate).setHours(0, 0, 0, 0); // Set time to start of the day
+    const startDateObj = new Date(startDate);
+    startDateObj.setHours(0, 0, 0, 0);
+
+    const endDateObj = new Date(endDate);
+    endDateObj.setHours(0, 0, 0, 0);
 
     // cannot add a habit in the past:
     if (startDateObj < currentDate || endDateObj < currentDate) {
@@ -215,7 +219,7 @@ const deleteHabit = asyncHandler(async (req, res) => {
         refillRate: 10,
         interval: 120,
         capacity: 10
-    }).protect(req, { userId, email : req.user?.email, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId, email: req.user?.email, requested: 1 }); // Deduct 1 token from the bucket
     if (decision.isDenied()) {
         throw new ApiError(
             400,
@@ -312,15 +316,81 @@ const updateHabit = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Required Fields are missing.");
     }
 
+
+
     // get the habit:
     const habit = await Habit.findById(habitId);
+
+    if (!habit) {
+        throw new ApiError(400, "Habit not found.");    
+    }
+
+    const habitStartDate = new Date(habit.startDate);
+    habitStartDate.setHours(0, 0, 0, 0); // set time to start of the day
+    const habitEndDate = new Date(habit.endDate);
+    habitEndDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+    let startDateObj = null;
+    let endDateObj = null;
+
+    if (startDate) {
+        startDateObj = new Date(startDate);
+        startDate = new Date(startDate);
+        startDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+        // cannot update start date in the past:
+        if (startDate < todayDate) {
+            throw new ApiError(400, "Cannot update start date to the past.");
+        }
+
+        // if start and end date, both are sent to update:
+        if (endDate) {
+            if (startDate > endDate) {
+                throw new ApiError(400, "Cannot update start date to after end date.");
+            }
+        }
+
+        // if only start date is sent to update:
+        // cannot update start date after end Date:
+        if (startDate > habitEndDate) {
+            throw new ApiError(400, "Cannot update start date to after end date.");
+        }
+
+    }
+
+    if (endDate) {
+        endDateObj = new Date(endDate);
+        endDate = new Date(endDate);
+        endDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+        // cannot update end date in the past:
+        if (endDate < todayDate) {
+            throw new ApiError(400, "Cannot update end date to the past.");
+        }
+
+        // if start date and end date, both are sent to update:
+        if (startDate) {
+            if (endDate < startDate) {
+                throw new ApiError(400, "Cannot update end date to before start date.");
+            }
+        }
+
+        // if only end date is sent to update:
+        // cannot update end date before start date:
+        if (endDate < habitStartDate) {
+            throw new ApiError(400, "Cannot update end date to before start date.");
+        }
+    }
 
 
     if (hName) habit.habitName = hName;
     if (hDesc) habit.habitDesc = hDesc;
     if (category) habit.habitCategory = category;
-    if (startDate) habit.startDate = startDate;
-    if (endDate) habit.endDate = endDate;
+    if (startDate) habit.startDate = startDateObj;
+    if (endDate) habit.endDate = endDateObj;
 
     await habit.save({ validateBeforeSave: false });
 

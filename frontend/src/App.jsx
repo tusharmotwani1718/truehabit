@@ -59,6 +59,14 @@ const router = createBrowserRouter(
           </AuthLayout>
         }
       />
+      <Route
+        path="verify-email"
+        element={
+          <AuthLayout authentication={false}>
+            <VerifyEmail />
+          </AuthLayout>
+        }
+      />
       {/* Catch-all route for 404 */}
       <Route path="*" element={<NotFound />} />
 
@@ -180,38 +188,6 @@ const loggedinRouter = createBrowserRouter(
 function App() {
   const authStatus = useSelector(state => state.auth.authStatus);
   const [routerKey, setRouterKey] = useState(0);
-  // const storedAuthStatus = useSelector(state => state.auth.authStatus);
-
-  // const dispatch = useDispatch();
-
-  // // check the authStatus of the user:
-  // useEffect(() => {
-  //   const getCookie = (name) => {
-  //     const value = `; ${document.cookie}`;
-  //     const parts = value.split(`; ${name}=`);
-  //     if (parts.length === 2) return parts.pop().split(';').shift();
-  //   };
-
-  //   const checkAuth = () => {
-  //     const accessToken = getCookie('accessToken');
-  //     const refreshToken = getCookie('refreshToken');
-
-
-  //     // Sync Redux state with cookies and localStorage
-  //     if (accessToken && refreshToken) {
-  //       if (!storedAuthStatus) {
-  //         // localStorage.setItem('authStatus', 'true');
-  //         dispatch(setAuthStatus(true));
-  //       }
-  //     } else {
-  //       if (storedAuthStatus) {
-  //         dispatch(logout());
-  //       }
-  //     }
-  //   };
-
-  //   checkAuth();
-  // }, [dispatch]); // Add dispatch to dependency array
 
   // change the routers as per the user's authStatus:
   useEffect(() => {

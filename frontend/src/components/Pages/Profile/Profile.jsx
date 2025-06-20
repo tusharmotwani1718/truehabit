@@ -33,7 +33,7 @@ function Profile() {
 
     try {
       const data = JSON.parse(raw);
-      return data.sent && Date.now() < data.expiresAt;
+      return data.sent && data.sentTo == userData.email && Date.now() < data.expiresAt;
     } catch (e) {
       return false;
     }
@@ -112,6 +112,7 @@ function Profile() {
       const emailSentData = {
         sent: true,
         expiresAt: Date.now() + oneDayInMs,
+        sentTo: userData.email || 'Not provided'
       };
 
       localStorage.setItem("email_verification_status", JSON.stringify(emailSentData));
@@ -229,7 +230,7 @@ function Profile() {
           {
             !!userData && !userData.isEmailVerified && (
               <Alert
-                message="You have not verified your email yet. Please verify your email to unlock all features."
+                message={`You have not verified your email yet. Please verify your email to unlock all features.<span className='font-semibold text-primary dark:text-dark-primary'><Link to="/profile">Verify here</Link></span>`}
                 type="warning"
                 showIcon
                 closable
@@ -424,6 +425,7 @@ function Profile() {
                   <div>{!!userData && !userData.isEmailVerified &&
                     <button className={`mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md shadow-sm hover:bg-primary/80 dark:bg-dark-primary dark:hover:bg-dark-primary/80 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition ${isSendingMail || emailStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => handleSendMail()}
+                      disabled={isSendingMail || emailStatus}
                     >
                       {
                         isSendingMail ? <FaSpinner className='w-5 h-5' /> : <FaCheckCircle className="w-5 h-5" />

@@ -131,7 +131,7 @@ const login = asyncHandler(async (req, res) => {
     const ip = req.ip;
 
 
-    if (!email && !password) {
+    if (!email || !password) {
         throw new ApiError(400, "Email and Password are required.")
     }
 
@@ -341,7 +341,7 @@ const updateAccount = asyncHandler(async (req, res) => {
 
     const { newName, newUsername } = req.body;
     // console.log(newName, newUsername)
-    if (!newName && !newUsername) {
+    if (!newName || !newUsername) {
         throw new ApiError(400, "No fields to update")
     }
 
