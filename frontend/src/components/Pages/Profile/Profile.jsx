@@ -230,7 +230,7 @@ function Profile() {
           {
             !!userData && !userData.isEmailVerified && (
               <Alert
-                message={`You have not verified your email yet. Please verify your email to unlock all features.<span className='font-semibold text-primary dark:text-dark-primary'><Link to="/profile">Verify here</Link></span>`}
+                message={`You have not verified your email yet. Please verify your email in the Profile page to unlock all features.`}
                 type="warning"
                 showIcon
                 closable

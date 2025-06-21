@@ -151,7 +151,7 @@ function Habits() {
                         !isEmailVerified && (
                             <Alert 
                                 type="warning"
-                                message="Please verify your email to add habits"
+                                message="Please verify your email in the profile page to add habits."
                                 className="w-full mx-auto"
                                 closable
                                 showIcon

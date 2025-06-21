@@ -3,6 +3,8 @@ import envconf from '../conf/envconfig.js';
 
 const sendEmail = async (content, receiverMail) => {
   try {
+    // console.log(envconf.professionalMail, envconf.mailPassword);
+    // console.log("Sending email to:", receiverMail);
 
     const transporter = nodemailer.createTransport({
       host: 'smtpout.secureserver.net', // GoDaddy SMTP
@@ -20,7 +22,7 @@ const sendEmail = async (content, receiverMail) => {
     });
 
     await transporter.sendMail({
-      from: `"trueHabit 👋" <${envconf.gmailAddress}>`,
+      from: `"trueHabit 👋" <${envconf.professionalMail}>`,
       to: receiverMail,
       subject: 'Verify Your Email',
       html: content

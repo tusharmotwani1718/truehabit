@@ -28,7 +28,7 @@ const validateUpdateHabit = [
 
 
 // Route 1: Fetch habits:
-const getHabits = async (req, res) => {
+const getHabits = asyncHandler(async (req, res) => {
     // arcjet Rate Limit function:
     const decision = await arcjetService.rateLimit({ refillRate: 5, interval: "5m", capacity: 5 }).protect(req, { email: req.user?.email })
     // console.log("Arcjet decision", decision);
@@ -111,7 +111,7 @@ const getHabits = async (req, res) => {
     );
 
 
-}
+})
 
 // Route 2: Adding a new habit
 const addNewHabit = asyncHandler(async (req, res) => {
