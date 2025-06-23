@@ -142,7 +142,7 @@ const Sidebar = ({ items }) => {
           }
         </motion.button>
 
-        <div className='flex flex-col h-full py-6 px-4'>
+        <div className='flex flex-col h-full pt-3 px-4'>
           {/* Logo area */}
           <div className="flex items-center mb-10 mt-12 md:mt-0">
             {(!isCollapsed || window.innerWidth < 768) && (
@@ -167,8 +167,8 @@ const Sidebar = ({ items }) => {
           </div>
 
           {/* Main menu */}
-          <div className="flex-1">
-            <ul className='flex flex-col gap-3 mb-8'>
+          <div className="flex">
+            <ul className='flex flex-col gap-2 mb-4 w-full'>
               {items &&
                 items.map((item) => {
                   // Check if current route matches this item's path
@@ -235,7 +235,7 @@ const Sidebar = ({ items }) => {
             onClick={changeTheme}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className={`mb-6 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
+            className={`mb-3 self-${(isCollapsed && window.innerWidth >= 768) ? 'center' : 'start'} rounded-full p-2 bg-[#5E35B1] dark:bg-[#3c3c3c]`}
           >
             {theme === "light" ? (
               <MdDarkMode size={22} className="text-[#BB86FC]" />

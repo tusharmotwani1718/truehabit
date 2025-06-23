@@ -23,7 +23,7 @@ const ModalWindow = ({
         footer={null}
         closeIcon={null}
         style={{padding: 0}}
-        // closeAfter={userModalCloseTiming}
+        maskClosable
       >
         {children}
       </Modal>

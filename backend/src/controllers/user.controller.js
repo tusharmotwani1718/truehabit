@@ -9,12 +9,15 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv';
 import { Habit } from '../models/habit.model.js';
 import arcjetService from '../utils/arcjet.js'
-import extractClientIp from '../middlewares/clientIP.middleware.js';
 import sendTestEmail from '../utils/nodemailer.js';
+import isEmail from 'isemail';
+import { isDisposableEmail } from 'disposable-email-domains-js';
 
 
 
 dotenv.config()
+
+
 
 
 // Define validation as an array, we will export it and use at user router:
@@ -53,21 +56,25 @@ const generateEmailToken = async (userId) => {
     }
 };
 
+// Helper function to extract client IP address (used in arcjet)
+const getClientIp = (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress;
+};
+
+
 // ROUTES WITHOUT LOGIN REQUIREMENT:
 // 1. creating a new user:
 const registerUser = asyncHandler(async (req, res) => {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         throw new ApiError(400, errors)
     }
 
-
-
     const { fullName, email, username, password } = req.body
 
     // arcjet validation:
-    const decision = await arcjetService.protectSignup({ interval: "5m" }).protect(req, { email })
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.protectSignup({ interval: "5m" }).protect(req, { email, ip: clientIp })
     // console.log("Arcjet decision", decision);
 
     if (decision.isDenied()) {
@@ -82,6 +89,14 @@ const registerUser = asyncHandler(async (req, res) => {
                 "Too many requests. Please try after some time..."
             )
         }
+    }
+
+    // valid mail verification:
+    if (!isEmail.validate(email)) {
+        throw new ApiError(400, "Invalid email format.");
+    }
+    if (await isDisposableEmail(email)) {
+        throw new ApiError(400, "Disposable email addresses are not allowed.");
     }
 
     // Check user existence (already handled by Multer's fileFilter)
@@ -95,20 +110,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "This username is already taken.")
     }
 
-    // // upload profile image only when it is sent to the request:
-    // let profileImage;
-    // const profileImageLocalPath = req.files && req.files.profileImage ? req.files.profileImage[0]?.path : null;
-    // if (profileImageLocalPath) {
-    //     profileImage = await uploadOnCloudinary(profileImageLocalPath);
-    // }
-
     const user = await User.create({
         fullName,
         email,
         username: username.toLowerCase(),
-        // profileImage: profileImage && profileImage.url,
         password,
-        // profileImagePublicId: profileImage && profileImage.public_id
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
@@ -120,78 +126,44 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User Account created successfully")
     )
-
-
 })
+
 
 // 2. logging in a user:
 const login = asyncHandler(async (req, res) => {
-
     const { email, password } = req.body;
-    const ip = req.ip;
-
 
     if (!email || !password) {
         throw new ApiError(400, "Email and Password are required.")
     }
 
-
-
-    // if (!username && !email) {
-    //     throw new ApiError(400, "username or email is required.")
-
-    // }
-
     // arcjet validation:
-    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    const clientIp = getClientIp(req);
     const decision = await arcjetService.rateLimit({
         refillRate: 10,
         interval: "5m",
         capacity: 10
-    }).protect(req, { userId, ip, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId: clientIp, ip: clientIp, requested: 1 }); // Deduct 1 token from the bucket
+
     if (decision.isDenied()) {
         throw new ApiError(
             400,
             "Too Many Requests...Please try again after some time"
         )
     }
-    // console.log("Arcjet decision", decision);
-
-    if (decision.isDenied()) {
-        if (decision.reason.isEmail()) {
-            throw new ApiError(
-                400,
-                "Invalid or Disposable emails not allowed."
-            )
-        } else {
-            throw new ApiError(
-                400,
-                "Too many requests. Please try after some time..."
-            )
-        }
-    }
-
-
-
-    // const user = await User.findOne({
-    //     $or: [{ username }, { email }]
-    // })
 
     const user = await User.findOne({ email })
-
     if (!user) {
         throw new ApiError(400, "Invalid credentials.")
     }
 
-
-    // using "isPasswordCorrect" method defined in user.model.js
     const isPasswordCorrect = await user.isPasswordCorrect(password);
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid credentials.")
     }
+
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
     const loggedinUser = await User.findById(user._id).select("-password -refreshToken")
-
 
     const isProduction = process.env.NODE_ENV === 'production';
 
@@ -211,7 +183,6 @@ const login = asyncHandler(async (req, res) => {
         path: '/'
     });
 
-
     return res
         .status(200)
         .json(
@@ -222,9 +193,8 @@ const login = asyncHandler(async (req, res) => {
                 },
                 "Logged in successfully")
         )
-
-
 })
+
 
 // 3. get user details:
 const getUser = asyncHandler(async (req, res) => {
@@ -338,43 +308,26 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 // 3. Update Account Details:
 const updateAccount = asyncHandler(async (req, res) => {
-
     const { newName, newUsername } = req.body;
-    // console.log(newName, newUsername)
     if (!newName || !newUsername) {
         throw new ApiError(400, "No fields to update")
     }
 
     // arcjet validation:
-    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    const clientIp = getClientIp(req);
     const decision = await arcjetService.rateLimit({
         refillRate: 10,
         interval: "5m",
         capacity: 10
-    }).protect(req, { userId, ip: req.ip, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
     if (decision.isDenied()) {
         throw new ApiError(
             400,
             "Too Many Requests...Please try again after some time"
         )
     }
-    // console.log("Arcjet decision", decision);
 
-    if (decision.isDenied()) {
-        if (decision.reason.isEmail()) {
-            throw new ApiError(
-                400,
-                "Invalid or Disposable emails not allowed."
-            )
-        } else {
-            throw new ApiError(
-                400,
-                "Too many requests. Please try after some time..."
-            )
-        }
-    }
-
-    // check if the userName already exists:
     const userNameExists = await User.findOne({ username: newUsername });
     if (userNameExists) {
         throw new ApiError(400, "Username already taken.")
@@ -395,21 +348,24 @@ const updateAccount = asyncHandler(async (req, res) => {
                 "Details Updated Successfully"
             )
         )
-
-
-
 })
+
 
 // 4. Change Current Password:
 const changePassword = asyncHandler(async (req, res) => {
-
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword) {
         throw new ApiError(400, "Old Password is required.");
     }
 
-    const user = await User.findById(req.user?._id);
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit().protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+    if (decision.isDenied()) {
+        throw new ApiError(400, "Too many requests. Please try again later.");
+    }
 
+    const user = await User.findById(req.user?._id);
     const comparePassword = await user.isPasswordCorrect(oldPassword);
 
     if (!comparePassword) {
@@ -422,35 +378,22 @@ const changePassword = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(new ApiResponse(200, {}, "Password has been updated successfully."))
-
 })
+
 
 // 5. Update Profile Image:
 const updateProfileImage = asyncHandler(async (req, res) => {
-
-    const newProfileImageLocalPath = await req.file?.path; // note that req.file is used instead of req.files
-
+    const newProfileImageLocalPath = await req.file?.path;
 
     if (!newProfileImageLocalPath || newProfileImageLocalPath === "") {
         throw new ApiError(400, "Invalid file path");
     }
 
     // arcjet validation:
-    const decision = await arcjetService.rateLimit().protect(req, { email: req.user?.email, ip: req.ip, userId: req.user?._id })
-    // console.log("Arcjet decision", decision);
-
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit().protect(req, { userId: req.user?._id, ip: clientIp });
     if (decision.isDenied()) {
-        if (decision.reason.isEmail()) {
-            throw new ApiError(
-                400,
-                "Invalid or Disposable emails not allowed."
-            )
-        } else {
-            throw new ApiError(
-                400,
-                "Too many requests. Please try after some time..."
-            )
-        }
+        throw new ApiError(400, "Too many requests. Please try after some time.");
     }
 
     const newProfileImage = await uploadOnCloudinary(newProfileImageLocalPath);
@@ -459,31 +402,22 @@ const updateProfileImage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Error while updating the avatar.");
     }
 
-    // delete old profileImage from cloudinary (only if it exists):
     if (req.user.profileImagePublicId) {
         const deleteProfileImage = await deleteFromCloudinary(req.user?.profileImagePublicId);
-
         if (deleteProfileImage.result !== 'ok') {
             throw new ApiError(400, "Error updating the image.");
         }
-
     }
 
-
-
-    // update the image url and public id:
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
-
-            // $set is used because it only updates the specified fields.
             $set: {
                 profileImage: newProfileImage.url,
                 profileImagePublicId: newProfileImage?.public_id
             }
-
         },
         {
-            new: true  // Returns the updated document
+            new: true
         }
     ).select("-password -refreshToken")
 
@@ -492,38 +426,36 @@ const updateProfileImage = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(201, user, "Image updated sucessfully")
         )
-
-
 })
+
 
 // 6. Delete Profile Image:
 const deleteProfileImage = asyncHandler(async (req, res) => {
-
     if (!req?.user.profileImagePublicId) {
         throw new ApiError(400, "No Image to delete.");
     }
 
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit().protect(req, { userId: req.user?._id, ip: clientIp });
+    if (decision.isDenied()) {
+        throw new ApiError(400, "Too many requests. Please try again later.");
+    }
 
-
-    // delete old profileImage from cloudinary
     const deleteProfileImage = req.user?.profileImagePublicId && await deleteFromCloudinary(req.user?.profileImagePublicId);
     if (deleteProfileImage.result !== 'ok') {
         throw new ApiError(400, "Error deleting the image.");
     }
 
-    // set profileImage and public id as null:
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
-
-            // $set is used because it only updates the specified fields.
             $unset: {
                 profileImage: '',
                 profileImagePublicId: ''
             }
-
         },
         {
-            new: true  // Returns the updated document
+            new: true
         }
     ).select("-password -refreshToken")
 
@@ -532,18 +464,23 @@ const deleteProfileImage = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(201, user, "Image deleted successfully")
         )
-
 })
+
 
 // 7. Delete User Account:
 const deleteAccount = asyncHandler(async (req, res) => {
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit().protect(req, { userId: req.user?._id, ip: clientIp });
+    if (decision.isDenied()) {
+        throw new ApiError(400, "Too many requests. Please try again later.");
+    }
 
     const user = await User.findById(req.user?._id);
     if (!user) {
         throw new ApiError(400, "User not found.")
     }
 
-    // Delete profile image from Cloudinary (if exists)
     if (user.profileImagePublicId) {
         const deleteProfileImage = await deleteFromCloudinary(user.profileImagePublicId);
         if (deleteProfileImage?.result !== "ok") {
@@ -551,17 +488,13 @@ const deleteAccount = asyncHandler(async (req, res) => {
         }
     }
 
-    // delete the habits of user (if any):
     if (user.habitCollection.length != 0) {
-        // delete all the user habits:
         const deleteHabits = await Habit.deleteMany({ _id: { $in: user.habitCollection } });
         if (!deleteHabits) {
             throw new ApiError(400, "Error while deleting the user habits.");
         }
     }
 
-
-    // delete the user:
     const deletedUser = await user.deleteOne();
     if (!deletedUser) {
         throw new ApiError(400, "Error while deleting the user.");
@@ -572,10 +505,8 @@ const deleteAccount = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(201, [], "Account deleted successfully")
         );
-
-
-
 })
+
 
 // 8. Send Email Verification Link:
 const sendEmailVerification = asyncHandler(async (req, res) => {
@@ -585,8 +516,10 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User not found.")
     }
 
+    const ip = getClientIp(req);
+
     // arcjet validation:
-    const decision = await arcjetService.rateLimit().protect(req, { userId, email: req.user?.email, ip: req.ip, requested: 1 }) // Deduct 1 token from the bucket
+    const decision = await arcjetService.rateLimit().protect(req, { userId, email: req.user?.email, ip, requested: 1 }) // Deduct 1 token from the bucket
     // console.log("Arcjet decision", decision);
 
     if (decision.isDenied()) {
