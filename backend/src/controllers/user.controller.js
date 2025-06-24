@@ -10,10 +10,10 @@ import dotenv from 'dotenv';
 import { Habit } from '../models/habit.model.js';
 import arcjetService from '../utils/arcjet.js'
 import sendTestEmail from '../utils/nodemailer.js';
+import axios from 'axios';
+import envconf from '../conf/envconfig.js';
 import isEmail from 'isemail';
 import { isDisposableEmail } from 'disposable-email-domains-js';
-
-
 
 dotenv.config()
 
@@ -72,32 +72,36 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const { fullName, email, username, password } = req.body
 
-    // arcjet validation:
-    const clientIp = getClientIp(req);
-    const decision = await arcjetService.protectSignup({ interval: "5m" }).protect(req, { email, ip: clientIp })
-    // console.log("Arcjet decision", decision);
 
-    if (decision.isDenied()) {
-        if (decision.reason.isEmail()) {
-            throw new ApiError(
-                400,
-                "Invalid or Disposable emails not allowed."
-            )
-        } else {
-            throw new ApiError(
-                400,
-                "Too many requests. Please try after some time..."
-            )
-        }
-    }
 
-    // valid mail verification:
+
+    // valid mail verification (kickbox api + public email list check):
+    // ✅ Validate email format
     if (!isEmail.validate(email)) {
         throw new ApiError(400, "Invalid email format.");
     }
-    if (await isDisposableEmail(email)) {
+
+    // ✅ Check against public disposable email list
+    if (isDisposableEmail(email)) {
         throw new ApiError(400, "Disposable email addresses are not allowed.");
     }
+
+    // ✅ Check email deliverability with Kickbox
+    const kickboxResponse = await axios.get(`https://api.kickbox.com/v2/verify`, {
+        params: {
+            email,
+            apikey: envconf.kickboxapi
+        }
+    });
+
+    const result = kickboxResponse.data.result; // 'deliverable', 'undeliverable', 'risky', 'unknown'
+    // console.log(result)
+    if (result === 'undeliverable' || result === 'risky') {
+        throw new ApiError(400, "Email address is undeliverable or risky.");
+    }
+
+
+
 
     // Check user existence (already handled by Multer's fileFilter)
     const mailExists = await User.findOne({ email });

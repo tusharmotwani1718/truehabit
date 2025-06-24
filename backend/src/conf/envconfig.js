@@ -19,7 +19,8 @@ const envconf = {
     oathClientID: String(process.env.OATH_CLIENT_ID),
     oathClientSecret: String(process.env.OATH_CLIENT_SECRET),
     professionalMail: String(process.env.PROFESSIONAL_MAIL_ADDRESS),
-    mailPassword: String(process.env.PROFESSIONAL_MAIL_PASSWORD)
+    mailPassword: String(process.env.PROFESSIONAL_MAIL_PASSWORD),
+    kickboxapi: String(process.env.KICKBOX_EMAIL_VALIDATE_API)
 }
 
 export default envconf;

@@ -6,7 +6,9 @@ import envconf from "./conf/envconfig.js";
 
 const app = express();
 
-app.set("trust proxy", true); 
+// app.set("trust proxy", true); 
+app.set("trust proxy", "127.0.0.1"); // when running behind nginx+pm2 on localhost
+
 
 // MIDDLEWARES:
 app.use(cors({

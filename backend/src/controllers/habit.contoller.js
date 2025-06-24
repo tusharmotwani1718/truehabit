@@ -142,20 +142,45 @@ const addNewHabit = asyncHandler(async (req, res) => {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set time to start of the day
 
-    if (startDate && !endDate) {
-        throw new ApiError(400, "End date is required.");
+    if (!startDate || !endDate) {
+        throw new ApiError(400, "Start date and end date are required.")
     }
 
+    // for development only:
     const startDateObj = new Date(startDate);
     startDateObj.setHours(0, 0, 0, 0);
 
     const endDateObj = new Date(endDate);
     endDateObj.setHours(0, 0, 0, 0);
 
+
     // cannot add a habit in the past:
     if (startDateObj < currentDate || endDateObj < currentDate) {
         throw new ApiError(400, "Invalid Dates.")
     }
+
+    // for production only:
+    // const IST_OFFSET = 5.5 * 60; // IST offset in minutes
+
+    // currentDate.setMinutes(currentDate.getMinutes() + IST_OFFSET);
+    // currentDate.setHours(0, 0, 0, 0);
+
+    // const startDateObj = new Date(startDate);
+    // startDateObj.setMinutes(startDateObj.getMinutes() + IST_OFFSET);
+    // startDateObj.setHours(0, 0, 0, 0);
+
+    // const endDateObj = new Date(endDate);
+    // endDateObj.setMinutes(endDateObj.getMinutes() + IST_OFFSET);
+    // endDateObj.setHours(0, 0, 0, 0);
+
+    // // console.log('startDateObj: ', startDateObj);
+    // // console.log('endDateObj: ', endDateObj);
+    // // console.log('currentDate: ', currentDate);
+
+    // if (startDateObj < currentDate || endDateObj < currentDate) {
+    //     throw new ApiError(400, "Invalid Dates.")
+    // }
+
 
     if (startDateObj >= endDateObj) {
         throw new ApiError(400, "End date should be greater than start date.");
@@ -322,7 +347,7 @@ const updateHabit = asyncHandler(async (req, res) => {
     const habit = await Habit.findById(habitId);
 
     if (!habit) {
-        throw new ApiError(400, "Habit not found.");    
+        throw new ApiError(400, "Habit not found.");
     }
 
     const habitStartDate = new Date(habit.startDate);
