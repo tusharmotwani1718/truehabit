@@ -120,6 +120,7 @@ function ViewHabit({
     // Fixed date cell render with consistent height
     const dateCellRender = (value) => {
         const dateString = value.format('YYYY-MM-DD');
+    
         const isCompleted = completedDays.some(day =>
             day.startsWith(dateString)
         );
@@ -313,6 +314,7 @@ function ViewHabit({
                             <div className="flex items-center justify-between">
                                 <h2 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>
                                     {habitData.habitName}
+                                    {console.log("Completed Days", completedDays )}
                                 </h2>
                                 <span className='px-4 py-1.5 rounded-full bg-primary/10 dark:bg-dark-primary/20 text-primary dark:text-dark-primary font-medium text-sm'>
                                     {habitData.habitCategory}
