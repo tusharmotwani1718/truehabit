@@ -27,11 +27,12 @@ truehabit/
 
 | Layer     | Technology            |
 |-----------|------------------------|
-| Frontend  | React, React Router, Axios, Ant Design, React Hook Form |
+| Frontend  | React, React Router, Axios, Ant Design, React Hook Form, React Redux |
 | Backend   | Node.js, Express, MongoDB, Mongoose |
 | Auth      | JSON Web Tokens (JWT), Bcrypt |
 | Media     | Cloudinary |
-| Others    | dotenv, cors, morgan |
+| Dates     | Luxon, Dayjs |
+| Others    | dotenv, cors, nodemon |
 
 ---
 
@@ -104,10 +105,8 @@ _Add relevant UI screenshots or GIFs here when available._
 
 ## 📌 To-Do
 
-- [ ] Add dark mode support
-- [ ] Add analytics dashboard for users
-- [ ] Write full test coverage
-- [ ] Add email-based notifications/reminders
+- [ ] Add Group Tracking
+- [ ] Add AI based habit scheduling and report system
 
 ---
 
