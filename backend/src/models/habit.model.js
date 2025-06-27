@@ -17,13 +17,11 @@ const habitSchema = new Schema({
         default: "Others"
     },
     startDate: {
-        type: Date,
-        default: Date.now, // Mongoose will automatically store the current UTC time
+        type: String,
         required: true
     },
     endDate: {
-        type: Date,
-        default: Date.now, // Mongoose will automatically store the current UTC time
+        type: String,
         required: true
     },
     frequency: {
@@ -35,7 +33,7 @@ const habitSchema = new Schema({
     completedDays:[
         // contains array of all the days at which user completed the habit.
         {
-            type: Date,
+            type: String,
             required: true
         }
     ],

@@ -49,8 +49,10 @@ const getHabits = asyncHandler(async (req, res) => {
 
     const { habitType } = req.params;
     // console.log(habitType)
-    const todayDate = new Date();
-    todayDate.setHours(0, 0, 0, 0);
+    // const todayDate = new Date();
+    // todayDate.setHours(0, 0, 0, 0);
+
+    const todayDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
 
     // Base match conditions
     const matchConditions = {
@@ -58,12 +60,19 @@ const getHabits = asyncHandler(async (req, res) => {
         status: habitType === "active" || habitType === "expired" ? habitType : "active"
     };
 
+    matchConditions.$and = [
+        { startDate: { $lte: todayDate } },
+        { endDate: { $gte: todayDate } }
+    ];
+
     // Additional conditions for "today" habits
     if (habitType === "today") {
         // Create date range for the entire day
-        const startOfDay = new Date(todayDate);
-        const endOfDay = new Date(todayDate);
-        endOfDay.setHours(23, 59, 59, 999);
+        // const startOfDay = new Date(todayDate);
+        // const endOfDay = new Date(todayDate);
+        // endOfDay.setHours(23, 59, 59, 999);
+        const startOfDay = DateTime.fromFormat(todayDate, "yyyy-MM-dd").setZone("Asia/Kolkata").startOf('day').toFormat("yyyy-MM-dd");
+        const endOfDay = DateTime.fromFormat(todayDate, "yyyy-MM-dd").setZone("Asia/Kolkata").endOf('day').toFormat("yyyy-MM-dd");
 
         matchConditions.$and = [
             { startDate: { $lte: endOfDay } },  // Habit started before end of today
@@ -91,15 +100,28 @@ const getHabits = asyncHandler(async (req, res) => {
                 return true;
             }
 
-            // If completed today, it should be shown
-            if (compareDatesWithoutTime(habit.completedDays[habit.completedDays.length - 1], todayDate)) {
+            // If completed today, it should be shown:
+            const lastCompleted = habit.completedDays[habit.completedDays.length - 1];
+
+            if (lastCompleted === todayDate) {
                 return true;
             }
+            // if (compareDatesWithoutTime(habit.completedDays[habit.completedDays.length - 1], todayDate)) {
+            //     return true;
+            // }
 
-            const lastCompletedDate = new Date(habit.completedDays[habit.completedDays.length - 1]);
-            lastCompletedDate.setHours(0, 0, 0, 0);
+            // const lastCompletedDate = new Date(habit.completedDays[habit.completedDays.length - 1]);
+            // lastCompletedDate.setHours(0, 0, 0, 0);
 
-            const daysSinceLastCompletion = Math.floor((todayDate - lastCompletedDate) / (1000 * 60 * 60 * 24));
+            // const daysSinceLastCompletion = Math.floor((todayDate - lastCompletedDate) / (1000 * 60 * 60 * 24));
+
+            const startofLastCompletedObj = DateTime.fromFormat(lastCompleted, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+            const todayDateObj = DateTime.fromFormat(todayDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+            const daysSinceLastCompletion = Math.floor(
+                todayDateObj.diff(startofLastCompletedObj, "days").days
+            );
 
             // Show habit if days since last completion >= frequency
             return daysSinceLastCompletion >= habit.frequency;
@@ -142,16 +164,31 @@ const addNewHabit = asyncHandler(async (req, res) => {
     }
 
     // Convert all dates to start of day in IST
-    const currentDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
-    const startDateObj = DateTime.fromISO(startDate, { zone: 'Asia/Kolkata' }).startOf('day');
-    const endDateObj = DateTime.fromISO(endDate, { zone: 'Asia/Kolkata' }).startOf('day');
+    // const currentDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
+    // const startDateObj = DateTime.fromISO(startDate, { zone: 'Asia/Kolkata' }).startOf('day');
+    // const endDateObj = DateTime.fromISO(endDate, { zone: 'Asia/Kolkata' }).startOf('day');
 
+    const currentDateString = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    const startDateString = DateTime.fromISO(startDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    const endDateString = DateTime.fromISO(endDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
     // cannot add a habit in the past:
-    if (startDateObj < currentDate || endDateObj < currentDate) {
-        throw new ApiError(400, "Invalid Dates.")
+    // if (startDateObj < currentDate || endDateObj < currentDate) {
+    //     throw new ApiError(400, "Invalid Dates.")
+    // }
+
+    // if (startDateObj >= endDateObj) {
+    //     throw new ApiError(400, "End date should be greater than start date.");
+    // }
+
+    if (!startDateString || !endDateString) {
+        throw new ApiError(400, "Please pass both the start and end date in valid format.");
     }
 
-    if (startDateObj >= endDateObj) {
+    if (startDateString < currentDateString || endDateString < currentDateString) {
+        throw new ApiError("Invalid Dates");
+    }
+
+    if (startDateString >= endDateString) {
         throw new ApiError(400, "End date should be greater than start date.");
     }
 
@@ -160,8 +197,8 @@ const addNewHabit = asyncHandler(async (req, res) => {
         habitName,
         habitDesc,
         habitCategory,
-        startDate,
-        endDate,
+        startDate: startDateString,
+        endDate: endDateString,
         frequency,
         userID: req.user?._id, // pass the user id,
         status
@@ -263,145 +300,254 @@ const deleteHabit = asyncHandler(async (req, res) => {
 
 });
 
-// Route 4: Update habit details:
 const updateHabit = asyncHandler(async (req, res) => {
 
     // arcjet Rate Limit function:
-    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
     const decision = await arcjetService.rateLimit({
         refillRate: 10,
         interval: 120,
         capacity: 10
-    }).protect(req, { userId, requested: 1 });
-
+    }).protect(req, { userId, requested: 1 }); // Deduct 1 token from the bucket
     if (decision.isDenied()) {
         throw new ApiError(
             400,
             "Too Many Requests...Please try again after some time"
-        );
+        )
     }
 
+    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
+
+
     const { habitId, hName, hDesc, category, startDate, endDate } = req.body;
 
+    // check for habit id:
     if (!habitId) {
         throw new ApiError(400, "Invalid Habit Id.");
     }
 
+    // check if the habit id belongs to logged in user:
     const user = await User.findById(req.user?._id).select('habitCollection');
     if (!user.habitCollection.includes(habitId)) {
-        throw new ApiError(400, "You are not allowed to update this habit details.");
+        throw new ApiError(400, "You are not allowed to update this habit details.")
     }
 
+    // throw error if there is no field to update:
     if (!hName && !hDesc && !category && !startDate && !endDate) {
         throw new ApiError(400, "Required Fields are missing.");
     }
 
+
+
+    // get the habit:
     const habit = await Habit.findById(habitId);
+
     if (!habit) {
         throw new ApiError(400, "Habit not found.");
     }
 
-    const habitStartDate = DateTime.fromJSDate(habit.startDate).setZone('Asia/Kolkata').startOf('day');
-    const habitEndDate = DateTime.fromJSDate(habit.endDate).setZone('Asia/Kolkata').startOf('day');
-    const todayDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
+    const currentDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    // console.log("currentDate Luxon", currentDate);
 
-    let startDateObj = null;
-    let endDateObj = null;
 
-    if (startDate) {
-        startDateObj = DateTime.fromISO(startDate, { zone: 'Asia/Kolkata' }).startOf('day');
+    const habitStartDate = DateTime.fromFormat(habit.startDate, "yyyy-MM-dd").setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
 
-        if (startDateObj < todayDate) {
-            throw new ApiError(400, "Cannot update start date to the past.");
+
+
+    // console.log("habitStartDate: ", habitStartDate);
+
+    const habitEndDate = DateTime.fromFormat(habit.endDate, "yyyy-MM-dd").setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+
+    let formattedStartDate;
+    let formattedEndDate;
+
+
+
+    // if user has sent the start date to update:
+    if (startDate && !endDate) {
+        formattedStartDate = DateTime.fromISO(startDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+        if (!formattedStartDate) {
+            throw new ApiError(400, "Please pass a valid date format");
         }
 
-        if (endDate) {
-            const end = DateTime.fromISO(endDate, { zone: 'Asia/Kolkata' }).startOf('day');
-            if (startDateObj > end) {
-                throw new ApiError(400, "Cannot update start date to after end date.");
-            }
+        // we have to make some checks before updating the start date:
+        // start date should not be before the current date:
+        if (formattedStartDate < currentDate) {
+            throw new ApiError(400, "Cannot set start date to the past.");
         }
 
-        if (startDateObj > habitEndDate) {
-            throw new ApiError(400, "Cannot update start date to after end date.");
+        // start date should not be after the end date:
+        if (formattedStartDate > habitEndDate) {
+            throw new ApiError(400, "Cannot set start date after the end date.");
+        }
+
+    }
+
+    // if user has sent end date to update:
+    if (endDate && !startDate) {
+        formattedEndDate = DateTime.fromISO(endDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+        if (!formattedEndDate) {
+            throw new ApiError(400, "Please pass a valid date format");
+        }
+
+        // end date should not be before current date:
+        if (formattedEndDate < currentDate) {
+            throw new ApiError(400, "Cannot set end date before current date.");
+        }
+
+        // end date should not be before start date:
+        if (formattedEndDate < habitStartDate) {
+            throw new ApiError("Cannot set end date before start date.");
+        }
+
+    }
+
+    // user passes both start date and end date to update:
+    if (startDate && endDate) {
+        formattedStartDate = DateTime.fromISO(startDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+        formattedEndDate = DateTime.fromISO(endDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+
+        if (!formattedStartDate || !formattedEndDate) {
+            throw new ApiError(400, "Please pass a valid date format for both dates.");
+        }
+
+        // start date cannot be before the current date:
+        if (formattedStartDate < currentDate) {
+            throw new ApiError(400, "Cannot set start date before current date.");
+        }
+
+        // new start date could not be greater than new end date:
+        if (formattedStartDate > formattedEndDate) {
+            throw new ApiError("Start date must be before the end date.");
         }
     }
 
-    if (endDate) {
-        endDateObj = DateTime.fromISO(endDate, { zone: 'Asia/Kolkata' }).startOf('day');
+    // const habitStartDate = new Date(habit.startDate);
+    // habitStartDate.setHours(0, 0, 0, 0); // set time to start of the day
+    // const habitEndDate = new Date(habit.endDate);
+    // habitEndDate.setHours(0, 0, 0, 0); // set time to start of the day
 
-        if (endDateObj < todayDate) {
-            throw new ApiError(400, "Cannot update end date to the past.");
-        }
+    // const todayDate = new Date();
+    // todayDate.setHours(0, 0, 0, 0); // set time to start of the day
 
-        if (startDate) {
-            if (endDateObj < startDateObj) {
-                throw new ApiError(400, "Cannot update end date to before start date.");
-            }
-        }
+    // let startDateObj = null;
+    // let endDateObj = null;
 
-        if (endDateObj < habitStartDate) {
-            throw new ApiError(400, "Cannot update end date to before start date.");
-        }
-    }
+    // if (startDate) {
+    //     startDateObj = new Date(startDate);
+    //     startDate = new Date(startDate);
+    //     startDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+    //     // cannot update start date in the past:
+    //     if (startDate < todayDate) {
+    //         throw new ApiError(400, "Cannot update start date to the past.");
+    //     }
+
+    //     // if start and end date, both are sent to update:
+    //     if (endDate) {
+    //         if (startDate > endDate) {
+    //             throw new ApiError(400, "Cannot update start date to after end date.");
+    //         }
+    //     }
+
+    //     // if only start date is sent to update:
+    //     // cannot update start date after end Date:
+    //     if (startDate > habitEndDate) {
+    //         throw new ApiError(400, "Cannot update start date to after end date.");
+    //     }
+
+    // }
+
+    // if (endDate) {
+    //     endDateObj = new Date(endDate);
+    //     endDate = new Date(endDate);
+    //     endDate.setHours(0, 0, 0, 0); // set time to start of the day
+
+    //     // cannot update end date in the past:
+    //     if (endDate < todayDate) {
+    //         throw new ApiError(400, "Cannot update end date to the past.");
+    //     }
+
+    //     // if start date and end date, both are sent to update:
+    //     if (startDate) {
+    //         if (endDate < startDate) {
+    //             throw new ApiError(400, "Cannot update end date to before start date.");
+    //         }
+    //     }
+
+    //     // if only end date is sent to update:
+    //     // cannot update end date before start date:
+    //     if (endDate < habitStartDate) {
+    //         throw new ApiError(400, "Cannot update end date to before start date.");
+    //     }
+    // }
+
 
     if (hName) habit.habitName = hName;
     if (hDesc) habit.habitDesc = hDesc;
     if (category) habit.habitCategory = category;
+    if (startDate) habit.startDate = formattedStartDate;
+    if (endDate) habit.endDate = formattedEndDate;
 
-    if (startDateObj) {
-        habit.startDate = new Date(
-            startDateObj.year,
-            startDateObj.month - 1,
-            startDateObj.day,
-            startDateObj.hour,
-            startDateObj.minute,
-            startDateObj.second,
-            startDateObj.millisecond
-        );
-    }
-
-    if (endDateObj) {
-        habit.endDate = new Date(
-            endDateObj.year,
-            endDateObj.month - 1,
-            endDateObj.day,
-            endDateObj.hour,
-            endDateObj.minute,
-            endDateObj.second,
-            endDateObj.millisecond
-        );
-    }
 
     await habit.save({ validateBeforeSave: false });
 
-    res.status(200).json(
-        new ApiResponse(201, habit, "Habit details updated successfully.")
-    );
-});
+    res
+        .status(200)
+        .json(
+            new ApiResponse(201, habit, "Habit details updated successfully.")
+        )
+
+
+
+})
 
 
 // Route 5: Update habit completion status:
 const updateHabitCompletion = asyncHandler(async (req, res) => {
 
+
+
     // currentDate:
-    const currentDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
+    // const currentDate = new Date();
+    const currentDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
     const { habitId, completionDate } = req.body;
-    const completionDateObj = DateTime.fromISO(completionDate, { zone: 'Asia/Kolkata' });
 
     if (!habitId || !completionDate) {
         throw new ApiError(400, "Required fields are missing.");
     }
+    // console.log(completionDate);
+    // const completionDateObj = new Date(completionDate);
+
+    const formattedCompletionDate = DateTime.fromISO(completionDate).setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+    if (!formattedCompletionDate) {
+        throw new ApiError(400, "Please pass date in valid format.");
+    }
+
+    // console.log("compeltion date ", completionDate);
+    // console.log("Formatted compeltion date ", formattedCompletionDate);
+
+
+    if (currentDate !== formattedCompletionDate) {
+        throw new ApiError(400, "Marking completion for future/past date is not allowed.")
+    }
+
 
     // check whether the current date matches with completion date:
-    if (!compareDatesWithoutTime(currentDate.toJSDate(), completionDateObj.toJSDate())) {
-        throw new ApiError(400, "Marking completion for future/past date is not allowed.");
-    }
+    // if (!compareDatesWithoutTime(currentDate, completionDateObj)) {
+    //     throw new ApiError(400, "Marking completion for future/past date is not allowed.");
+    // }
+
 
     // Verify if the user owns the habit
     const user = await User.findById(req.user?._id).select("habitCollection");
@@ -414,60 +560,92 @@ const updateHabitCompletion = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Habit not found.");
     }
 
+
+
     const frequency = habit.frequency;
+
+
 
     // Check if the completion date is within the valid range:
     // setting this time format as to compare the dates with same time:
-    const normalizedCompletionDate = completionDateObj;
-    const startDate = DateTime.fromJSDate(habit.startDate).setZone('Asia/Kolkata').startOf('day');
-    const endDate = DateTime.fromJSDate(habit.endDate).setZone('Asia/Kolkata').startOf('day');
+    // const normalizedCompletionDate = completionDateObj.setHours(0, 0, 0, 0);
+    // const startDate = new Date(habit.startDate).setHours(0, 0, 0, 0);
+    // const endDate = new Date(habit.endDate).setHours(0, 0, 0, 0);
 
-    if (normalizedCompletionDate < startDate || normalizedCompletionDate > endDate) {
-        throw new ApiError(400, "Date must be between the start and end dates.");
+    const startDateString = DateTime.fromFormat(habit.startDate, "yyyy-MM-dd").setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    const endDateString = DateTime.fromFormat(habit.endDate, "yyyy-MM-dd").setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+
+    if (formattedCompletionDate < startDateString || formattedCompletionDate > endDateString) {
+        throw new ApiError(400, "Date must be between the start and end dates of the habit.");
     }
 
-    // Ensure the maximum possible dates are not exceeded
-    // maxDates = [(endDate - startDate) / ferquency] + 1
-    const totalDays = endDate.diff(startDate, 'days').days;
-    const maxDates = Math.floor(totalDays / frequency) + 1;
 
+
+    // if (normalizedCompletionDate < startDate || normalizedCompletionDate > endDate) {
+    //     throw new ApiError(400, "Date must be between the start and end dates.");
+    // }
+
+    // // Ensure the maximum possible dates are not exceeded
+    // maxDates = [(endDate - startDate) / ferquency] + 1
+    // const maxDates = Math.floor((endDate - startDate) / (frequency * 1000 * 60 * 60 * 24) + 1);
+    // if (habit.completedDays.length >= maxDates) {
+    //     throw new ApiError(400, "Maximum possible completion dates have been reached.");
+    // }
+
+    const startDateObj = DateTime.fromFormat(habit.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+    const endDateObj = DateTime.fromFormat(habit.endDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+
+
+    // console.log("End date - start date: ", endDateObj - startDateObj);
+    const totalDays = endDateObj.diff(startDateObj, "days").days;
+    const maxDates = Math.floor(totalDays / frequency) + 1;
+    // console.log(maxDates)
     if (habit.completedDays.length >= maxDates) {
         throw new ApiError(400, "Maximum possible completion dates have been reached.");
     }
 
-    // ensure that the date is in the valid range as per the last date added:
     if (habit.completedDays.length > 0) {
-        const lastDate = DateTime.fromJSDate(
-            habit.completedDays[habit.completedDays.length - 1]
-        ).setZone('Asia/Kolkata').startOf('day');
+        const completionDateObj = DateTime.fromFormat(formattedCompletionDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+        const lastDate = habit.completedDays[habit.completedDays.length - 1];
+        const lastDateObj = DateTime.fromFormat(lastDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
 
-        const newCompletionDate = completionDateObj;
+        // console.log("last completed date ", lastDate);
+        // console.log("compeltion date input ", completionDate);
+        // console.log("last date object ", lastDateObj);
+        // console.log("completion date object ", completionDateObj);
 
-        // console.log(newCompletionDate.toISODate());
-        // console.log(lastDate.toISODate());
 
-        const dateDifference = newCompletionDate.diff(lastDate, 'days').days;
-        const differenceInDays = Math.floor(dateDifference);
-        // console.log(differenceInDays)
-        if (differenceInDays !== frequency && !(differenceInDays > frequency)) {
-            throw new ApiError(400, "Invalid completion date as per last date of the habit.")
+        const diffDays = Math.floor(completionDateObj.diff(lastDateObj, "days").days);
+
+        if (diffDays !== frequency && diffDays < frequency) {
+            throw new ApiError(400, "Invalid completion date as per habit frequency.");
         }
     }
 
+
+
+    // ensure that the date is in the valid range as per the last date added:
+    // if (habit.completedDays.length > 0) {
+    //     const lastDate = habit.completedDays[habit.completedDays.length - 1];
+    //     const newCompletionDate = new Date(completionDate).setHours(0, 0, 0, 0);
+    //     const newLastDate = new Date(lastDate).setHours(0, 0, 0, 0);
+
+    //     // console.log(newCompletionDate);
+    //     // console.log(newLastDate)
+
+
+    //     const dateDifference = newCompletionDate - newLastDate; // return difference in milliseconds
+
+    //     const differenceInDays = Math.floor(dateDifference / (1000 * 60 * 60 * 24)); // convert milliseconds to days
+    //     // console.log(differenceInDays)
+    //     if (differenceInDays != frequency && !(differenceInDays > frequency)) {
+    //         throw new ApiError(400, "Invalid completion date as per last date of the habit.")
+    //     }
+
+    // }
+
     // Add the completion date:
-    // const completionDateObj = DateTime.fromISO(completionDate, { zone: 'Asia/Kolkata' });
-    // Store it as a JS Date but offset manually to preserve IST time
-    habit.completedDays.push(
-        new Date(
-            completionDateObj.year,
-            completionDateObj.month - 1,
-            completionDateObj.day,
-            completionDateObj.hour,
-            completionDateObj.minute,
-            completionDateObj.second,
-            completionDateObj.millisecond
-        )
-    );
+    habit.completedDays.push(formattedCompletionDate);
     await habit.save({ validateBeforeSave: false });
 
     res.status(200).json(
