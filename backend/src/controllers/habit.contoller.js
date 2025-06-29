@@ -699,16 +699,44 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
 
     // 1. current streak:
     let currStreak = 0;
-    const todayDate = new Date().setHours(0, 0, 0, 0); // set time to start of the day
+    // const todayDate = new Date().setHours(0, 0, 0, 0); // set time to start of the day
+    const todayDateString = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    const todayDateObj = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
     const frequency = habit.frequency; // in days
 
     if (habit.completedDays.length > 0) {
         currStreak = 1;
-        const lastCompletedDate = new Date(habit.completedDays[habit.completedDays.length - 1]).setHours(0, 0, 0, 0); // set time to start of the day
+        // const lastCompletedDate = new Date(habit.completedDays[habit.completedDays.length - 1]).setHours(0, 0, 0, 0); // set time to start of the day
 
-        if ((todayDate - lastCompletedDate) / (1000 * 60 * 60 * 24) <= frequency) {
+        const lastCompletedDate = habit.completedDays[habit.completedDays.length - 1];
+        const lastCompletedDateObj = DateTime.fromFormat(lastCompletedDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+        const lastCompletedDateDiff = Math.floor(todayDateObj.diff(lastCompletedDate, 'days').days);
+
+        // if ((todayDate - lastCompletedDate) / (1000 * 60 * 60 * 24) <= frequency) {
+        //     for (let i = habit.completedDays.length - 1; i > 0; i--) {
+        //         const consecutiveDatesDifference = (new Date(habit.completedDays[i]).setHours(0, 0, 0, 0) - new Date(habit.completedDays[i - 1]).setHours(0, 0, 0, 0)) / (60 * 60 * 24 * 1000);
+        //         if (consecutiveDatesDifference <= frequency) {
+        //             currStreak++;
+        //         }
+        //         else {
+        //             break;
+        //         }
+        //     }
+        // }
+
+        if (lastCompletedDateDiff <= frequency) {
             for (let i = habit.completedDays.length - 1; i > 0; i--) {
-                const consecutiveDatesDifference = (new Date(habit.completedDays[i]).setHours(0, 0, 0, 0) - new Date(habit.completedDays[i - 1]).setHours(0, 0, 0, 0)) / (60 * 60 * 24 * 1000);
+                // const consecutiveDatesDifference = (new Date(habit.completedDays[i]).setHours(0, 0, 0, 0) - new Date(habit.completedDays[i - 1]).setHours(0, 0, 0, 0)) / (60 * 60 * 24 * 1000);
+
+                const currentCompeltionDate = habit.completedDays[i];
+                const previousCompletionDate = habit.completedDays[i - 1];
+
+                const currentCompeltionDateObj = DateTime.fromFormat(currentCompeltionDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+                const previousCompletionDateObj = DateTime.fromFormat(previousCompletionDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+                const consecutiveDatesDifference = Math.floor(currentCompeltionDateObj.diff(previousCompletionDateObj, 'days').days);
+
                 if (consecutiveDatesDifference <= frequency) {
                     currStreak++;
                 }
@@ -733,9 +761,18 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
         longestStreak = 1;
 
         for (let i = 0; i < habit.completedDays.length - 1; i++) {
-            const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
-            const nextDate = new Date(habit.completedDays[i + 1]).setHours(0, 0, 0, 0);
-            const consecutiveDatesDifference = (nextDate - currentDate) / (60 * 60 * 24 * 1000);
+            // const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
+            // const nextDate = new Date(habit.completedDays[i + 1]).setHours(0, 0, 0, 0);
+            // const consecutiveDatesDifference = (nextDate - currentDate) / (60 * 60 * 24 * 1000);
+
+            const currentCompeltionDate = habit.completedDays[i];
+            const nextCompletionDate = habit.completedDays[i + 1];
+
+            const currentCompeltionDateObj = DateTime.fromFormat(currentCompeltionDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+            const nextCompletionDateObj = DateTime.fromFormat(nextCompletionDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+
+             const consecutiveDatesDifference = Math.floor(currentCompeltionDateObj.diff(nextCompletionDateObj, 'days').days);
+
 
             if (consecutiveDatesDifference <= frequency) {
                 currentStreak++;
@@ -752,11 +789,21 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
 
 
     // number of expected and completed days:
-    const expectedDaysNum = Math.floor((habit.endDate - habit.startDate) / (habit.frequency * 1000 * 60 * 60 * 24) + 1);
+    const startDate = habit.startDate;
+    const endDate = habit.endDate;
+
+    const startDateObj = DateTime.fromFormat(startDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+    const endDateObj = DateTime.fromFormat(endDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+    
+    const expectedDaysNum = Math.floor(endDateObj.diff(startDateObj, 'days').days) + 1;
+
+    const daysLeft = Math.floor(endDateObj.diff(todayDateObj, 'days').days) || 0;
+
+    // const expectedDaysNum = Math.floor((habit.endDate - habit.startDate) / (habit.frequency * 1000 * 60 * 60 * 24) + 1);
     const completedDaysNum = habit.completedDays.length;
 
     // number of days left:
-    const daysLeft = Math.floor((habit.endDate - todayDate) / (1000 * 60 * 60 * 24)) || 0;
+    // const daysLeft = Math.floor((habit.endDate - todayDate) / (1000 * 60 * 60 * 24)) || 0;
 
 
 

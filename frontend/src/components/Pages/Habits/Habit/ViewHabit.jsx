@@ -11,7 +11,8 @@ import { formatDate, NormaliseText } from '../../../../../../shared/functions/in
 import { useMessage } from '../../../../context/index.js'
 import { TiGroupOutline } from "react-icons/ti";
 import { deleteHabit as deleteHabitSlice } from '../../../../store/Slices/habitSlice.js'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux';
+import { DateTime } from 'luxon';
 
 
 
@@ -40,6 +41,7 @@ function ViewHabit({
     const [completedDays, setCompletedDays] = useState([]);
     const [completedDaysNum, setCompletedDaysNum] = useState(0);
     const [expectedDaysNum, setExpectedDaysNum] = useState(0);
+    const [daysLeft, setDaysLeft] = useState(0);
     const [buttonLoading, setButtonLoading] = useState(false);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -61,14 +63,14 @@ function ViewHabit({
 
 
     const [calendarValue, setCalendarValue] = useState(dayjs());
-    const [notes, setNotes] = useState([
-        { id: 1, text: 'Completed the introduction section of Java basics today. The syntax is similar to C++ which makes it easier to grasp.', date: 'May 1' },
-        { id: 2, text: 'Struggled with understanding OOP concepts but finally got a breakthrough with inheritance examples.', date: 'May 3' },
-        { id: 3, text: 'Built my first mini Java application - a calculator with GUI using Swing. Excited to build more!', date: 'May 7' },
-        { id: 4, text: 'Learning about Collections framework today. HashMaps and ArrayLists are incredibly useful.', date: 'May 9' },
-    ]);
-    const [newNote, setNewNote] = useState('');
-     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // const [notes, setNotes] = useState([
+    //     { id: 1, text: 'Completed the introduction section of Java basics today. The syntax is similar to C++ which makes it easier to grasp.', date: 'May 1' },
+    //     { id: 2, text: 'Struggled with understanding OOP concepts but finally got a breakthrough with inheritance examples.', date: 'May 3' },
+    //     { id: 3, text: 'Built my first mini Java application - a calculator with GUI using Swing. Excited to build more!', date: 'May 7' },
+    //     { id: 4, text: 'Learning about Collections framework today. HashMaps and ArrayLists are incredibly useful.', date: 'May 9' },
+    // ]);
+    // const [newNote, setNewNote] = useState('');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const onChangeCalendar = (value) => {
         setCalendarValue(value);
@@ -120,9 +122,9 @@ function ViewHabit({
     // Fixed date cell render with consistent height
     const dateCellRender = (value) => {
         const dateString = value.format('YYYY-MM-DD');
-    
+
         const isCompleted = completedDays.some(day =>
-            day.startsWith(dateString)
+            day.includes(dateString)
         );
 
         return (
@@ -257,7 +259,23 @@ function ViewHabit({
 
 
 
-    const daysLeft = Math.floor((new Date(habitData.endDate) - new Date()) / (1000 * 60 * 60 * 24)) || 0;
+    // useEffect hook for prior calculations:
+    useEffect(() => {
+       if(habitData && habitData.startDate && habitData.endDate){
+         const currentDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+        const startDateObj = DateTime.fromFormat(habitData.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+        const endDateObj = DateTime.fromFormat(habitData.endDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+        const currentDateObj = DateTime.fromFormat(currentDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+
+        console.log("end date", habitData.endDate);
+        console.log("today date ", currentDate)
+
+        const calculatedDaysLeft = Math.floor(endDateObj.diff(currentDateObj, 'days').days);
+        setDaysLeft(calculatedDaysLeft);
+        console.log("days-left", daysLeft);
+       }
+    }, [habitData])
+
 
 
 
@@ -314,7 +332,7 @@ function ViewHabit({
                             <div className="flex items-center justify-between">
                                 <h2 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>
                                     {habitData.habitName}
-                                    {console.log("Completed Days", completedDays )}
+                                    {console.log("Completed Days", completedDays)}
                                 </h2>
                                 <span className='px-4 py-1.5 rounded-full bg-primary/10 dark:bg-dark-primary/20 text-primary dark:text-dark-primary font-medium text-sm'>
                                     {habitData.habitCategory}
@@ -359,6 +377,7 @@ function ViewHabit({
                                 <div>
                                     <p className='text-sm text-gray-500 dark:text-gray-400'>Frequency</p>
                                     <p className='text-gray-900 dark:text-white font-medium'>{NormaliseText(frequencyMap[habitData.frequency])}</p>
+
                                 </div>
                             </div>
                             <div className='flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl hover:shadow-md transition-all'>
@@ -522,7 +541,7 @@ function ViewHabit({
                     !isGroupHabit && (
                         <section className="mt-6 flex justify-end">
                             <button className="px-6 py-3 bg-primary hover:bg-primary/90 text-white dark:bg-dark-primary dark:hover:bg-dark-primary/90 rounded-xl font-medium transition-colors"
-                            onClick={(e) => {
+                                onClick={(e) => {
                                     e.stopPropagation();
                                     setIsDialogOpen(true);
                                 }}
