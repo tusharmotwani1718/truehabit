@@ -658,10 +658,10 @@ const updateHabitCompletion = asyncHandler(async (req, res) => {
 // Route 6: Expire Habits by current date:
 const expireHabits = asyncHandler(async (req, res) => {
 
-    const date = DateTime.now().setZone('Asia/Kolkata').endOf('day'); // set time at end of the day.
+    const date = DateTime.now().setZone('Asia/Kolkata').toFormat("yyyy-MM-dd");
 
     const expire = await Habit.updateMany(
-        { endDate: { $lt: date.toJSDate() } }, // Filter: Habits with endDate < current date
+        { endDate: { $lt: date } }, // Filter: Habits with endDate < current date
         { $set: { status: "expired" } }        // Update: Set status field to "expired"
     );
 
@@ -711,7 +711,7 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
         const lastCompletedDate = habit.completedDays[habit.completedDays.length - 1];
         const lastCompletedDateObj = DateTime.fromFormat(lastCompletedDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
-        const lastCompletedDateDiff = Math.floor(todayDateObj.diff(lastCompletedDate, 'days').days);
+        const lastCompletedDateDiff = Math.floor(todayDateObj.diff(lastCompletedDateObj, 'days').days);
 
         // if ((todayDate - lastCompletedDate) / (1000 * 60 * 60 * 24) <= frequency) {
         //     for (let i = habit.completedDays.length - 1; i > 0; i--) {
@@ -768,10 +768,10 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
             const currentCompeltionDate = habit.completedDays[i];
             const nextCompletionDate = habit.completedDays[i + 1];
 
-            const currentCompeltionDateObj = DateTime.fromFormat(currentCompeltionDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
-            const nextCompletionDateObj = DateTime.fromFormat(nextCompletionDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+            const currentCompeltionDateObj = DateTime.fromFormat(currentCompeltionDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+            const nextCompletionDateObj = DateTime.fromFormat(nextCompletionDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
-             const consecutiveDatesDifference = Math.floor(currentCompeltionDateObj.diff(nextCompletionDateObj, 'days').days);
+            const consecutiveDatesDifference = Math.floor(currentCompeltionDateObj.diff(nextCompletionDateObj, 'days').days);
 
 
             if (consecutiveDatesDifference <= frequency) {
@@ -792,10 +792,10 @@ const fetchHabitDetails = asyncHandler(async (req, res) => {
     const startDate = habit.startDate;
     const endDate = habit.endDate;
 
-    const startDateObj = DateTime.fromFormat(startDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
-    const endDateObj = DateTime.fromFormat(endDate, "yyyy-MM-dd", {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
-    
-    const expectedDaysNum = Math.floor(endDateObj.diff(startDateObj, 'days').days) + 1;
+    const startDateObj = DateTime.fromFormat(startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+    const endDateObj = DateTime.fromFormat(endDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+    const expectedDaysNum = (Math.floor(endDateObj.diff(startDateObj, 'days').days) / frequency) + 1;
 
     const daysLeft = Math.floor(endDateObj.diff(todayDateObj, 'days').days) || 0;
 
@@ -917,39 +917,94 @@ const countHabitByStatus = asyncHandler(async (req, res) => {
 // It will also return the completion rate for the last week/month for comparison.
 const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
     let { timePeriod } = req.params;
-    const today = new Date();
+    // console.log("timePeriod", timePeriod);
 
-    const currYear = today.getFullYear();
-    const currMonth = today.getMonth(); // 0-based, so January = 0
+    // methods for luxon date formatting:
+    // Custom function to get Sunday as the start of the week beacuse luxon takes monday as the week start and sunday as the week end:
+    const getWeekStartSunday = (date) => {
+        const weekday = date.weekday; // Luxon weekday (Mon=1, Sun=7)
+        return date.minus({ days: weekday % 7 }).startOf('day');
+    };
+
+    // Custom function to get Saturday as the end of the week beacuse luxon takes monday as the week start and sunday as the week end:
+    const getWeekEndSaturday = (date) => {
+        const weekday = date.weekday;
+        return date.plus({ days: 6 - (weekday % 7) }).endOf('day');
+    };
+
+    // const today = new Date();
+    const todayDateString = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+    const todayDateObj = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
+    // const currYear = today.getFullYear();
+    // const currMonth = today.getMonth(); // 0-based, so January = 0
+    const currYear = todayDateObj.year;
+    const currMonth = todayDateObj.month;
 
     // Start of current month
-    const startingofMonth = new Date(currYear, currMonth, 1);
+    // const startingofMonth = new Date(currYear, currMonth, 1);
+    const startingofMonth = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('month');
+    const startingofMonthString = startingofMonth.toFormat("yyyy-MM-dd");
 
     // End of current month
-    const endofMonth = new Date(currYear, currMonth + 1, 0); // Day 0 of next month
+    // const endofMonth = new Date(currYear, currMonth + 1, 0); // Day 0 of next month
+    const endofMonth = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").endOf('month');
+    const endofMonthString = endofMonth.toFormat("yyyy-MM-dd");
 
     // Start of current week (Sunday)
-    const dayofWeek = today.getDay(); // Sunday = 0
-    const startingofWeek = new Date(today);
-    startingofWeek.setDate(today.getDate() - dayofWeek);
+    // const dayofWeek = today.getDay(); // Sunday = 0
+    // const startingofWeek = new Date(today);
+    // startingofWeek.setDate(today.getDate() - dayofWeek);
+    // const dayofWeek = todayDateObj.weekday;
+    const startingofWeek = getWeekStartSunday(todayDateObj);
+    const startingofWeekString = startingofWeek.toFormat("yyyy-MM-dd");
 
     // End of current week
-    const endofWeek = new Date(startingofWeek);
-    endofWeek.setDate(startingofWeek.getDate() + 6); // Saturday
+    // const endofWeek = new Date(startingofWeek);
+    // endofWeek.setDate(startingofWeek.getDate() + 6); // Saturday
+    const endofWeek = getWeekEndSaturday(todayDateObj);
+    const endofWeekString = endofWeek.toFormat("yyyy-MM-dd");
+
+
+    // console.log("todayDateString", todayDateString);
+    // console.log("todayDateObj", todayDateObj);
+    // console.log("currYear", currYear);
+    // console.log("currMonth", currMonth);
+    // console.log("startingofMonth", startingofMonth);
+    // console.log("endofMonth", endofMonth);
+    // console.log("dayofWeek", dayofWeek);
+    // console.log("startingofWeek", startingofWeek);
+    // console.log("endofWeek", endofWeek);
 
     // Start of previous month
-    const startOfLastMonth = new Date(currYear, currMonth - 1, 1);
+    // const startOfLastMonth = new Date(currYear, currMonth - 1, 1);
+    // const startOfLastMonth = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('month');
+    const startOfLastMonth = todayDateObj.minus({ months: 1 }).setZone("Asia/Kolkata").startOf('month');
+    const startOfLastMonthString = startOfLastMonth.toFormat("yyyy-MM-dd");
+
+    
+
+    // console.log("startOfLastMonthString ", startOfLastMonthString);
+    // console.log("startOfLastMonth ", startOfLastMonth)
+
 
     // End of previous month
-    const endOfLastMonth = new Date(currYear, currMonth, 0); // Day 0 of current month
+    // const endOfLastMonth = new Date(currYear, currMonth, 0); // Day 0 of current month
+    // const endOfLastMonth = DateTime.fromFormat(todayDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").endOf('month');
+    const endOfLastMonth = todayDateObj.minus({ months: 1 }).setZone("Asia/Kolkata").endOf('month');
+    const endOfLastMonthString = endOfLastMonth.toFormat("yyyy-MM-dd");
 
     // Start of previous week (7 days before start of this week)
-    const startOfLastWeek = new Date(startingofWeek);
-    startOfLastWeek.setDate(startingofWeek.getDate() - 7);
+    // const startOfLastWeek = new Date(startingofWeek);
+    // startOfLastWeek.setDate(startingofWeek.getDate() - 7);
+    const startOfLastWeek = getWeekStartSunday(todayDateObj.minus({ weeks: 1 }));
+    const startOfLastWeekString = startOfLastWeek.toFormat("yyyy-MM-dd");
 
     // End of previous week (1 day before start of current week)
-    const endOfLastWeek = new Date(startingofWeek);
-    endOfLastWeek.setDate(startingofWeek.getDate() - 1);
+    // const endOfLastWeek = new Date(startingofWeek);
+    // endOfLastWeek.setDate(startingofWeek.getDate() - 1);
+    const endOfLastWeek = getWeekEndSaturday(todayDateObj.minus({ weeks: 1 }));
+    const endOfLastWeekString = endOfLastWeek.toFormat("yyyy-MM-dd");
 
 
 
@@ -967,32 +1022,44 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid time period.");
     }
 
-    const getStartOfDay = (date) => {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d;
+    const getStartOfDay = (dateObj) => {
+        // const d = new Date(dateObj);
+        // d.setHours(0, 0, 0, 0);
+        // return d;
+        // console.log('dateObj', dateObj);
+        if (!dateObj || !DateTime.isDateTime(dateObj)) {
+            throw new ApiError(401, "Please pass a Luxon DateTime object to get the start of day");
+        }
+
+        return dateObj.setZone("Asia/Kolkata").startOf('day');
     };
 
-    // const periodStartDate = timePeriod === "thisWeek"
-    //     ? getStartOfDay(pastWeek)
-    //     : getStartOfDay(pastMonth);
+
 
     const periodStartDate = timePeriod === "thisWeek"
         ? getStartOfDay(startingofWeek)
         : getStartOfDay(startingofMonth);
+
+    const periodStartDateString = periodStartDate.toFormat("yyyy-MM-dd");
 
 
     const periodEndDate = timePeriod === "thisWeek"
         ? getStartOfDay(endofWeek)
         : getStartOfDay(endofMonth);
 
+    const periodEndDateString = periodEndDate.toFormat("yyyy-MM-dd");
+
     const lastPeriodStartDate = timePeriod === "thisWeek"
         ? getStartOfDay(startOfLastWeek)
         : getStartOfDay(startOfLastMonth);
 
+    const lastPeriodStartDateString = lastPeriodStartDate.toFormat("yyyy-MM-dd");
+
     const lastPeriodEndDate = timePeriod === "thisWeek"
         ? getStartOfDay(endOfLastWeek)
         : getStartOfDay(endOfLastMonth);
+
+    const lastPeriodEndDateString = lastPeriodEndDate.toFormat("yyyy-MM-dd");
 
 
 
@@ -1020,19 +1087,31 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
     ])
 
 
+    // const searchMatchConditions = {
+    //     startDate: {
+    //         $lte: today
+    //     },
+    //     endDate: {
+    //         $gte: periodStartDate
+    //     }
+    // };
     const searchMatchConditions = {
         startDate: {
-            $lte: today
+            $lte: todayDateString
         },
         endDate: {
-            $gte: periodStartDate
+            $gte: periodStartDateString
         }
     };
 
 
+    // const comparisonMatchConditions = {
+    //     startDate: { $lte: lastPeriodEndDate },
+    //     endDate: { $gte: lastPeriodStartDate }
+    // };
     const comparisonMatchConditions = {
-        startDate: { $lte: lastPeriodEndDate },
-        endDate: { $gte: lastPeriodStartDate }
+        startDate: { $lte: lastPeriodEndDateString },
+        endDate: { $gte: lastPeriodStartDateString }
     };
 
 
@@ -1076,20 +1155,27 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
         const completedDaysNum = habit.completedDays.length;
         let completedDaysCount = 0;
         if (completedDaysNum > 0) {
-
-
-
             for (let i = 0; i < completedDaysNum; i++) {
-                const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
+                // const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
+                const thisDateString = habit.completedDays[i]
+                const thisDateObj = DateTime.fromFormat(thisDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
 
                 // if the date is less than the start of the period, skip it
-                if (currentDate < getStartOfDay(periodStartDate)) {
+                // if (currentDate < getStartOfDay(periodStartDate)) {
+                //     continue;
+                // }
+
+                if (thisDateObj < getStartOfDay(periodStartDate)) {
                     continue;
                 }
 
                 // if the date is greater than the end of the period, no need to check further
-                if (currentDate > getStartOfDay(periodEndDate)) {
+                // if (currentDate > getStartOfDay(periodEndDate)) {
+                //     break;
+                // }
+
+                if (thisDateObj > getStartOfDay(periodEndDate)) {
                     break;
                 }
 
@@ -1098,16 +1184,26 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
             }
 
             let startDate;
-            if (getStartOfDay(new Date(habit.startDate)) < getStartOfDay(periodStartDate)) {
+            const habitStartDateObj = DateTime.fromFormat(habit.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata");
+            // if (getStartOfDay(new Date(habit.startDate)) < getStartOfDay(periodStartDate)) {
+            //     startDate = getStartOfDay(periodStartDate);
+            // }
+
+            if (getStartOfDay(habitStartDateObj) < getStartOfDay(periodStartDate)) {
                 startDate = getStartOfDay(periodStartDate);
             }
 
+            // else {
+            //     startDate = getStartOfDay(habit.startDate)
+            // }
+
             else {
-                startDate = getStartOfDay(habit.startDate)
+                startDate = getStartOfDay(habitStartDateObj);
             }
 
             const frequency = habit.frequency;
-            const expectedDays = Math.round((today - startDate) / (frequency * 1000 * 60 * 60 * 24) + 1);
+            // const expectedDays = Math.round((today - startDate) / (frequency * 1000 * 60 * 60 * 24) + 1);
+            const expectedDays = (Math.floor(todayDateObj.diff(startDate, 'days').days) / frequency) + 1;
             // console.log(expectedDays,completedDaysCount);
 
             // completion rate for each habit:
@@ -1139,46 +1235,78 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
     comparisonRateHabits.map((habit) => {
         const completedDaysNum = habit.completedDays.length;
         let completedDaysCount = 0;
+
+
         if (completedDaysNum > 0) {
 
             for (let i = 0; i < completedDaysNum; i++) {
-                const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
+                // const currentDate = new Date(habit.completedDays[i]).setHours(0, 0, 0, 0);
+                const thisDateString = habit.completedDays[i];
+                const thisDateObj = DateTime.fromFormat(thisDateString, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
+
 
 
                 // if the date is less than the start of the period, skip it
-                if (currentDate < getStartOfDay(lastPeriodStartDate)) {
+                // if (currentDate < getStartOfDay(lastPeriodStartDate)) {
+                //     continue;
+                // }
+
+                if (thisDateString < lastPeriodStartDateString) {
+                    // console.log("added");
                     continue;
                 }
 
                 // if the date is greater than the end of the period, no need to check further
-                if (currentDate > getStartOfDay(lastPeriodEndDate)) {
+                // if (currentDate > getStartOfDay(lastPeriodEndDate)) {
+                //     break;
+                // }
+
+                if (thisDateString > lastPeriodEndDateString) {
+                    // console.log("added");
                     break;
                 }
 
                 // otherwise add it to the count
                 completedDaysCount++;
+                // console.log("completedDaysCount", completedDaysCount);
             }
 
             let startDate;
-            if (getStartOfDay(new Date(habit.startDate)) < getStartOfDay(lastPeriodStartDate)) {
+            const startDateObj = DateTime.fromFormat(habit.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata");
+
+
+            // if (getStartOfDay(new Date(habit.startDate)) < getStartOfDay(lastPeriodStartDate)) {
+            //     startDate = getStartOfDay(lastPeriodStartDate);
+            // }
+
+            if (habit.startDate < lastPeriodStartDateString) {
                 startDate = getStartOfDay(lastPeriodStartDate);
             }
 
+            // else {
+            //     startDate = getStartOfDay(habit.startDate)
+            // }
+
             else {
-                startDate = getStartOfDay(habit.startDate)
+                startDate = getStartOfDay(startDateObj);
             }
 
             const frequency = habit.frequency;
-            const expectedDays = Math.round((today - startDate) / (frequency * 1000 * 60 * 60 * 24) + 1);
+            // const expectedDays = Math.round((today - startDate) / (frequency * 1000 * 60 * 60 * 24) + 1);
+
+            const expectedDays = (Math.floor(todayDateObj.diff(startDate, 'days').days) / frequency) + 1;
+            // console.log(expectedDays,completedDaysCount);
+            // console.log("expected days ", expectedDays);
+            // console.log("completed days ", completedDaysCount)
 
             // completion rate for each habit:
-            completionRate = (completedDaysCount / expectedDays) * 100;
-            // console.log(completionRate);
+            lastCompletionRate = (completedDaysCount / expectedDays) * 100;
+            // console.log("completionRate ", lastCompletionRate);
 
         }
 
         else {
-            completionRate = 0;
+            lastCompletionRate = 0;
         }
 
 
@@ -1186,12 +1314,13 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
 
         lastAvgCompletionRate += lastCompletionRate;
     })
-    // console.log(comparisonRateHabits)
+    // console.log("comparisonRateHabits", comparisonRateHabits);
 
 
 
     lastAvgCompletionRate = comparisonRateHabits.length > 0 ? lastAvgCompletionRate / comparisonRateHabits.length : 0;
     lastAvgCompletionRate = Math.round(lastAvgCompletionRate * 100) / 100; // limiting to 2 decimal points.
+    // console.log(avgCompletionRate);
     // console.log(lastAvgCompletionRate);
 
     res.status(200).json(
