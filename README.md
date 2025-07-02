@@ -8,6 +8,7 @@
 truehabit/
 ├── backend/        # Node.js + Express API with MongoDB
 ├── frontend/       # React frontend using Ant Design
+├── shared/         # Shared functions required for both frontend and backend
 ├── .gitignore
 ├── README.md
 ├── CHANGELOG.md    # track versions
@@ -41,7 +42,7 @@ truehabit/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/truehabit.git
+git clone https://github.com/tusharmotwani1718/truehabit.git
 cd truehabit
 ```
 
@@ -135,3 +136,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - [MongoDB](https://www.mongodb.com/)
 - [Cloudinary](https://cloudinary.com/)
 - [JWT.io](https://jwt.io/)
+- [Arcjet](https://arcjet.com)
+- [Chai-Code](https://chaicode.com)
