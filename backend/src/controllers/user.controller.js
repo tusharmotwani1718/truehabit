@@ -14,6 +14,9 @@ import axios from 'axios';
 import envconf from '../conf/envconfig.js';
 import isEmail from 'isemail';
 import { isDisposableEmail } from 'disposable-email-domains-js';
+import { Group } from '../models/group.model.js';
+import { GroupHabit } from '../models/grouphabit.model.js';
+import mongoose from 'mongoose';
 
 dotenv.config()
 
@@ -492,10 +495,30 @@ const deleteAccount = asyncHandler(async (req, res) => {
         }
     }
 
-    if (user.habitCollection.length != 0) {
+    if (user.habitCollection && user.habitCollection.length != 0) {
         const deleteHabits = await Habit.deleteMany({ _id: { $in: user.habitCollection } });
         if (!deleteHabits) {
             throw new ApiError(400, "Error while deleting the user habits.");
+        }
+    }
+
+    if (user.groups && user.groups.length != 0) {
+        const userId = mongoose.Types.ObjectId(req.user?._id);
+        // delete the groups owned by user:
+        const deleteGroups = await Group.deleteMany({ admin: userId });
+
+        // remove the user from the group he/she was part of:
+        const removeUser = await GroupHabit.updateMany(
+            {},
+            {
+                $pull: {
+                    users: { user: userId }
+                }
+            }
+        )
+
+        if(!deleteGroups || !removeUser){
+            throw new ApiError("Error while deleting user's groups or removing user from the group habits.");
         }
     }
 

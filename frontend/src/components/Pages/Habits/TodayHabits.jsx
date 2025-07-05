@@ -158,13 +158,13 @@ function TodayHabits({
     ];
 
     return (
-        <div className="min-h-screen py-8 w-full bg-color-background dark:bg-color-dark-background">
+        <div className="min-h-screen py-8 w-full bg-color-background dark:bg-color-dark-background mx-auto">
             <main className="container mx-auto px-4 max-w-5xl">
                 {/* Header */}
                 {
                     topbar && (
                         <div className="mb-8">
-                            <Topbar text="Today's Habits" />
+                            <Topbar text="Today's Habits"/>
                         </div>
                     )
                 }

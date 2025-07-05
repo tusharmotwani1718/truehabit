@@ -42,7 +42,7 @@ function Habit({
     const dispatch = useDispatch();
     const [isChecked, setIsChecked] = useState(completed);
     const [isMarking, setIsMarking] = useState(false);
-
+    const userData = useSelector(state => state.auth.userData);
 
 
     // modal context:
@@ -167,7 +167,7 @@ function Habit({
                                     <CheckMark
                                         checked={isChecked}
                                         onChange={() => markHabitDone(habitId)}
-                                        disabled={isMarking || completed}
+                                        disabled={isMarking || completed || (!!userData && !userData.isEmailVerified)}
                                         tooltip={"Locked until next date"}
                                     />
                                 </div>

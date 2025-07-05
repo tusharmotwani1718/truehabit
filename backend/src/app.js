@@ -31,6 +31,6 @@ import groupRouter from "./routes/group.routes.js";
 // routes declaration
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/habits', verifyJWT, habitRouter);
-app.use('/api/v1/groups', verifyJWT, groupRouter);
+app.use('/api/v2/groups', verifyJWT, groupRouter);
 
 export { app };

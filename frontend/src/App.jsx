@@ -111,15 +111,15 @@ const loggedinRouter = createBrowserRouter(
           path="grouptracking"
           element={
             <AuthLayout authentication>
-              {/* <GroupTrackingLayout /> <Outlet /> will go here */}
-              <ComingSoon />
+              <GroupTrackingLayout /> {/* <Outlet /> will go here */}
+              {/* <ComingSoon /> */}
             </AuthLayout>
           }
         >
-          {/* <Route index element={<GroupTracking />} />        Renders at /grouptracking */}
-          {/* <Route path=":groupId" element={<GroupDetails />} /> Renders at /grouptracking/:groupId */}
-          {/* <Route path="today/viewtodayhabits" element={<ViewTodayGroupHabits />} /> Renders at /grouptracking/today/viewtodayhabits */}
-          {/* <Route path="viewinvites" element={<ViewInvitations />} /> Renders at /grouptracking/viewinvites */}
+          <Route index element={<GroupTracking />} />        Renders at /grouptracking
+          <Route path=":groupId" element={<GroupDetails />} /> Renders at /grouptracking/:groupId
+          <Route path="today/viewtodayhabits" element={<ViewTodayGroupHabits />} /> Renders at /grouptracking/today/viewtodayhabits
+          <Route path="viewinvites" element={<ViewInvitations />} /> Renders at /grouptracking/viewinvites
         </Route>
 
         <Route
@@ -138,7 +138,7 @@ const loggedinRouter = createBrowserRouter(
             </AuthLayout>
           }
         />
-       
+
         <Route
           path="contact"
           element={
@@ -147,7 +147,7 @@ const loggedinRouter = createBrowserRouter(
             </AuthLayout>
           }
         />
-        
+
         <Route
           path="profile"
           element={
@@ -241,25 +241,25 @@ function App() {
       <ThemeProvider value={{ theme, toggleTheme }}>
         <ModalProvider value={{ openModal, closeModal, modalType: modal.type }}>
           <AuthProvider>   {/* Add this here */}
-          <RouterProvider key={routerKey} router={authStatus ? loggedinRouter : router} />
-          <Message /> {/* Render the Message component to show messages */}
-          <ModalWindow>
-            {modal.type === "authModalSignup" && <AuthTabs defaultWidnow="signup" />}
-            {modal.type === "authModalLogin" && <AuthTabs defaultWidnow="login" />}
-            {modal.type === "addHabitModal" && <AddHabit />}
-            {modal.type === "editHabitModal" && (
-              <EditHabit habitId={modal.props.habitId} />
-            )}
-            {modal.type === "editProfileModal" && (
-              <EditProfile userId={modal.props.userId} />
-            )}
-            {modal.type === "addGroupModal" && (
-              <AddGroup />
-            )}
-            {modal.type === "InviteUsersModal" && (
-              <InviteUsers groupId={modal.props.groupId} />
-            )}
-          </ModalWindow>
+            <RouterProvider key={routerKey} router={authStatus ? loggedinRouter : router} />
+            <Message /> {/* Render the Message component to show messages */}
+            <ModalWindow>
+              {modal.type === "authModalSignup" && <AuthTabs defaultWidnow="signup" />}
+              {modal.type === "authModalLogin" && <AuthTabs defaultWidnow="login" />}
+              {modal.type === "addHabitModal" && <AddHabit />}
+              {modal.type === "editHabitModal" && (
+                <EditHabit habitId={modal.props.habitId} />
+              )}
+              {modal.type === "editProfileModal" && (
+                <EditProfile userId={modal.props.userId} />
+              )}
+              {modal.type === "addGroupModal" && (
+                <AddGroup />
+              )}
+              {modal.type === "InviteUsersModal" && (
+                <InviteUsers groupId={modal.props.groupId} />
+              )}
+            </ModalWindow>
           </AuthProvider>
         </ModalProvider>
       </ThemeProvider>

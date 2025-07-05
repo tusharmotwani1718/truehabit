@@ -31,11 +31,11 @@ coverage/
 
 # Files to be released in version 2.0.0:
 # backend files:
-backend/src/controllers/group.controller.js
-backend/src/models/grouphabit.model.js
-backend/src/models/group.model.js
-backend/src/models/groupInvitation.js
-backend/src/routes/group.routes.js
+# backend/src/controllers/group.controller.js
+# backend/src/models/grouphabit.model.js
+# backend/src/models/group.model.js
+# backend/src/models/groupInvitation.js
+# backend/src/routes/group.routes.js
 
 # frontend files:
 frontend/src/components/Pages/GroupTracking

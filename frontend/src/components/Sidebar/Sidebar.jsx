@@ -54,25 +54,24 @@ const Sidebar = ({ items }) => {
 
   //  console.log(userID)
 
-  const logoutUser = () => {
-    axios({
-      url: `${import.meta.env.VITE_API_BASE_URL_USERS}/logout`,
-      method: "POST",
-      withCredentials: true
-    })
-      .then((response) => {
-        dispatch(logoutSlice(userID))
-        persistor.purge();
-        localStorage.removeItem('email_verification_status');
-        setTimeout(() => {
-          navigate('/'); // Let the layout handle actual redirection
-        }, 100); // Short delay lets state settle
-        displayMessage('success', response.data.message);
-      })
-      .catch((err) => {
-        displayMessage('error', err.data.message || "Failed to logout");
-      })
-  }
+  const logoutUser = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL_USERS}/logout`,
+        {},
+        { withCredentials: true }
+      );
+
+      dispatch(logoutSlice(userID));
+      persistor.purge();
+      localStorage.removeItem('email_verification_status');
+      setTimeout(() => navigate('/'), 100); // Short delay lets state settle
+      displayMessage('success', response.data.message);
+    } catch (err) {
+      displayMessage('error', err.response?.data?.message || "Failed to logout");
+    }
+  };
+
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

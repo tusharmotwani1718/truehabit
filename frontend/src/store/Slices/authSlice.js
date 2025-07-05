@@ -18,7 +18,7 @@ const authSlice = createSlice({
             state.authStatus = true;
             state.userData = action.payload.user;
 
-            // Only works at localhost:
+            // Only works at localhost (not for production):
             // Calculate expiration dates
             const accessTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(); // 1 day
             const refreshTokenExpiry = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toUTCString(); // 10 days
