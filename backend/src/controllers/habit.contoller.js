@@ -26,25 +26,28 @@ const validateUpdateHabit = [
     body('startDate').optional().isISO8601().withMessage('Invalid start date format.')
 ]
 
+// Helper function to extract client IP address (used in arcjet)
+const getClientIp = (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress;
+};
+
 
 // Route 1: Fetch habits:
 const getHabits = asyncHandler(async (req, res) => {
     // arcjet Rate Limit function:
-    const decision = await arcjetService.rateLimit({ refillRate: 5, interval: "5m", capacity: 5 }).protect(req, { email: req.user?.email })
-    // console.log("Arcjet decision", decision);
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
 
     if (decision.isDenied()) {
-        if (decision.reason.isEmail()) {
-            throw new ApiError(
-                400,
-                "Invalid or Disposable emails not allowed."
-            )
-        } else {
-            throw new ApiError(
-                400,
-                "Too many requests. Please try after some time..."
-            )
-        }
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
     }
 
     const { habitType } = req.params;
@@ -138,13 +141,14 @@ const getHabits = asyncHandler(async (req, res) => {
 // Route 2: Adding a new habit
 const addNewHabit = asyncHandler(async (req, res) => {
 
-    // arcjet Rate Limit function:
-    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    // arcjet validation:
+    const clientIp = getClientIp(req);
     const decision = await arcjetService.rateLimit({
         refillRate: 10,
-        interval: 120,
+        interval: "5m",
         capacity: 10
-    }).protect(req, { userId, email: req.user?.email, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
     if (decision.isDenied()) {
         throw new ApiError(
             400,
@@ -302,13 +306,14 @@ const deleteHabit = asyncHandler(async (req, res) => {
 
 const updateHabit = asyncHandler(async (req, res) => {
 
-    // arcjet Rate Limit function:
-    const userId = req.headers["x-forwarded-for"] || req.connection.remoteAddress; // Fetch the user's IP address
+    // arcjet validation:
+    const clientIp = getClientIp(req);
     const decision = await arcjetService.rateLimit({
         refillRate: 10,
-        interval: 120,
+        interval: "5m",
         capacity: 10
-    }).protect(req, { userId, requested: 1 }); // Deduct 1 token from the bucket
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
     if (decision.isDenied()) {
         throw new ApiError(
             400,
@@ -982,7 +987,7 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
     const startOfLastMonth = todayDateObj.minus({ months: 1 }).setZone("Asia/Kolkata").startOf('month');
     const startOfLastMonthString = startOfLastMonth.toFormat("yyyy-MM-dd");
 
-    
+
 
     // console.log("startOfLastMonthString ", startOfLastMonthString);
     // console.log("startOfLastMonth ", startOfLastMonth)

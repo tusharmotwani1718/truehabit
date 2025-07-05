@@ -103,6 +103,22 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email address is undeliverable or risky.");
     }
 
+    // arcjet validation (rate-limit):
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: clientIp, ip: clientIp, requested: 1 }); // Deduct 1 token from the bucket
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+
+
 
 
 
@@ -517,7 +533,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
             }
         )
 
-        if(!deleteGroups || !removeUser){
+        if (!deleteGroups || !removeUser) {
             throw new ApiError("Error while deleting user's groups or removing user from the group habits.");
         }
     }

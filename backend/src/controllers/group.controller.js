@@ -9,6 +9,7 @@ import { DateTime } from "luxon";
 import mongoose from "mongoose";
 import { GroupInvitation } from "../models/groupInvitation.js";
 import { compareDatesWithoutTime } from "../../../shared/functions/CompareDates.js";
+import arcjetService from "../utils/arcjet.js";
 
 
 
@@ -18,8 +19,28 @@ dotenv.config();
 // In this controller all the routes would be requiring authentication on login (Verify JWT) as you can perform no action on your groups until you are logged in.
 
 
+// Helper function to extract client IP address (used in arcjet)
+const getClientIp = (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress;
+};
+
 // Route 1: Get your group
 const getGroups = asyncHandler(async (req, res) => {
+    // arcjet validation (rate-limit):
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: clientIp, ip: clientIp, requested: 1 }); // Deduct 1 token from the bucket
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+
     const groups = await User.findById(req.user?._id)
         .populate({
             path: "groups",
@@ -49,6 +70,21 @@ const getGroups = asyncHandler(async (req, res) => {
 // Route 2: Create a group
 const createGroup = asyncHandler(async (req, res) => {
     const { groupName, groupDesc, habitName, habitDesc, habitCategory, startDate, endDate, frequency } = req.body;
+
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
 
     // const currentDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
     const currentDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
@@ -82,14 +118,14 @@ const createGroup = asyncHandler(async (req, res) => {
     }
 
     const admin = req.user?._id;
-    
+
     const user = User.findById(admin);
 
-    if(!admin || !user){
+    if (!admin || !user) {
         throw new ApiError(401, "User not found");
     }
 
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -202,7 +238,7 @@ const deleteGroup = asyncHandler(async (req, res) => {
     const adminId = req.user?._id;
     const user = await User.findById(adminId);
 
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
     // console.log(adminId, group.admin);
@@ -248,6 +284,21 @@ const inviteUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Group id and user id are required.");
     }
 
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+
     // find the group:
     const group = await Group.findById(groupId);
 
@@ -260,7 +311,7 @@ const inviteUser = asyncHandler(async (req, res) => {
     const adminId = req.user?._id;
 
     const admin = await User.findById(adminId);
-    if(!admin.isEmailVerified){
+    if (!admin.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -363,7 +414,7 @@ const acceptDeclineInvitation = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User not found.");
     };
 
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -426,6 +477,21 @@ const updateGroup = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Group id is required.");
     }
 
+    // arcjet validation:
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 10
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+
     const group = await Group.findById(groupId);
     if (!group) {
         throw new ApiError(400, "Group not found.");
@@ -438,7 +504,7 @@ const updateGroup = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User not found.");
     };
 
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     };
 
@@ -617,7 +683,7 @@ const removeUser = asyncHandler(async (req, res) => {
     const adminId = req.user?._id;
 
     const admin = await User.findById(adminId);
-    if(!admin.isEmailVerified){
+    if (!admin.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -665,7 +731,7 @@ const leaveGroup = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
 
     const user = await User.findById(userId);
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -753,7 +819,7 @@ const updateHabitCompletion = asyncHandler(async (req, res) => {
     }
 
     const requestingUser = await User.findById(userId);
-    if(!requestingUser.isEmailVerified){
+    if (!requestingUser.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -868,7 +934,7 @@ const getTodayHabits = asyncHandler(async (req, res) => {
         throw new ApiError(400, "No groups found for this user.");
     }
 
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
 
@@ -921,7 +987,7 @@ const getTodayHabits = asyncHandler(async (req, res) => {
                 // const lastDate = DateTime.fromJSDate(dates[dates.length - 1]).setZone('Asia/Kolkata').startOf('day');
                 // return lastDate.toMillis() === todayDate.toMillis();
                 const lastDate = dates[dates.length - 1];
-                const lastDateString = DateTime.fromFormat(lastDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone('Asia/Kolkata').toFormat('yyyy-MM-dd');
+                const lastDateString = DateTime.fromFormat(lastDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone('Asia/Kolkata').toFormat('yyyy-MM-dd');
                 return lastDateString === currentDateString;
             })() ||
             (() => {
@@ -929,7 +995,7 @@ const getTodayHabits = asyncHandler(async (req, res) => {
                 // const daysSinceLastCompletion = Math.floor(todayDate.diff(lastDate, 'days').days);
                 // return daysSinceLastCompletion >= habit.frequency;
                 const lastDate = dates[dates.length - 1];
-                const lastDateObj = DateTime.fromFormat(lastDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone('Asia/Kolkata').startOf('day');
+                const lastDateObj = DateTime.fromFormat(lastDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone('Asia/Kolkata').startOf('day');
                 const daysSinceLastCompletion = Math.floor(currentDate.diff(lastDateObj, 'days').days);
                 return daysSinceLastCompletion >= habit.frequency;
 
@@ -986,9 +1052,9 @@ const getUsersDetails = asyncHandler(async (req, res) => {
     const todayDate = DateTime.now().setZone('Asia/Kolkata').startOf('day');
     const todayDateString = todayDate.toFormat('yyyy-MM-dd');
 
-    const startDate = DateTime.fromFormat(groupHabit.startDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone('Asia/Kolkata').startOf('day');
+    const startDate = DateTime.fromFormat(groupHabit.startDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone('Asia/Kolkata').startOf('day');
     const startDateString = startDate.toFormat('yyyy-MM-dd');
-    const endDate = DateTime.fromFormat(groupHabit.endDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone('Asia/Kolkata').startOf('day');
+    const endDate = DateTime.fromFormat(groupHabit.endDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone('Asia/Kolkata').startOf('day');
     const endDateString = endDate.toFormat('yyyy-MM-dd');
 
     // const expectedDaysNum = Math.floor((groupHabit.endDate - groupHabit.startDate) / (groupHabit.frequency * 1000 * 60 * 60 * 24) + 1);
@@ -1008,7 +1074,7 @@ const getUsersDetails = asyncHandler(async (req, res) => {
             currStreak = 1;
             // const lastCompletedDate = new Date(user.dates[completedDayslength - 1]).setHours(0, 0, 0, 0);
             const lastCompletedDate = user.dates[completedDayslength - 1];
-            const lastCompletedDateObj = DateTime.fromFormat(lastCompletedDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone('Asia/Kolkata').startOf('day');
+            const lastCompletedDateObj = DateTime.fromFormat(lastCompletedDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone('Asia/Kolkata').startOf('day');
 
             const dateDiff = Math.floor(todayDate.diff(lastCompletedDate, 'days').days);
 
@@ -1025,13 +1091,13 @@ const getUsersDetails = asyncHandler(async (req, res) => {
             //     currStreak = 0;
             // }
 
-            
+
             if (dateDiff <= frequency) {
                 for (let i = completedDayslength - 1; i > 0; i--) {
                     const currentCompletedDate = user.dates[i];
-                    const currentCompletedDateObj = DateTime.fromFormat(currentCompletedDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+                    const currentCompletedDateObj = DateTime.fromFormat(currentCompletedDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
                     const previousCompletedDate = user.dates[i - 1];
-                    const previousCompletedDateObj = DateTime.fromFormat(previousCompletedDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+                    const previousCompletedDateObj = DateTime.fromFormat(previousCompletedDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
                     const consecutiveDatesDifference = Math.floor(currentCompletedDateObj.diff(previousCompletedDateObj, 'days').days);
 
@@ -1060,10 +1126,10 @@ const getUsersDetails = asyncHandler(async (req, res) => {
                 // const diff = (nextDate - currentDate) / (1000 * 60 * 60 * 24);
 
                 const currentDate = user.dates[i];
-                const currentDateObj = DateTime.fromFormat(currentDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+                const currentDateObj = DateTime.fromFormat(currentDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
                 const nextDate = user.dates[i + 1];
-                const nextDateObj = DateTime.fromFormat(nextDate, 'yyyy-MM-dd', {zone: "Asia/Kolkata"}).setZone("Asia/Kolkata").startOf('day');
+                const nextDateObj = DateTime.fromFormat(nextDate, 'yyyy-MM-dd', { zone: "Asia/Kolkata" }).setZone("Asia/Kolkata").startOf('day');
 
                 const diff = Math.floor(nextDateObj.diff(currentDateObj, 'days').days);
 
@@ -1138,11 +1204,26 @@ const getUsers = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Username is required.");
     }
 
+    // arcjet validation (rate-limit):
+    const clientIp = getClientIp(req);
+    const decision = await arcjetService.rateLimit({
+        refillRate: 10,
+        interval: "5m",
+        capacity: 20
+    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
+
+    if (decision.isDenied()) {
+        throw new ApiError(
+            400,
+            "Too Many Requests...Please try again after some time"
+        )
+    }
+
     const user = await User.findById(userId);
-    if(!user.isEmailVerified){
+    if (!user.isEmailVerified) {
         throw new ApiError(401, "Please verify your email first.");
     }
-    
+
 
     // get the users matching the username:
     const users = await User.find({
