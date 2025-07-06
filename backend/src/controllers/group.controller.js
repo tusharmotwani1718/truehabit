@@ -43,20 +43,7 @@ const getClientIp = (req) => {
 
 // Route 1: Get your group
 const getGroups = asyncHandler(async (req, res) => {
-    // arcjet validation (rate-limit):
-    const clientIp = getClientIp(req);
-    const decision = await arcjetService.rateLimit({
-        refillRate: 10,
-        interval: "5m",
-        capacity: 10
-    }).protect(req, { userId: clientIp, ip: clientIp, requested: 1 }); // Deduct 1 token from the bucket
-
-    if (decision.isDenied()) {
-        throw new ApiError(
-            400,
-            "Too Many Requests...Please try again after some time"
-        )
-    }
+    
 
     const groups = await User.findById(req.user?._id)
         .populate({

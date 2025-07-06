@@ -53,6 +53,16 @@ const authSlice = createSlice({
                 state.userData.isEmailVerified = true;
             }
         },
+        removehabit: (state, action) => {
+          if (state.userData && state.userData.habitCollection.length > 0) {
+              state.userData.habitCollection = state.userData.habitCollection.filter(habitId => habitId !== action.payload);
+          }  
+        },
+        removeGroup: (state, action) => {
+          if (state.userData && state.userData.groups.length > 0) {
+            state.userData.groups = state.userData.groups.filter(groupId => groupId !== action.payload);
+          }
+        },
         setAuthStatus: (state, action) => {
             state.authStatus = action.payload;
         },
@@ -67,6 +77,6 @@ const authSlice = createSlice({
 })
 
 
-export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture, activateAccount, setAuthChecked } = authSlice.actions;
+export const { login, logout, setAuthStatus, updateProfile, setProfilePicture, changeProfilePicture, removeProfilePicture, activateAccount, setAuthChecked, removehabit, removeGroup } = authSlice.actions;
 
 export default authSlice.reducer;

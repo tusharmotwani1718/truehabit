@@ -34,21 +34,7 @@ const getClientIp = (req) => {
 
 // Route 1: Fetch habits:
 const getHabits = asyncHandler(async (req, res) => {
-    // arcjet Rate Limit function:
-    // arcjet validation:
-    const clientIp = getClientIp(req);
-    const decision = await arcjetService.rateLimit({
-        refillRate: 10,
-        interval: "5m",
-        capacity: 10
-    }).protect(req, { userId: req.user?._id, ip: clientIp, requested: 1 });
-
-    if (decision.isDenied()) {
-        throw new ApiError(
-            400,
-            "Too Many Requests...Please try again after some time"
-        )
-    }
+  
 
     const { habitType } = req.params;
     // console.log(habitType)

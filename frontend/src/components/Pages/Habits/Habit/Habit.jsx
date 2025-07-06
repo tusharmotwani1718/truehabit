@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BsCalendar2XFill } from "react-icons/bs";
 import { RiGroupLine } from "react-icons/ri";
 import { updateHabitCompletion as updateGroupCompletion } from '../../../../store/Slices/groupSlice';
+import { removehabit as removehabitSlice } from '../../../../store/Slices/authSlice.js';
 
 function Habit({
     title = "Title",
@@ -67,7 +68,8 @@ function Habit({
         try {
             setButtonLoading(true);
             await deleteHabit(deleteId);
-            dispatch(deleteHabitSlice(deleteId));
+            dispatch(deleteHabitSlice(deleteId)); // delete the habit from the database.
+            dispatch(removehabitSlice(deleteId)); // remove the habit from the user's habits.
             setIsDialogOpen(false); // Only close on success
         } catch (error) {
             console.error("Error deleting habit:", error);
