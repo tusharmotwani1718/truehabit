@@ -23,14 +23,16 @@ app.use(cookieParser());
 
 // routes import
 import userRouter from "./routes/user.routes.js";
-import habitRouter from "./routes/habit.routes.js";
+import habitRouterV1  from "./routes/habits/habit.v1.routes.js";
+import habitRouterV2 from './routes/habits/habit.v2.routes.js';
 import groupRouter from "./routes/group.routes.js";
 
 
 
 // routes declaration
 app.use('/api/v1/users', userRouter)
-app.use('/api/v1/habits', verifyJWT, habitRouter);
+app.use('/api/v1/habits', verifyJWT, habitRouterV1);
+app.use('/api/v2/habits', verifyJWT, habitRouterV2);
 app.use('/api/v2/groups', verifyJWT, groupRouter);
 
 export { app };

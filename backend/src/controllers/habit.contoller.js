@@ -34,7 +34,7 @@ const getClientIp = (req) => {
 
 // Route 1: Fetch habits:
 const getHabits = asyncHandler(async (req, res) => {
-  
+
 
     const { habitType } = req.params;
     // console.log(habitType)
@@ -1327,6 +1327,115 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
 })
 
 
+// all the notes related routes will go here: (add, update):
+
+// Route 1: Fetch all notes of a habit:
+const fetchNotes = asyncHandler(async (req, res) => {
+    const { habitId } = req.body;
+
+    if (!habitId) {
+        throw new ApiError(400, "Habit id is required.");
+    }
+
+    // check if the habit belongs to user:
+    const habit = await Habit.findById(habitId);
+    if (!habit) {
+        throw new ApiError(400, "Habit not found.");
+    }
+
+    if (habit.userID.toString() !== req.user?._id.toString()) {
+        throw new ApiError(400, "Habit does not belong to user.");
+    }
+
+    res.status(200).json(new ApiResponse(200, habit.notes, "Notes fetched successfully."));
+})
+
+// Route 2: Add a note for a habit:
+const addNote = asyncHandler(async (req, res) => {
+    const { habitId, note } = req.body;
+
+    if (!habitId) {
+        throw new ApiError(400, "Habit id is required.");
+    }
+
+    if (!note) {
+        throw new ApiError(400, "Note is required.");
+    }
+
+    // find the habit:
+    const habit = await Habit.findById(habitId);
+
+    if (!habit) {
+        throw new ApiError(400, "Habit not found.");
+    }
+
+    // check if the habit belongs to user:
+    if (habit.userID.toString() !== req.user?._id.toString()) {
+        throw new ApiError(400, "Habit does not belong to user.");
+    }
+
+    // check if the habit already has 5 notes:
+    if (habit.notes && habit.notes.length >= 5) {
+        throw new ApiError(400, "Maximum number of notes reached.");
+    }
+
+    // add the note:
+    habit.notes.push({ note });
+    await habit.save({ validateBeforeSave: false });
+
+    res.status(200).json(new ApiResponse(200, note, "Note added successfully."));
+
+})
+
+
+// Route 3: Edit a note for a habit:
+const editNote = asyncHandler(async (req, res) => {
+    const { habitId, noteId, newNote } = req.body;
+
+    if (!habitId) {
+        throw new ApiError(400, "Habit id is required.");
+    }
+
+    if (!noteId) {
+        throw new ApiError(400, "Note id is required.");
+    }
+
+    if (!newNote) {
+        throw new ApiError(400, "New note is required.");
+    }
+
+    // find the habit:
+    const habit = await Habit.findById(habitId);
+
+    if (!habit) {
+        throw new ApiError(400, "Habit not found.");
+    }
+
+    // ensure that the habit belongs to user:
+    const user = await User.findById(req.user?._id).select('habitCollection');
+    if (!user.habitCollection.includes(habitId)) {
+        throw new ApiError(400, "You are not allowed to edit this note.");
+    };
+
+    // find the note:
+    const note = habit.notes._id(noteId);
+
+    if (!note) {
+        throw new ApiError(400, "Note not found.");
+    }
+
+    // update the note:
+    note.note = newNote;
+    await habit.save({ validateBeforeSave: false });
+
+
+
+    res.status(200).json(new ApiResponse(200, note, "Note updated successfully."));
+
+
+
+})
+
 
 
 
@@ -1341,6 +1450,10 @@ export {
     fetchCompletedDates,
     batchFetchHabitDetails,
     countHabitByStatus,
-    countHabitsbyTimePeriod
+    countHabitsbyTimePeriod,
 
+    // v2 routes (notes):
+    fetchNotes,
+    addNote,
+    editNote
 }
