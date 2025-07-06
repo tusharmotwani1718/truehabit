@@ -701,7 +701,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
     // console.log("Token: ", token)
 
-    const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
+    const decoded = jwt.verify(token, envconf.jwtEmailSecret);
     // console.log(decoded);
     const user = await User.findById(decoded._id);
 

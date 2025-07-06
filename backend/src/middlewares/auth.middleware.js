@@ -21,6 +21,8 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
         const decodeToken = jwt.verify(token, envconf.accessTokenSecret);
 
+        // this decodeToken now contains all the fields in an object which were used to generate the token.
+
         const user = await User.findById(decodeToken?._id).select("-password -refreshToken"); // find with "_id" as the function to generate "access-token" uses "_id" of user object at user.model.js
 
         if (!user) {

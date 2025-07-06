@@ -10,6 +10,8 @@ import mongoose from "mongoose";
 import { GroupInvitation } from "../models/groupInvitation.js";
 import { compareDatesWithoutTime } from "../../../shared/functions/CompareDates.js";
 import arcjetService from "../utils/arcjet.js";
+import { body, validationResult } from "express-validator";
+
 
 
 
@@ -17,6 +19,21 @@ import arcjetService from "../utils/arcjet.js";
 dotenv.config();
 
 // In this controller all the routes would be requiring authentication on login (Verify JWT) as you can perform no action on your groups until you are logged in.
+const validateNewGroup = [
+    body('groupName', 'Group Name should be atleast of 3 characters').exists().isLength({ min: 3 }).notEmpty(),
+    body('habitName', 'Habit Name should be atleast of 3 characters').exists().isLength({ min: 3 }).notEmpty(),
+    body('habitDesc', 'Habit Description should be atleast of 5 characters').isLength({ min: 5 }).notEmpty(),
+    body('startDate').isISO8601().withMessage('Invalid start date format.').notEmpty(),
+    body('endDate').isISO8601().withMessage('Invalid end date format.').notEmpty()
+];
+
+const validateUpdateGroup = [
+    body('newGroupName', 'Group Name should be atleast of 3 characters').exists().isLength({ min: 3 }).notEmpty(),
+    body('newHabitName').optional().isLength({ min: 3 }).withMessage('Name must be at least 3 characters long.'),
+    body('newHabitDesc').optional().isLength({ min: 5 }).withMessage('Description must be at least 5 characters long.'),
+    body('newStartDate').optional().isISO8601().withMessage('Invalid start date format.').notEmpty(),
+    body('newEndDate').optional().isISO8601().withMessage('Invalid end date format.').notEmpty()
+]
 
 
 // Helper function to extract client IP address (used in arcjet)
@@ -1246,10 +1263,10 @@ const getUsers = asyncHandler(async (req, res) => {
 
 export {
     getGroups,
-    createGroup,
+    createGroup, validateNewGroup,
     deleteGroup,
     inviteUser,
-    updateGroup,
+    updateGroup, validateUpdateGroup,
     removeUser,
     leaveGroup,
     expireGroup,
