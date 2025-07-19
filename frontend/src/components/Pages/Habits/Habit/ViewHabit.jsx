@@ -10,15 +10,28 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import { formatDate, NormaliseText } from '../../../../../../shared/functions/index.js';
 import { useMessage } from '../../../../context/index.js'
 import { TiGroupOutline } from "react-icons/ti";
-import { deleteHabit as deleteHabitSlice } from '../../../../store/Slices/habitSlice.js'
-import { useDispatch } from 'react-redux';
+import { deleteHabit as deleteHabitSlice, setNotes as setNotesSlice, addNote as addNoteSlice, editNote as editNoteSlice } from '../../../../store/Slices/habitSlice.js'
+import { useDispatch, useSelector } from 'react-redux';
 import { DateTime } from 'luxon';
+import { useForm } from "react-hook-form"
+import useSelection from 'antd/es/table/hooks/useSelection.js'
+import { MdEdit } from 'react-icons/md'
+
 
 
 
 function ViewHabit({
     isGroupHabit = false,
 }) {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors },
+    } = useForm();
+
+
     const { habitId } = useParams();
 
 
@@ -63,29 +76,16 @@ function ViewHabit({
 
 
     const [calendarValue, setCalendarValue] = useState(dayjs());
-    // const [notes, setNotes] = useState([
-    //     { id: 1, text: 'Completed the introduction section of Java basics today. The syntax is similar to C++ which makes it easier to grasp.', date: 'May 1' },
-    //     { id: 2, text: 'Struggled with understanding OOP concepts but finally got a breakthrough with inheritance examples.', date: 'May 3' },
-    //     { id: 3, text: 'Built my first mini Java application - a calculator with GUI using Swing. Excited to build more!', date: 'May 7' },
-    //     { id: 4, text: 'Learning about Collections framework today. HashMaps and ArrayLists are incredibly useful.', date: 'May 9' },
-    // ]);
-    // const [newNote, setNewNote] = useState('');
+    const [notes, setNotes] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const sliceNotes = useSelector(state => state.habit.currentNotes);
 
     const onChangeCalendar = (value) => {
         setCalendarValue(value);
     };
 
-    // const handleAddNote = () => {
-    //     if (newNote.trim()) {
-    //         const today = dayjs().format('MMM D');
-    //         setNotes([
-    //             { id: notes.length + 1, text: newNote, date: today },
-    //             ...notes
-    //         ]);
-    //         setNewNote('');
-    //     }
-    // };
+
 
     const deleteHabit = async (id) => {
         try {
@@ -232,6 +232,40 @@ function ViewHabit({
         }
     }
 
+    // fetch notes:
+    const fetchHabitNotes = async () => {
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL_HABITS_V2}/fetchnotes?habitId=${habitId}`,
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        )
+
+        const fetchedNotes = response.data.data;
+        setNotes(fetchedNotes);
+
+        // update the slice:
+        dispatch(setNotesSlice({ habitId, notes: fetchedNotes }));
+    }
+
+    // add note:
+    const handleAddNote = async (data) => {
+        // console.log("Submitting")
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL_HABITS_V2}/addnote`,
+                { habitId, note: data.note },
+                { headers: { "Content-Type": "application/json" }, withCredentials: true }
+            )
+            const addedNote = response.data.data;
+
+            dispatch(addNoteSlice({ habitId, note: addedNote }));
+            displayMessage("success", response.data.message);
+            reset();
+        } catch (error) {
+            console.error("Error adding note:", error);
+            displayMessage("error", error.response.data.message || "Network Error");
+        }
+    }
+
     useEffect(() => {
         const fetchHabitData = async () => {
             if (isGroupHabit) {
@@ -245,6 +279,7 @@ function ViewHabit({
         };
 
         fetchHabitData();
+        fetchHabitNotes();
     }, [habitId, userId, groupId]);
 
 
@@ -258,22 +293,29 @@ function ViewHabit({
     percentageCompletion = Math.ceil(percentageCompletion);
 
 
+    // function to convert date to local format:
+    const convertDateToLocal = (date) => {
+        const newDate = new Date(date);
+        const localDate = DateTime.fromJSDate(newDate).setZone("Asia/Kolkata").toFormat("yyyy LLL dd");
+        return localDate;
+    }
+
 
     // useEffect hook for prior calculations:
     useEffect(() => {
-       if(habitData && habitData.startDate && habitData.endDate){
-         const currentDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
-        const startDateObj = DateTime.fromFormat(habitData.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
-        const endDateObj = DateTime.fromFormat(habitData.endDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
-        const currentDateObj = DateTime.fromFormat(currentDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+        if (habitData && habitData.startDate && habitData.endDate) {
+            const currentDate = DateTime.now().setZone("Asia/Kolkata").toFormat("yyyy-MM-dd");
+            const startDateObj = DateTime.fromFormat(habitData.startDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+            const endDateObj = DateTime.fromFormat(habitData.endDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
+            const currentDateObj = DateTime.fromFormat(currentDate, "yyyy-MM-dd", { zone: "Asia/Kolkata" }).startOf('day');
 
-        console.log("end date", habitData.endDate);
-        console.log("today date ", currentDate)
+            // console.log("end date", habitData.endDate);
+            // console.log("today date ", currentDate)
 
-        const calculatedDaysLeft = Math.floor(endDateObj.diff(currentDateObj, 'days').days);
-        setDaysLeft(calculatedDaysLeft);
-        console.log("days-left", daysLeft);
-       }
+            const calculatedDaysLeft = Math.floor(endDateObj.diff(currentDateObj, 'days').days);
+            setDaysLeft(calculatedDaysLeft);
+            // console.log("days-left", daysLeft);
+        }
     }, [habitData])
 
 
@@ -320,6 +362,7 @@ function ViewHabit({
 
             <main className='mx-auto px-4 sm:px-6 lg:px-8 py-6 md:max-w-4xl'>
                 <Topbar text="Habit Details" />
+                {/* {console.log("Slice notes, ", sliceNotes)} */}
 
 
 
@@ -332,7 +375,7 @@ function ViewHabit({
                             <div className="flex items-center justify-between">
                                 <h2 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>
                                     {habitData.habitName}
-                                    {console.log("Completed Days", completedDays)}
+                                    {/* {console.log("Completed Days", completedDays)} */}
                                 </h2>
                                 <span className='px-4 py-1.5 rounded-full bg-primary/10 dark:bg-dark-primary/20 text-primary dark:text-dark-primary font-medium text-sm'>
                                     {habitData.habitCategory}
@@ -495,7 +538,7 @@ function ViewHabit({
                     />
                 </section>
 
-                {/* Notes Section
+                {/* { Notes Section } */}
                 <section className='mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6'>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-primary dark:text-dark-primary flex items-center gap-2">
@@ -505,36 +548,54 @@ function ViewHabit({
                     </div>
 
                     <div className='flex flex-col sm:flex-row gap-3 mb-6'>
-                        <Input
-                            placeholder="Add a note about your progress..."
-                            value={newNote}
-                            onChange={(e) => setNewNote(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleAddNote()}
-                            className="flex-grow py-3 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl px-5 text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary transition-all"
-                        />
-                        <PrimaryButton
-                            text='Add Note'
-                            icon={<FaPlus className="ml-2" />}
-                            onClick={handleAddNote}
-                            className="bg-primary hover:bg-primary/90 text-white dark:bg-dark-primary dark:hover:bg-dark-primary/90 px-6 rounded-xl h-12 gap-2 font-semibold shadow-sm whitespace-nowrap"
-                        />
+                        <form onSubmit={handleSubmit(handleAddNote)} className='flex flex-col md:flex-row gap-3 md:items-center md:justify-between md:gap-0 w-full'>
+                            <Input
+                                placeholder="Add a note..."
+                                {...register('note', {
+                                    required: true, minLength: {
+                                        value: 3,
+                                        message: 'Note must be at least 3 characters long'
+                                    }
+                                })}
+                                className="flex-grow py-3 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl px-5 text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary transition-all"
+                            />
+                            {errors.note && (
+                                <p className="mt-2 text-sm text-red-600">{errors.note.message}</p>
+                            )}
+                            <button className='py-3 px-5 rounded-xl bg-primary dark:bg-dark-primary text-white hover:bg-primary/80 dark:hover:bg-dark-primary/80 transition-colors' type='submit'>Add Note</button>
+                        </form>
+                        
+                    </div>
+
+                    <div className='my-4 text-right text-neutral dark:text-dark-neutral px-4 font-semibold text-lg'>
+                        <span>{notes.length}/5</span>
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                        {notes.map((note) => (
-                            <div key={note.id} className="group p-5 border-l-4 border-primary dark:border-dark-primary bg-gray-50 dark:bg-gray-700/30 rounded-r-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                        {!!sliceNotes && sliceNotes.length > 0 ? sliceNotes.map((note) => (
+                            <div key={note._id} className="group p-5 border-l-4 border-primary dark:border-dark-primary bg-gray-50 dark:bg-gray-700/30 rounded-r-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
                                 <div className="flex justify-between items-start gap-4">
                                     <p className="text-gray-800 dark:text-gray-200 flex-1">
-                                        {note.text}
+                                        {note.note}
                                     </p>
-                                    <div className="text-sm text-primary dark:text-dark-primary whitespace-nowrap pt-1">
-                                        {note.date}
+                                    
+                                    <div
+                                        className="text-sm text-primary dark:text-dark-primary whitespace-nowrap pt-1 flex gap-3 items-center">
+                                        {convertDateToLocal(note.updatedAt)}
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        ))
+                            :
+                            (
+                                <p className="text-gray-500 dark:text-gray-400 text-center">
+                                    No notes available
+                                </p>
+                            )
+
+                        }
                     </div>
-                </section> */}
+                </section>
 
                 {/* Action Buttons */}
                 {

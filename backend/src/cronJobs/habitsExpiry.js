@@ -5,32 +5,32 @@ import { DateTime } from 'luxon';
 
 // Schedule job to run at 00:05 AM daily
 cron.schedule("5 0 * * *", async () => {
-    // const date = new Date();
-    // date.setHours(23, 59, 59, 999);
-
+// cron.schedule("* * * * *", async () => {
     const today = DateTime.now().setZone("Asia/Kolkata").toFormat('yyyy-MM-dd');
 
+    console.log("[CRON] Running Habit Expiry Check...");
+    console.log("[CRON] Today's IST Date:", today);
 
-    try {
-        // expire habits:
-        const result = await Habit.updateMany(
-            { endDate: { $lt: today }, status: { $ne: "expired" } },
-            { $set: { status: "expired" } }
-        );
+    const habitsToExpire = await Habit.find({
+        endDate: { $lt: today },
+        status: { $ne: "expired" }
+    });
 
+    console.log("[CRON] Habits Expiring Today:", habitsToExpire.map(h => ({
+        name: h.habitName,
+        endDate: h.endDate
+    })));
 
-        // expire groups:
-        const groups = await GroupHabit.updateMany(
-            { endDate: { $lt: today }, status: { $ne: "expired" } },
-            { $set: { status: "expired" } }
-        )
+    const result = await Habit.updateMany(
+        { endDate: { $lt: today }, status: { $ne: "expired" } },
+        { $set: { status: "expired" } }
+    );
 
-
-        console.log(`[Habit Expiry] ${result.modifiedCount} habits marked as expired.`);
-        console.log(`[Group Expiry] ${groups.modifiedCount} groups marked as expired.`);
-    } catch (error) {
-        console.error("Error in habit expiry job:", error);
-    }
+    console.log(`[Habit Expiry] ${result.modifiedCount} habits marked as expired.`);
+}, 
+{
+    timezone: "Asia/Kolkata"
 });
+
 
 console.log("[Habit Expiry Cron] Scheduled successfully.");

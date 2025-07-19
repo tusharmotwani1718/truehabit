@@ -1331,7 +1331,7 @@ const countHabitsbyTimePeriod = asyncHandler(async (req, res) => {
 
 // Route 1: Fetch all notes of a habit:
 const fetchNotes = asyncHandler(async (req, res) => {
-    const { habitId } = req.body;
+    const { habitId } = req.query;
 
     if (!habitId) {
         throw new ApiError(400, "Habit id is required.");
@@ -1383,7 +1383,11 @@ const addNote = asyncHandler(async (req, res) => {
     habit.notes.push({ note });
     await habit.save({ validateBeforeSave: false });
 
-    res.status(200).json(new ApiResponse(200, note, "Note added successfully."));
+    // get the note:
+    const newNote = await Habit.findById(habitId).select('notes');
+    const fetchedNote = newNote.notes[newNote.notes.length - 1]; // last note added
+
+    res.status(200).json(new ApiResponse(200, fetchedNote, "Note added successfully."));
 
 })
 

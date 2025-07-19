@@ -54,12 +54,12 @@ function Profile() {
 
 
   // useEffect hook:
-  // useEffect(() => {
-  //   if (!userData) {
-  //     navigate('/');
-  //     displayMessage('error', 'Please Login First');
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (!userData || !userData._id) {
+      navigate('/');
+      displayMessage('error', 'Please Login First');
+    }
+  }, [])
 
 
   // handle delete account:

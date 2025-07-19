@@ -22,6 +22,7 @@ export const fetchHabits = createAsyncThunk(
 const initialState = {
     currentHabits: [],
     currentHabit: null,
+    currentNotes: [],
     loading: false,  // Track loading state
     error: null      // Track errors
 };
@@ -54,13 +55,49 @@ const habitSlice = createSlice({
             if (index !== -1) {
                 state.currentHabits[index].completedDays.push(action.payload.completionDate);
             }
-            
+
+
+
         },
         setCurrentHabit: (state, action) => {
             state.currentHabit = action.payload;
         },
         resetHabits: (state) => {
             return initialState;
+        },
+        setNotes: (state, action) => {
+            const habitID = action.payload.habitId;
+            const habitIndex = state.currentHabits.findIndex(habit => habit._id === habitID);
+            if (habitIndex !== -1) {
+                state.currentHabits[habitIndex].notes = action.payload.notes;
+                state.currentNotes = action.payload.notes;
+            }
+
+            state.currentNotes = action.payload.notes;
+        },
+        addNote: (state, action) => {
+            const habitID = action.payload.habitId;
+            const habitIndex = state.currentHabits.findIndex(habit => habit._id === habitID);
+            if (habitIndex !== -1) {
+                state.currentHabits[habitIndex].notes.push(action.payload.note);
+            }
+            state.currentNotes.push(action.payload.note);
+        },
+        editNote: (state, action) => {
+            const habitID = action.payload.habitId;
+            const habitIndex = state.currentHabits.findIndex(habit => habit._id === habitID);
+            if (habitIndex !== -1) {
+                const noteIndex = state.currentHabits[habitIndex].notes.findIndex(note => note._id === action.payload.noteId);
+                if (noteIndex !== -1) {
+                    state.currentHabits[habitIndex].notes[noteIndex] = action.payload.note;
+                    state.currentNotes[noteIndex] = action.payload.note;
+                }
+            }
+            const noteIndex = state.currentHabits[habitIndex].notes.findIndex(note => note._id === action.payload.noteId);
+            if (noteIndex !== -1) {
+                state.currentHabits[habitIndex].notes[noteIndex] = action.payload.note;
+                state.currentNotes[noteIndex] = action.payload.note;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -83,5 +120,5 @@ const habitSlice = createSlice({
     },
 });
 
-export const {setHabits, addHabit, deleteHabit, updateHabit, resetHabits, setCurrentHabit, updateHabitCompletion } = habitSlice.actions;
+export const { setHabits, addHabit, deleteHabit, updateHabit, resetHabits, setCurrentHabit, updateHabitCompletion, setNotes, addNote, editNote } = habitSlice.actions;
 export default habitSlice.reducer;
