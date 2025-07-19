@@ -38,7 +38,7 @@ coverage/
 # backend/src/routes/group.routes.js
 
 # frontend files:
-frontend/src/components/Pages/GroupTracking
-frontend/src/store/Slices/groupSlice.js
-frontend/src/GroupTrackingLayout.jsx
+# frontend/src/components/Pages/GroupTracking
+# frontend/src/store/Slices/groupSlice.js
+# frontend/src/GroupTrackingLayout.jsx
 
