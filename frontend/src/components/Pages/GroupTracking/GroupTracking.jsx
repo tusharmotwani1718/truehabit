@@ -115,7 +115,7 @@ function GroupTracking() {
       )
     }
     {/* Action Buttons */}
-    <div className='w-full sm:w-[90%] md:w-[85%] mx-auto my-4 sm:my-6 md:my-8 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-3 sm:gap-2'>
+    <div className='w-full sm:w-[90%] md:w-[85%] mx-auto my-4 sm:my-6 md:my-8 flex items-center justify-between md:justify-end gap-3'>
       <PrimaryButton
         text='Create Group'
         icon={<MdAdd size={18} className="sm:w-5 sm:h-5" />}
@@ -128,7 +128,7 @@ function GroupTracking() {
         text='Invitations'
         onClick={() => navigate('viewinvites')}
         background={false}
-        classes='w-full sm:w-auto text-sm sm:text-base hover:text-primary dark:text-dark-primary dark:hover:text-primary'
+        classes='w-full sm:w-auto text-md sm:text-base hover:text-primary dark:text-dark-primary dark:hover:text-primary'
       />
     </div>
 
@@ -224,6 +224,7 @@ function GroupTracking() {
       text='See Today Group Habits' 
       onClick={() => navigate('/grouptracking/today/viewtodayhabits')}
       classes="w-full sm:w-auto text-sm sm:text-base"
+      disabled={!isEmailVerified}
     />
   </div>
 </main>

@@ -10,6 +10,7 @@ function PrimaryButton({
   icon,
   background = true,
   border = false,
+  disabled = false,
   ...props
 }) {
   // Map border radius values to actual pixel values
@@ -44,6 +45,7 @@ function PrimaryButton({
         group overflow-hidden
         transition-all duration-300 ease-out
         ${classes}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg hover:scale-105"}
       `}
       style={{ borderRadius: actualRadius }}
       {...props}

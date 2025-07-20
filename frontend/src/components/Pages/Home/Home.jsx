@@ -38,26 +38,22 @@ function Home() {
       <section className='w-[90%] mx-auto h-auto min-h-[90svh] grid grid-rows-[max-content_max-content] gap-8 content-center md:w-[90%] md:grid md:grid-cols-[.45fr_.55fr] md:grid-rows-[.7fr]'>
         <div className='flex flex-col justify-center gap-4 md:items-center md:justify-center'>
 
-          <h2 className="flex flex-col text-custom-xl md:text-custom-xxl md:w-[65%]">
-            <Reveal>
+          <Reveal slideAnimation={false}>
+            <h2 className="flex flex-col text-custom-xl md:text-custom-xxl md:w-[70%] leading-snug">
+
               <span className='bg-gradient-to-r from-[#673AB7] via-[#8C6CC5] to-[#5117B8] bg-clip-text text-transparent dark:bg-gradient-to-r dark:from-[#BB86FC] dark:via-[#D1BCEA] dark:to-[#AD6BFF]'>Track Your Progress,</span>
-            </Reveal>
-            <Reveal>
               <span>Transform Your Life</span>
-            </Reveal>
-          </h2>
+            </h2>
 
 
-          <div className='flex flex-col gap-4 md:w-[65%] md:gap-6'>
-            <Reveal>
-              <span>
+            <div className='flex flex-col gap-4 md:w-[75%] md:gap-6 my-4'>
+              <span className='leading-snug'>
                 Master your journey to success with trueHabit—track your daily habits, stay consistent, and build better routines. Small actions lead to big results, and we're here to help you every step of the way.
               </span>
-            </Reveal>
-            <Reveal>
+
               <PrimaryButton text='Get Started Now' classes='text-sm py-[3px] px-4 cursor-pointer' borderRadius={"2xl"} onClick={() => openModal("authModalSignup")} />
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
 
 
         </div>
@@ -72,11 +68,11 @@ function Home() {
       <section className='w-[90%] mx-auto h-auto min-h-[90svh] grid grid-rows-[max-content_max-content_max-content] gap-8 mt-12 md:w-[90%] md:my-7 md:grid-rows-[max-content_max-content] md:grid-cols-[auto_auto] md:justify-items-center md:gap-15'>
         <div className='flex flex-col items-center gap-5 md:col-span-2'>
           <div className='flex flex-col gap-3 text-center items-center'>
-            <Reveal>
+            <Reveal slideAnimation={false}>
               <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Habit Tracking, Reimagined: Data-Driven Progress.
               </span>
             </Reveal>
-            <Reveal>
+            <Reveal slideAnimation={false}>
               <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Track, analyze, and conquer your goals — all in one place.</span>
             </Reveal>
           </div>
@@ -107,27 +103,24 @@ function Home() {
       <section className='w-[90%] mx-auto h-auto grid grid-rows-[max-content_max-content] gap-8 py-10 mt-4 md:w-[90%] md:*:justify-items-center'>
         <div className='flex flex-col gap-5 items-center'>
           <div className='flex flex-col gap-3 text-center items-center'>
-            <Reveal>
-              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Have Full Control Over Your Habits.</span>
-            </Reveal>
-            <Reveal>
-              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Schedules, Statistics, Calendar, Notes and much more... All with a single click.</span>
-            </Reveal>
+
+            <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Have Full Control Over Your Habits.</span>
+
+
+            <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>Schedules, Statistics, Calendar, Notes and much more... All with a single click.</span>
+
           </div>
-          <Reveal>
-            <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} onClick={() => openModal("authModalSignup")} />
-          </Reveal>
+
+          <PrimaryButton text='Start Tracking Now' classes='mx-auto cursor-pointer' icon={<FaArrowRightLong />} onClick={() => openModal("authModalSignup")} />
         </div>
         <div className='p-4 rounded-md bg-primary/40 dark:bg-dark-primary/40 md:w-[80%] md:mx-auto'>
-          <Reveal slideAnimation={false}>
-            <div className='h-full'> {/* Ensure this div takes full height of its parent */}
-              <img
-                src={imagesUsed["habits"]}
-                alt="Habits Management Image"
-                className='h-full w-full object-cover' // Make the image take full height and width
-              />
-            </div>
-          </Reveal>
+          <div className='h-full'> {/* Ensure this div takes full height of its parent */}
+            <img
+              src={imagesUsed["habits"]}
+              alt="Habits Management Image"
+              className='h-full w-full object-cover' // Make the image take full height and width
+            />
+          </div>
         </div>
       </section>
 
@@ -206,24 +199,18 @@ function Home() {
       <section className='w-[90%] mx-auto h-auto grid grid-rows-[max-content_max-content] gap-8 py-5 md:py-10 mt-4 md:w-[90%] md:*:justify-items-center'>
         <div className='flex flex-col gap-5 items-center'>
           <div className='flex flex-col gap-3 text-center items-center'>
-            <Reveal>
-              <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Your tracking analysis can't be more deep.</span>
-            </Reveal>
-            <Reveal>
-              <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>From streaks to stats, we turn daily actions into lifelong results. Start your journey today — no spreadsheets required.</span>
-            </Reveal>
+
+            <span className='text-custom-lg font-bold text-primary dark:text-dark-primary md:text-custom-xl'>Your tracking analysis can't be more deep.</span>
+            <span className='w-[90%] opacity-70 text-sm md:text-custom-md'>From streaks to stats, we turn daily actions into lifelong results. Start your journey today — no spreadsheets required.</span>
           </div>
 
         </div>
 
-        <Reveal slideAnimation={false}>
-          <Carousel images={carouselImages} className='w-[100%] mx-auto md:h-[80svh] md:w-[75%] border-2 border-on-primary dark:border-dark-on-primary' />
-        </Reveal>
+        <Carousel images={carouselImages} className='w-[100%] mx-auto md:h-[80svh] md:w-[75%] border-2 border-on-primary dark:border-dark-on-primary' />
 
       </section>
 
 
-      {/*  */}
 
 
 

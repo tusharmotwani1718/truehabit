@@ -123,7 +123,7 @@ const createGroup = asyncHandler(async (req, res) => {
 
     const admin = req.user?._id;
 
-    const user = User.findById(admin);
+    const user = await User.findById(admin);
 
     if (!admin || !user) {
         throw new ApiError(401, "User not found");

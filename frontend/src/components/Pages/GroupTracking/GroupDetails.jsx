@@ -215,7 +215,7 @@ function GroupDetails() {
     <div className="min-h-screen pb-8 w-full bg-color-background dark:bg-color-dark-background">
       {/* Compact Hero Section */}
       <div
-        className="w-full py-6 px-4 md:px-6 relative overflow-hidden"
+        className="w-full py-6 pt-16 md:pt-4 px-4 md:px-6 relative overflow-hidden"
         style={{ background: 'var(--color-gradient)' }}
       >
         <div className="max-w-7xl mx-auto relative z-10">
@@ -292,23 +292,32 @@ function GroupDetails() {
 
             {/* Chart - Full width and lower height */}
             <section className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-1.5 bg-primary/10 dark:bg-color-dark-primary/10 rounded-md text-primary dark:text-color-dark-primary">
-                  <MdGroups size={18} />
-                </div>
-                <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">
-                  Group Progress
-                </h2>
-              </div>
-              <div className="h-auto"> {/* Adjustable height */}
-                <VerticalBarChart title="Progress Overview" data={habitData && habitData.users} />
-              </div>
+              {
+                users && users.length > 1 ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="p-1.5 bg-primary/10 dark:bg-color-dark-primary/10 rounded-md text-primary dark:text-color-dark-primary">
+                        <MdGroups size={18} />
+                      </div>
+                      <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">
+                        Group Progress
+                      </h2>
+                    </div>
+                    <div className="h-auto">
+                      <VerticalBarChart title="Progress Overview" data={habitData && habitData.users} />
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-600 dark:text-gray-400 text-sm text-center py-6">
+                    Please invite members to see the group progress chart.
+                  </div>
+                )
+              }
             </section>
           </div>
 
           {/* Sidebar - Full width on mobile, 1/3 on desktop */}
           <div className="space-y-6">
-            {/* {console.log(users)} */}
             {/* Members Section */}
             <section className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between mb-3">
@@ -390,12 +399,21 @@ function GroupDetails() {
             </section>
             {/* Admin Messages Section */}
 
-            <section className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-              <h2 className="font-bold text-base text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                <MdMessage size={18} />
-                Group Announcements
-              </h2>
-              <div className="space-y-4">
+
+            {/* Group Announcements Section - Coming Soon */}
+            <section className="relative group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-black/60 dark:bg-gray-900/70 text-white flex items-center justify-center text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                Coming Soon
+              </div>
+
+              {/* Actual Content */}
+              <div className="relative z-0 space-y-4">
+                <h2 className="font-bold text-base text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                  <MdMessage size={18} />
+                  Group Announcements
+                </h2>
+
                 {/* Message Input */}
                 <div className="flex gap-2">
                   <input
@@ -403,12 +421,13 @@ function GroupDetails() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Send message to group..."
-                    className={`flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200 ${userID !== admin._id ? 'cursor-not-allowed opacity-50' : ''
-                      }`}
+                    className={`flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200 ${userID !== admin._id ? 'cursor-not-allowed opacity-50' : ''}`}
+                    disabled={true} // Optional: Disable input to match "Coming Soon" intent
                   />
                   <button
                     onClick={handleSendMessage}
                     className={`p-2 bg-primary/10 dark:bg-color-dark-primary/10 hover:bg-primary/20 dark:hover:bg-color-dark-primary/20 text-primary dark:text-color-dark-primary rounded-lg transition-colors ${userID !== admin._id ? 'cursor-not-allowed opacity-50' : ''}`}
+                    disabled={true} // Optional: Disable button
                   >
                     <MdSend size={18} />
                   </button>
@@ -434,6 +453,7 @@ function GroupDetails() {
                 </div>
               </div>
             </section>
+
 
 
             {/* Leave Group Section */}
