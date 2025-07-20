@@ -260,16 +260,19 @@ function Habit({
                 {!isTodayHabit && (
                     <div className="flex justify-end border-t border-gray-100 dark:border-gray-700/50 p-2 sm:p-3 bg-gray-50/50 dark:bg-gray-900/50">
                         <div className="flex gap-0.5 sm:gap-1">
-                            <button
-                                aria-label="Edit habit"
-                                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary transition-colors"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    openModal("editHabitModal", { habitId })
-                                }}
-                            >
-                                <MdEdit size={16} className="sm:h-[18px]" />
-                            </button>
+                            {
+                                status && status == "active" &&
+                                (<button
+                                    aria-label="Edit habit"
+                                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-dark-primary transition-colors"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        openModal("editHabitModal", { habitId })
+                                    }}
+                                >
+                                    <MdEdit size={16} className="sm:h-[18px]" />
+                                </button>)
+                            }
                             <button
                                 aria-label="Delete habit"
                                 className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"

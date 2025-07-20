@@ -14,4 +14,11 @@ Bug Fixes in truehabit.
 Update Date handling with luxon.
 Frontend components fixed.
 
+[2.0.0] - 2025-07-20
+
+Group Tracking Features Added.
+Add Notes to an habit.
+
+Some frontend bugs fixed.
+
 

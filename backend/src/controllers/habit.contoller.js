@@ -182,6 +182,17 @@ const addNewHabit = asyncHandler(async (req, res) => {
         throw new ApiError(400, "End date should be greater than start date.");
     }
 
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+        throw new ApiError(401, "User not found.")
+    }
+
+    // check if the habits are more than 10:
+    if (user.habitCollection.length >= 10) {
+        throw new ApiError(400, "You cannot add more than 10 habits.")
+    }
+
+
     // add habit in habits model:
     const habit = await Habit.create({
         habitName,
@@ -204,13 +215,15 @@ const addNewHabit = asyncHandler(async (req, res) => {
     }
 
     // add habit id to habitCollection array in users document:
-    const addHabittoUser = await User.findByIdAndUpdate(
-        req.user?._id,
-        { $push: { habitCollection: habit._id } },
-        { new: true }
-    )
+    const addHabittoUser = await user.habitCollection.push(habit._id);
 
     if (!addHabittoUser) {
+        throw new ApiError(400, "An error occurred while adding the habit.")
+    }
+
+    await user.save({ validateBeforeSave: false });
+
+    if (!user.habitCollection.includes(habit._id)) {
         throw new ApiError(400, "An error occurred while adding the habit.")
     }
 
