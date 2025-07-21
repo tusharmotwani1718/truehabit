@@ -17,7 +17,7 @@ import TopOptions from "./utils/TopOptions.jsx";
 import SearchBar from "./utils/SearchBar.jsx";
 import Tabs from "./Tabs/Tabs.jsx";
 import Habit from "./Pages/Habits/Habit/Habit.jsx";
-import CheckMark  from "./utils/CheckMark.jsx";
+import CheckMark from "./utils/CheckMark.jsx";
 import Spinner from "./utils/Spinner.jsx";
 import AddHabit from "./Pages/Habits/Habit/AddHabit.jsx";
 import ConfirmDialog from "./utils/ConfirmDialog.jsx";
@@ -40,7 +40,7 @@ import EditProfile from "./Pages/Profile/EditProfile.jsx";
 import VerifyEmail from "./Pages/Profile/VerifyEmail.jsx";
 import ComingSoon from "./utils/ComingSoon.jsx";
 import NotFound from "./utils/NotFound.jsx";
-
+import ErrorBoundary from './utils/ErrorBoundary.jsx';
 
 
 
@@ -88,5 +88,6 @@ export {
     EditProfile,
     VerifyEmail,
     ComingSoon,
-    NotFound
+    NotFound,
+    ErrorBoundary
 }

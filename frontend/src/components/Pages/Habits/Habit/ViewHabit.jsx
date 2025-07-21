@@ -568,7 +568,9 @@ function ViewHabit({
                     </div>
 
                     <div className='my-4 text-right text-neutral dark:text-dark-neutral px-4 font-semibold text-lg'>
-                        <span>{notes.length}/5</span>
+                        {
+                            notes && notes.length > 0 ? `Total Notes: ${notes.length}` : ""
+                        }
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">

@@ -29,6 +29,31 @@ function Home() {
     imagesUsed.habit2
   ]
 
+  const features = [
+    {
+      icon: <TbTargetArrow />,
+      title: "Streaks that Stick",
+      description: "Keep your momentum going! Track your daily consistency and see your streak grow—every day counts towards building habits that last.",
+    },
+    {
+      icon: <TbDeviceAnalytics />,
+      title: "In-Depth Habit Analysis",
+      description: "Gain a complete view of your progress with detailed analytics. Understand your patterns and make data-driven improvements."
+    },
+    {
+      icon: <TbUsers />,
+      title: "Team Habit Challenges",
+      description: "Join forces with friends to build better habits. Compete, collaborate, and grow together on your journey to success."
+    },
+    {
+      icon: <TbReport />,
+      title: "AI-Driven Reports",
+      description: "Let our AI check your data and offer simple, personal advice. Use this advice to boost your habit performance.",
+      batch: "Coming Soon"
+    }
+
+  ]
+
   const { openModal } = useModal();
 
 
@@ -133,65 +158,32 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-              <div className="flex flex-col space-y-4">
-                <span className="text-primary dark:text-dark-primary text-4xl">
-                  <TbTargetArrow />
-                </span>
-                <div>
-                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Streaks that Stick</h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Keep your momentum going! Track your daily consistency and see your streak grow—every day counts towards building habits that last.
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-              <div className="flex flex-col space-y-4">
-                <span className="text-primary dark:text-dark-primary text-4xl">
-                  <TbDeviceAnalytics />
-                </span>
-                <div>
-                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">In-Depth Habit Analysis</h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Gain a complete view of your progress with detailed analytics. Understand your patterns and make data-driven improvements.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {
+              features &&
+              features.map((feature, index) => (
+                <div className="relative bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+                  <div className="flex flex-col space-y-4">
+                    {
+                      feature.batch && (
+                        <span className='absolute top-0 right-0 w-max px-3 py-1 rounded-sm bg-primary text-on-primary dark:bg-dark-primary dark:text-dark-on-primary font-semibold text-sm'>{feature.batch}</span>
+                      )
+                    }
+                    <span className="text-primary dark:text-dark-primary text-4xl">
+                      {feature.icon}
+                    </span>
 
-            {/* Feature 3 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-              <div className="flex flex-col space-y-4">
-                <span className="text-primary dark:text-dark-primary text-4xl">
-                  <TbUsers />
-                </span>
-                <div>
-                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">Team Habit Challenges</h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Join forces with friends to build better habits. Compete, collaborate, and grow together on your journey to success.
-                  </p>
+                    <div>
+                      <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">{feature.title}</h2>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              ))
+            }
 
-            {/* Feature 4 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
-              <div className="flex flex-col space-y-4">
-                <span className="text-primary dark:text-dark-primary text-4xl">
-                  <TbReport />
-                </span>
-                <div>
-                  <h2 className="text-primary dark:text-dark-primary text-xl font-semibold mb-2">AI-Driven Reports</h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Let our AI check your data and offer simple, personal advice. Use this advice to boost your habit performance.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
