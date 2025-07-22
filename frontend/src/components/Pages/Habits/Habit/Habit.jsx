@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react'
-import { CheckMark, ConfirmDialog } from '../../../index'
+import { CheckMark, ConfirmDialog } from '../../../index.js'
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { IoIosStats } from "react-icons/io";
 import { IoCalendarClear } from "react-icons/io5";
@@ -167,6 +167,7 @@ function Habit({
                             {status === "active" && showCheckMark && (
                                 <div className="flex-shrink-0 mt-0.5 sm:mt-1">
                                     <CheckMark
+
                                         checked={isChecked}
                                         onChange={() => markHabitDone(habitId)}
                                         disabled={isMarking || completed || (!!userData && !userData.isEmailVerified)}

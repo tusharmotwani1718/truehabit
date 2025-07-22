@@ -75,7 +75,7 @@ const CheckMark = ({
         </div>
 
         {checked && tooltip && showTooltip && (
-          <div className="absolute z-10 bottom-6 md:bottom-5 left-full transform translate-x-2 ml-1 px-2 py-1 text-xs text-white bg-primary dark:bg-dark-primary rounded whitespace-nowrap font-bold">
+          <div className="absolute z-10 bottom-2 md:bottom-5 left-full transform translate-x-2 ml-1 px-2 py-1 text-xs text-white bg-primary dark:bg-dark-primary rounded whitespace-nowrap font-bold">
             {tooltip}
             <div className="absolute top-1/2 right-full w-2 h-2 bg-primary dark:bg-dark-primary transform -translate-y-1/2 rotate-45"></div>
           </div>

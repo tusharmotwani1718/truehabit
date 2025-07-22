@@ -162,7 +162,7 @@ function Home() {
             {
               features &&
               features.map((feature, index) => (
-                <div className="relative bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
+                <div key={index} className="relative bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:shadow-gray-950">
                   <div className="flex flex-col space-y-4">
                     {
                       feature.batch && (

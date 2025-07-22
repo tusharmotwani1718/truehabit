@@ -323,7 +323,7 @@ function Profile() {
                   </div>
 
                   {/* Edit Profile Button */}
-                  <button className='bg-primary dark:bg-dark-primary text-on-primary dark:text-dark-on-primary px-4 py-2 rounded-lg hover:bg-primary/70 dark:hover:bg-dark-primary/70 transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md'
+                  <button className='w-max mx-auto bg-primary dark:bg-dark-primary text-on-primary dark:text-dark-on-primary px-4 py-2 rounded-lg hover:bg-primary/70 dark:hover:bg-dark-primary/70 transition-colors flex items-center gap-2 font-medium text-custom-sm shadow-md md:mx-0'
                     onClick={() => { openModal("editProfileModal") }}
                   >
                     <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
