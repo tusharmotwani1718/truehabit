@@ -71,6 +71,7 @@ const authSlice = createSlice({
         },
         logout: (state) => {
             state.authStatus = false;
+            state.userData = null;
             state.isAuthChecked = true; // logout still means check is done
         }
     }

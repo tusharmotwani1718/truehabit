@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { Header } from './components'
+import { Header, ScrollToTop } from './components/index.js';
 
 
 const navItems = [
@@ -20,9 +20,10 @@ const navItems = [
 function Layout() {
   return (
     <>
+      <ScrollToTop />
       <Header navList={navItems} />
       <Outlet />
-      
+
     </>
   )
 }

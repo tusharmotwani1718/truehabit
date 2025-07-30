@@ -41,6 +41,7 @@ import VerifyEmail from "./Pages/Profile/VerifyEmail.jsx";
 import ComingSoon from "./utils/ComingSoon.jsx";
 import NotFound from "./utils/NotFound.jsx";
 import ErrorBoundary from './utils/ErrorBoundary.jsx';
+import ScrollToTop from "./utils/ScrollToTop.jsx";
 
 
 
@@ -89,5 +90,6 @@ export {
     VerifyEmail,
     ComingSoon,
     NotFound,
-    ErrorBoundary
+    ErrorBoundary,
+    ScrollToTop
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router'
-import { Sidebar } from './components'
+import { Sidebar, ScrollToTop } from './components/index.js';
 import {
   MdFeedback,
   MdHome,
@@ -28,6 +28,7 @@ const menuItems = [
 function LoggedinLayout() {
   return (
     <div className='flex gap-0'>
+      <ScrollToTop />
       <Sidebar items={menuItems} className="w-auto" />
       <Outlet />
     </div>
