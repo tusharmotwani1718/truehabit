@@ -7,7 +7,7 @@ import envconf from "../conf/envconfig.js";
 dotenv.config();
 
 cloudinary.config({
-    cloud_name: envconf.cloudinaryCloudName, // fixed typo
+    cloud_name: envconf.cloduinaryCloudName, // fixed typo
     api_key: envconf.cloudinaryApiKey,
     api_secret: envconf.cloudinaryApiSecret
 });

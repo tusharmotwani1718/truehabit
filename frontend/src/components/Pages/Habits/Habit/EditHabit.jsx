@@ -9,6 +9,7 @@ import { updateHabit as updateHabitSlice } from '../../../../store/Slices/habitS
 import { useMessage } from '../../../../context/index.js'
 import Spinner from '../../../utils/Spinner.jsx'
 import dayjs from 'dayjs'
+import api from '../../../../helpers/refreshToken.js'
 
 
 
@@ -60,7 +61,7 @@ function EditHabit({
         const fetchHabit = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL_HABITS}/fetchhabitdetails/${habitId}`, {
+                const response = await api.get(`${import.meta.env.VITE_API_BASE_URL_HABITS}/fetchhabitdetails/${habitId}`, {
                     withCredentials: true,
                     // params: { habitId }
                 });
@@ -148,7 +149,7 @@ function EditHabit({
 
     const sendData = async (finalData) => {
         try {
-            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_HABITS}/updatehabit`, { habitId, ...finalData }, {
+            const response = await api.patch(`${import.meta.env.VITE_API_BASE_URL_HABITS}/updatehabit`, { habitId, ...finalData }, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true
             });

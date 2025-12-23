@@ -98,6 +98,7 @@ userSchema.methods.generateRefreshToken = function () {
 }
 
 
+// for sending mails:
 userSchema.methods.generateEmailToken = function() {
     return jwt.sign(
         {

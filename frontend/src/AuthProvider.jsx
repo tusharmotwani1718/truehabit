@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthStatus, logout, setAuthChecked } from './store/Slices/authSlice.js';
 import axios from 'axios';
+import api from './helpers/refreshToken.js';
 
 function AuthProvider({ children }) {
   const dispatch = useDispatch();
@@ -10,7 +11,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL_USERS}/auth/check-session`, {
+        const res = await api.get(`/auth/check-session`, {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
@@ -20,12 +21,12 @@ function AuthProvider({ children }) {
         const data = res.data;
 
         if (data.isAuthenticated) {
-          console.log('✅ Session valid, setting authStatus = true');
+          // console.log('✅ Session valid, setting authStatus = true');
           if (!storedAuthStatus) {
             dispatch(setAuthStatus(true));
           }
         } else {
-          console.log('❌ No valid session, logging out');
+          // console.log('❌ No valid session, logging out');
           if (storedAuthStatus) {
             dispatch(logout());
           } else {
@@ -33,7 +34,7 @@ function AuthProvider({ children }) {
           }
         }
       } catch (err) {
-        console.log('⚠️ Auth check failed', err);
+        // console.log('⚠️ Auth check failed', err);
         dispatch(logout());
       } finally {
         dispatch(setAuthChecked(true));  // 🚀 Always set isAuthChecked

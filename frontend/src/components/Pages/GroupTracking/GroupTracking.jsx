@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useMessage, useModal } from '../../../context/index.js';
 import { Alert } from 'antd';
 import { removeGroup as removeGroupSlice } from '../../../store/Slices/authSlice.js';
+import api from '../../../helpers/refreshToken.js';
 
 
 
@@ -32,7 +33,7 @@ function GroupTracking() {
 
   const deleteGroup = async (groupId) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/deletegroup`,
+      const response = await api.delete(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/deletegroup`,
         {
           data: { groupId },
           headers: { "Content-Type": "application/json" },
@@ -67,7 +68,7 @@ function GroupTracking() {
       async function fetchGroups() {
         try {
           setLoading(true);
-          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/getgroups`, {
+          const response = await api.get(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/getgroups`, {
             headers: {
               "Content-Type": "application/json",
             },

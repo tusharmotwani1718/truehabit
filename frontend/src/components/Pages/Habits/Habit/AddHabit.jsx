@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { addHabit, setHabits } from '../../../../store/Slices/habitSlice.js'
 import { useMessage, useModal } from '../../../../context/index.js'
+import api from '../../../../helpers/refreshToken.js'
 
 
 
@@ -51,33 +52,25 @@ function AddHabit() {
     const [buttonLoading, setButtonLoading] = useState(false);
 
 
+
     const onSubmit = async (formData) => {
         try {
             setButtonLoading(true)
-            await axios({
-                data: formData,
-                url: `${import.meta.env.VITE_API_BASE_URL_HABITS}/addhabit`,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true
+            const response = await api.post(
+                `${import.meta.env.VITE_API_BASE_URL_HABITS}/addhabit`,
+                formData, {
+                headers: { "Content-Type": "application/json" },
             })
-                .then((response) => {
-                    reset();
-                    dispatch(addHabit(response.data.data)) // add habit to the store.
-                    // console.log(response.data.data);
-                    closeModal(); // close the modal
-                    displayMessage('success', response.data.message);
-                })
-                .catch((err) => {
-                    reset();
-                    // console.log(err)
-                    displayMessage('error', err.response.data.message);
-                })
+
+            reset();
+            dispatch(addHabit(response.data.data)) // add habit to the store.
+            // console.log(response.data.data);
+            closeModal(); // close the modal
+            displayMessage('success', response.data.message);
+
         } catch (error) {
-            displayMessage('error', "Network Error")
-            console.log(error);
+            displayMessage('error', error?.response?.data?.message || "Failed to add habit");
+            // console.log(error);
             reset();
         }
         finally {

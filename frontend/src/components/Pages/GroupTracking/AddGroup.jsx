@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { useMessage, useModal } from '../../../context/index.js'
 import { addGroup } from '../../../store/Slices/groupSlice.js'
+import api from '../../../helpers/refreshToken.js'
 
 
 
@@ -15,7 +16,7 @@ function AddGroup() {
 
     const dispatch = useDispatch();
     const { displayMessage } = useMessage();
-    const {closeModal} = useModal();
+    const { closeModal } = useModal();
 
 
     const {
@@ -54,42 +55,29 @@ function AddGroup() {
     const onSubmit = async (formData) => {
         try {
             setButtonLoading(true)
-            await axios({
-                data: formData,
-                url: `${import.meta.env.VITE_API_BASE_URL_GROUPS}/creategroup`,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true
-            })
-                .then((response) => {
-                    reset();
-                    const group = response.data.data.group;
-                    const habit = response.data.data.habit;
+            await api.post(
+                `${import.meta.env.VITE_API_BASE_URL_GROUPS}/addgroup`,
+                formData,
+                {
+                    headers: { "Content-Type": "application/json" },
+                }
+            )
+            reset();
 
-                    const habitName = habit.habitName;
-                    const users = habit.users;
-                    const habitsArray = [{ habitName, users }];
+            const { group, habit } = response.data.data;
 
-                    const groupToDispatch = { ...group, habits: habitsArray };
+            const groupToDispatch = {
+                ...group,
+                habits: [{ habitName: habit.habitName, users: habit.users }],
+            };
 
-                    // Dispatch the group
-                    dispatch(addGroup(groupToDispatch));
+            dispatch(addGroup(groupToDispatch));
+            closeModal();
 
-                    // close the modal:
-                    closeModal();
-
-                    // console.log(response.data.data.group);
-                    // console.log("dispatch", groupToDispatch);
-                    displayMessage('success', response.data.message || "Group added successfully.");
-                    
-                })
-                .catch((err) => {
-                    reset();
-                    // console.log(err)
-                    displayMessage('error', err.response.data.message || "Error adding group.");
-                })
+            displayMessage(
+                "success",
+                response.data.message || "Group added successfully."
+            );
         } catch (error) {
             displayMessage('error', "Network Error")
             console.log(error);

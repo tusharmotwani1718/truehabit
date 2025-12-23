@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Avatar, List } from 'antd';
 import { FaRegUser } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import api from '../../../helpers/refreshToken.js';
 
 
 
@@ -35,7 +36,7 @@ function InviteUsers({
         try {
             console.log(formData, groupId);
             setButtonLoading(true);
-            const response = await axios.post(
+            const response = await api.post(
                 `${import.meta.env.VITE_API_BASE_URL_GROUPS}/inviteuser`,
                 {
                     groupId,
@@ -68,7 +69,7 @@ function InviteUsers({
     const fetchUsers = async (name) => {
         try {
             setLoading(true);
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/getusernames?name=${name}`, {
+            const response = await api.get(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/getusernames?name=${name}`, {
                 withCredentials: true,
             });
             setUsers(response.data.data);

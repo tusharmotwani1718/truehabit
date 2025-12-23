@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../../helpers/refreshToken.js";
+
 
 // Async Thunk
 export const fetchHabits = createAsyncThunk(
     'habits/fetchHabits',
     async (habitType, { rejectWithValue }) => {
         try {
-            const response = await axios.get(
+            const response = await api.get(
                 `${import.meta.env.VITE_API_BASE_URL_HABITS}/gethabits/${habitType}`,
                 { headers: { "Content-Type": "application/json" }, withCredentials: true }
             );

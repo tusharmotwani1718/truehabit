@@ -13,6 +13,7 @@ import { logout as logoutSlice } from '../../store/Slices/authSlice';
 import axios from 'axios';
 import { useMessage, useTheme } from '../../context';
 import { persistor } from '../../store/store.js';
+import api from '../../helpers/refreshToken.js';
 
 
 
@@ -56,8 +57,8 @@ const Sidebar = ({ items }) => {
 
   const logoutUser = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL_USERS}/logout`,
+      const response = await api.post(
+        `/logout`,
         {},
         { withCredentials: true }
       );
@@ -66,9 +67,13 @@ const Sidebar = ({ items }) => {
       persistor.purge();
       localStorage.removeItem('email_verification_status');
       setTimeout(() => navigate('/'), 100); // Short delay lets state settle
-      displayMessage('success', response.data.message);
+      // displayMessage('success', response.data.message);
     } catch (err) {
-      displayMessage('error', err.response?.data?.message || "Failed to logout");
+      logoutSlice(userID);
+      persistor.purge();
+      localStorage.removeItem('email_verification_status');
+      setTimeout(() => navigate('/'), 100); // Short delay lets state settle
+      // displayMessage('error', err.response?.data?.message ?? "Failed to logout");
     }
   };
 

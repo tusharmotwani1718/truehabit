@@ -5,6 +5,7 @@ import { useMessage } from '../../../context';
 import { useNavigate } from 'react-router';
 import { Alert } from 'antd';
 import { useSelector } from 'react-redux';
+import api from '../../../helpers/refreshToken';
 
 function ViewInvitations() {
     const [invitations, setInvitations] = useState([]);
@@ -17,7 +18,7 @@ function ViewInvitations() {
     useEffect(() => {
         const fetchInvitations = async () => {
             try {
-                const response = await axios.get(
+                const response = await api.get(
                     `${import.meta.env.VITE_API_BASE_URL_GROUPS}/getInvites`,
                     { withCredentials: true }
                 );
@@ -43,7 +44,7 @@ function ViewInvitations() {
         setLoading(true);
         try {
             // accept api call:
-            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/acceptDeclineInvite`, { invitationId: inviteId, action: 'accepted' }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            const response = await api.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/acceptDeclineInvite`, { invitationId: inviteId, action: 'accepted' }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
 
 
             // set the invitation status to accepted
@@ -68,7 +69,7 @@ function ViewInvitations() {
         setLoading(true);
         try {
             // decline api call:
-            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/acceptDeclineInvite`, { invitationId: inviteId, action: 'declined' }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+            const response = await api.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/acceptDeclineInvite`, { invitationId: inviteId, action: 'declined' }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
 
             // set the invitation status to declined:
             setInvitations(prev => prev.map(invite => {

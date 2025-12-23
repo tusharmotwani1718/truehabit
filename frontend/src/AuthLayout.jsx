@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
 
 function AuthLayout({ children, authentication = true }) {
+  const user = useSelector(state => state.auth);
   const authStatus = useSelector(state => state.auth.authStatus);
   const isAuthChecked = useSelector(state => state.auth.isAuthChecked); // 🚀
 
@@ -22,6 +23,8 @@ function AuthLayout({ children, authentication = true }) {
     if (!authentication && authStatus) {
       if (location.pathname !== '/todayhabits') navigate('/todayhabits');
     }
+
+    // console.log("User: " + JSON.stringify(user));
 
   }, [authStatus, authentication, navigate, location.pathname, isAuthChecked]);
 

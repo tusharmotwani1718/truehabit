@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RiDeleteBin5Line } from 'react-icons/ri';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import { deleteGroup as deleteGroupSlice } from '../../../store/Slices/groupSlice.js';
+import api from '../../../helpers/refreshToken.js';
 
 
 function GroupDetails() {
@@ -82,7 +83,7 @@ function GroupDetails() {
 
   const handleRemoveUser = async (userId) => {
     try {
-      const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/removeuser`, { groupId, userId }, {
+      const response = await api.patch(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/removeuser`, { groupId, userId }, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json"
@@ -109,7 +110,7 @@ function GroupDetails() {
       // const requestType = (userID == admin._id) ? "delete" : "patch"
 
       if (isUserAdmin) {
-        response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/deletegroup`, {
+        response = await api.delete(`${import.meta.env.VITE_API_BASE_URL_GROUPS}/deletegroup`, {
           data: { groupId },
           headers: { "Content-Type": "application/json" },
           withCredentials: true
@@ -117,7 +118,7 @@ function GroupDetails() {
       }
 
       else {
-        response = await axios.patch(
+        response = await api.patch(
           `${import.meta.env.VITE_API_BASE_URL_GROUPS}/leavegroup`,
           { groupId }, // data payload
           {
@@ -168,7 +169,7 @@ function GroupDetails() {
     ; (
       async function getUsers() {
         try {
-          const response = await axios.get(
+          const response = await api.get(
             `${import.meta.env.VITE_API_BASE_URL_GROUPS}/getusers?groupId=${groupId}`,
             {
               withCredentials: true,

@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Controller, set, useForm, useWatch } from 'react-hook-form'
 import Input from '../../Form/Input/Input.jsx';
 import { updateProfile as updateProfileSlice } from '../../../store/Slices/authSlice.js';
+import api from '../../../helpers/refreshToken.js';
 
 
 
@@ -45,7 +46,7 @@ function EditProfile({
         try {
             setButtonLoading(true);
             const { newName, newUsername } = data;
-            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL_USERS}/updateDetails`, { newName, newUsername }, {
+            const response = await api.patch(`/updateDetails`, { newName, newUsername }, {
                 headers: {
                     "Content-Type": "application/json"
                 },

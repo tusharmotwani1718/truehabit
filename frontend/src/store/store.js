@@ -11,7 +11,7 @@ import groupReducer from './Slices/groupSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'] // only persist auth slice
+  whitelist: [] // persist nothing for now
 };
 
 // ✅ First combine all your reducers

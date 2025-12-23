@@ -7,12 +7,12 @@ import { FaXTwitter } from "react-icons/fa6";
 function Contact() {
   const contactInfo = {
     email: "tusharmotwani@truehabit.in",
-    phone: "+91 9982780324",
+    // phone: "+91 9982780324",
     location: "Jaipur, Rajasthan, India",
     linkedin: "https://www.linkedin.com/in/tushar-motwani-89/",
     github: "https://github.com/tusharmotwani1718",
     twitter: "https://x.com/tushar_7181",
-    instagram: ""
+    // instagram: ""
   };
 
   const availability = [
@@ -116,14 +116,14 @@ function Contact() {
           />
 
           {/* Phone Card */}
-          <ContactCard
+          {/* <ContactCard
             icon={<MdPhone className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />}
             title="Phone"
             value={contactInfo.phone}
             link={`tel:${contactInfo.phone}`}
             description="Available during business hours for urgent matters."
             gradient="from-green-500 to-green-600 dark:from-green-600 dark:to-green-700"
-          />
+          /> */}
 
           {/* Location Card */}
           <ContactCard
@@ -139,9 +139,9 @@ function Contact() {
             <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-br from-purple-500 to-pink-600 dark:from-purple-600 dark:to-pink-700 border border-white/20 dark:border-dark-neutral/20">
               <div className="relative z-10">
                 <div className="flex items-center gap-3 sm:gap-4 md:gap-5 mb-6 sm:mb-8">
-                  <div className="p-2 sm:p-3 md:p-4 rounded-full bg-white/20 dark:bg-black/20 text-white group-hover:scale-110 transition-transform duration-300">
+                  {/* <div className="p-2 sm:p-3 md:p-4 rounded-full bg-white/20 dark:bg-black/20 text-white group-hover:scale-110 transition-transform duration-300">
                     <FaInstagram className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />
-                  </div>
+                  </div> */}
                   <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">
                     Social Media
                   </h3>

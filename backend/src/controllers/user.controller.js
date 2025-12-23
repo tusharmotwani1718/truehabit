@@ -185,26 +185,28 @@ const login = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid credentials.")
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
-    const loggedinUser = await User.findById(user._id).select("-password -refreshToken")
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+    const loggedinUser = await User.findById(user._id).select("-password -refreshToken");
 
     const isProduction = process.env.NODE_ENV === 'production';
 
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'None' : 'Lax',
+        secure: false,
+        sameSite: 'Lax', // ← THIS IS THE KEY
         maxAge: 24 * 60 * 60 * 1000,
-        path: '/'
+        path: '/',
     });
 
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'None' : 'Lax',
+        secure: false,
+        sameSite: 'Lax',
         maxAge: 10 * 24 * 60 * 60 * 1000,
-        path: '/'
+        path: '/',
     });
+
+
 
     return res
         .status(200)
@@ -352,9 +354,10 @@ const updateAccount = asyncHandler(async (req, res) => {
     }
 
     const userNameExists = await User.findOne({ username: newUsername });
-    if (userNameExists) {
+    if (userNameExists && newUsername !== req.user?.username) {
         throw new ApiError(400, "Username already taken.")
     }
+
 
     const user = await User.findById(req.user?._id).select('-password -refreshToken');
     if (newName) user.fullName = newName;

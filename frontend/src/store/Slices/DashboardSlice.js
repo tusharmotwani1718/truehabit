@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import api from '../../helpers/refreshToken.js';
+
 
 
 // import { fetchHabits } from './habitSlice.js';
@@ -22,9 +24,8 @@ export const initDashboard = createAsyncThunk(
   'dashboard/initDashboard',
   async (timePeriod, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL_HABITS}/countbytime/${timePeriod}`,
-        { headers: { "Content-Type": "application/json" }, withCredentials: true }
+      const response = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL_HABITS}/countbytime/${timePeriod}`
       );
       // console.log(response.data);
       return response.data || []; // Resolved payload

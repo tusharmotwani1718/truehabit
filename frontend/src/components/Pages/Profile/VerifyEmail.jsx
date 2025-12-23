@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import { useMessage } from '../../../context/index.js';
 import { activateAccount as activateAccountSlice } from '../../../store/Slices/authSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
+import api from '../../../helpers/refreshToken.js';
 
 
 
@@ -46,7 +47,7 @@ function VerifyEmail() {
                 try {
                     setLoading(true);
                     // console.log(token)
-                    await axios.get(`${import.meta.env.VITE_API_BASE_URL_USERS}/verify-email?token=${token}`,
+                    await api.get(`/verify-email?token=${token}`,
                         {
                             withCredentials: true,
                             headers: {

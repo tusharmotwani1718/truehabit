@@ -16,6 +16,7 @@ import { DateTime } from 'luxon';
 import { useForm } from "react-hook-form"
 import useSelection from 'antd/es/table/hooks/useSelection.js'
 import { MdEdit } from 'react-icons/md'
+import api from '../../../../helpers/refreshToken.js'
 
 
 
@@ -89,7 +90,7 @@ function ViewHabit({
 
     const deleteHabit = async (id) => {
         try {
-            const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_HABITS}/deletehabit/${id}`,
+            const response = await api.delete(`${import.meta.env.VITE_API_BASE_URL_HABITS}/deletehabit/${id}`,
                 {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true
@@ -141,7 +142,7 @@ function ViewHabit({
     const fetchHabitDetailsforIndividual = async () => {
         try {
 
-            let response = await axios.get(
+            let response = await api.get(
                 `${import.meta.env.VITE_API_BASE_URL_HABITS}/fetchhabitdetails/${habitId}`,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -182,7 +183,7 @@ function ViewHabit({
     const fetchHabitDetailsforGroup = async () => {
         try {
 
-            const response = await axios.get(
+            const response = await api.get(
                 `${import.meta.env.VITE_API_BASE_URL_GROUPS}/getusers?groupId=${groupId}`,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -234,7 +235,7 @@ function ViewHabit({
 
     // fetch notes:
     const fetchHabitNotes = async () => {
-        const response = await axios.get(
+        const response = await api.get(
             `${import.meta.env.VITE_API_BASE_URL_HABITS_V2}/fetchnotes?habitId=${habitId}`,
             { headers: { "Content-Type": "application/json" }, withCredentials: true }
         )
@@ -250,7 +251,7 @@ function ViewHabit({
     const handleAddNote = async (data) => {
         // console.log("Submitting")
         try {
-            const response = await axios.post(
+            const response = await api.post(
                 `${import.meta.env.VITE_API_BASE_URL_HABITS_V2}/addnote`,
                 { habitId, note: data.note },
                 { headers: { "Content-Type": "application/json" }, withCredentials: true }

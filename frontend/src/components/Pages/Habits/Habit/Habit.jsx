@@ -14,6 +14,7 @@ import { BsCalendar2XFill } from "react-icons/bs";
 import { RiGroupLine } from "react-icons/ri";
 import { updateHabitCompletion as updateGroupCompletion } from '../../../../store/Slices/groupSlice';
 import { removehabit as removehabitSlice } from '../../../../store/Slices/authSlice.js';
+import api from '../../../../helpers/refreshToken.js';
 
 function Habit({
     title = "Title",
@@ -51,7 +52,7 @@ function Habit({
 
     const deleteHabit = async (id) => {
         try {
-            const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_HABITS}/deletehabit/${id}`,
+            const response = await api.delete(`${import.meta.env.VITE_API_BASE_URL_HABITS}/deletehabit/${id}`,
                 {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true
@@ -97,7 +98,7 @@ function Habit({
 
         try {
             // console.log(id);
-            await axios.patch(
+            await api.patch(
                 `${url}`,
                 {
                     habitId: id,

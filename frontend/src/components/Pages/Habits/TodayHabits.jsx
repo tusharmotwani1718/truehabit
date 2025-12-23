@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Topbar, Habit, Spinner, ProgressBar } from '../../index';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHabits } from '../../../store/Slices/habitSlice.js';
-import axios from 'axios';
 import { fetchGrouphabits, setGroupHabits } from '../../../store/Slices/groupSlice.js';
 import { useNavigate } from 'react-router';
 import { useMessage } from '../../../context/index.js';

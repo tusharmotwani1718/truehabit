@@ -8,6 +8,7 @@ import { fetchHabits } from '../../../store/Slices/habitSlice.js'
 import axios from 'axios'
 import { useNavigate } from 'react-router'
 import { Alert } from 'antd'
+import api from '../../../helpers/refreshToken.js'
 
 
 
@@ -25,12 +26,12 @@ function Habits() {
     const isEmailVerified = useSelector((state) => state.auth.userData?.isEmailVerified);
 
     // redirect user if not logged in:
-    useEffect(() => {
-        if (!userData) {
-            navigate('/');
-            displayMessage('error', 'Please Login First');
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (!userData) {
+    //         navigate('/');
+    //         displayMessage('error', 'Please Login First');
+    //     }
+    // }, []);
 
     // modal context:
     const { openModal } = useModal();
@@ -40,7 +41,7 @@ function Habits() {
 
     const habitCount = async () => {
         try {
-            const response = await axios.get(
+            const response = await api.get(
                 `${import.meta.env.VITE_API_BASE_URL_HABITS}/count`,
                 { headers: { "Content-Type": "application/json" }, withCredentials: true }
             );

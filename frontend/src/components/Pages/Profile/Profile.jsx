@@ -10,6 +10,7 @@ import { Alert } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import ConfirmDialog from '../../utils/ConfirmDialog.jsx';
+import api from '../../../helpers/refreshToken.js';
 
 
 
@@ -65,7 +66,7 @@ function Profile() {
   // handle delete account:
   const deleteAccount = async (id) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_USERS}/deleteaccount`,
+      const response = await api.delete(`/deleteaccount`,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true
@@ -95,7 +96,7 @@ function Profile() {
   const handleSendMail = async () => {
     try {
       setIsSendingMail(true);
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL_USERS}/sendMailVerification`, {}, {
+      const response = await api.post(`/sendMailVerification`, {}, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
@@ -147,7 +148,7 @@ function Profile() {
       setIsUploading(true);
       // console.log("Uploading image...", formData);
 
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL_USERS}/updateProfileImage`, formData, {
+      const response = await api.post(`/updateProfileImage`, formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -170,7 +171,7 @@ function Profile() {
   const handleDeleteImage = async (publicId) => {
     try {
       setIsUploading(true);
-      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL_USERS}/deleteProfileImage`, {
+      const response = await api.delete(`/deleteProfileImage`, {
         data: { publicId },
         withCredentials: true,
       });
