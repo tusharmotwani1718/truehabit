@@ -45,7 +45,7 @@ function PrimaryButton({
         group overflow-hidden
         transition-all duration-300 ease-out
         ${classes}
-        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg hover:scale-105"}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"}
       `}
       style={{ borderRadius: actualRadius }}
       {...props}

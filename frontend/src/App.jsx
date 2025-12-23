@@ -1,4 +1,5 @@
-import { Home, Contact, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail, ComingSoon } from './components/index.js';
+// import { Home, Contact, AuthTabs, Habits, Dashboard, AddHabit, TodayHabits, EditHabit, ViewHabit, GroupTracking, ViewTodayGroupHabits, InviteUsers, ViewInvitations, Profile, EditProfile, VerifyEmail, ComingSoon } from './components/index.js';
+import {AuthTabs, AddHabit, EditHabit, ViewHabit, InviteUsers, EditProfile} from './components/index.js';
 import Layout from './Layout.jsx';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import { MessageProvider, ModalProvider, ThemeProvider, useMessage } from './context/index.js';
@@ -6,7 +7,7 @@ import ModalWindow from './ant-design/ModalWindow.jsx';
 import Message from './ant-design/Message.jsx';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import LoggedinLayout from './LoggedinLayout.jsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy } from 'react';
 import AuthLayout from './AuthLayout.jsx';
 import '@ant-design/v5-patch-for-react-19';
 import { unstableSetRender } from 'antd';
@@ -17,6 +18,25 @@ import GroupDetails from './components/Pages/GroupTracking/GroupDetails.jsx';
 import AddGroup from './components/Pages/GroupTracking/AddGroup.jsx'
 import NotFound from './components/utils/NotFound.jsx';
 import AuthProvider from './AuthProvider.jsx';
+
+// Lazy loads:
+const Home = lazy(() => import('./components/index.js').then(m => ({ default: m.Home })));
+const Contact = lazy(() => import('./components/index.js').then(m => ({ default: m.Contact })));
+const Profile = lazy(() => import('./components/index.js').then(m => ({ default: m.Profile })));
+const VerifyEmail = lazy(() => import('./components/index.js').then(m => ({ default: m.VerifyEmail })));
+
+const Habits = lazy(() => import('./components/index.js').then(m => ({ default: m.Habits })));
+const TodayHabits = lazy(() => import('./components/index.js').then(m => ({ default: m.TodayHabits })));
+// const GroupTrackingLayout = lazy(() => import('./components/index.js').then(m => ({ default: m.GroupTrackingLayout })));
+const GroupTracking = lazy(() => import('./components/index.js').then(m => ({ default: m.GroupTracking })));
+// const GroupDetails = lazy(() => import('./components/index.js').then(m => ({ default: m.GroupDetails })));
+const ViewTodayGroupHabits = lazy(() => import('./components/index.js').then(m => ({ default: m.ViewTodayGroupHabits })));
+const ViewInvitations = lazy(() => import('./components/index.js').then(m => ({ default: m.ViewInvitations })));
+const Dashboard = lazy(() => import('./components/index.js').then(m => ({ default: m.Dashboard })));
+
+
+
+
 
 
 

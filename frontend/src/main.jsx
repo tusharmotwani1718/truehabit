@@ -8,7 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { ErrorBoundary } from './components/index.js';
 import api from './helpers/refreshToken.js';
 import { logout as logoutSlice, login as loginSlice } from './store/Slices/authSlice.js';
-// import {} from '.'
+import {Spinner} from './components/index.js';
 
 // verify user on each load:
 const AppInitializer = ({ children }) => {
@@ -44,7 +44,7 @@ const AppInitializer = ({ children }) => {
     return (
       <div className="flex justify-center items-center h-screen">
         {/* <Loader /> */}
-        Loading Website...
+        <Spinner size='lg'/>
       </div>
     );
   }

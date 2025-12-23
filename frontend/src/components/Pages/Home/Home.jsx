@@ -63,7 +63,7 @@ function Home() {
       <section className='w-[90%] mx-auto h-auto min-h-[90svh] grid grid-rows-[max-content_max-content] gap-8 content-center md:w-[90%] md:grid md:grid-cols-[.45fr_.55fr] md:grid-rows-[.7fr]'>
         <div className='flex flex-col justify-center gap-4 md:items-center md:justify-center'>
 
-          <Reveal slideAnimation={false}>
+          <Reveal slideAnimation={false} width='100%'>
             <h2 className="flex flex-col text-custom-xl md:text-custom-xxl md:w-[70%] leading-snug">
 
               <span className='bg-gradient-to-r from-[#673AB7] via-[#8C6CC5] to-[#5117B8] bg-clip-text text-transparent dark:bg-gradient-to-r dark:from-[#BB86FC] dark:via-[#D1BCEA] dark:to-[#AD6BFF]'>Track Your Progress,</span>
@@ -76,7 +76,7 @@ function Home() {
                 Master your journey to success with trueHabit—track your daily habits, stay consistent, and build better routines. Small actions lead to big results, and we're here to help you every step of the way.
               </span>
 
-              <PrimaryButton text='Get Started Now' classes='text-sm py-[3px] px-4 cursor-pointer' borderRadius={"2xl"} onClick={() => openModal("authModalSignup")} />
+              <PrimaryButton text='Get Started Now' classes='text-sm py-2 px-4 cursor-pointer' borderRadius={"2xl"} onClick={() => openModal("authModalSignup")} />
             </div>
           </Reveal>
 
